@@ -1,58 +1,94 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import { Gear, Check, X, Database, Trash } from '@phosphor-icons/react'
+import { Gear, Check, X, Database, Trash, LinkSimple, Info } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { getCacheStats, clearExaCache } from '@/lib/cache-utils'
+import { getSocialMediaCacheStats, clearSocialMediaCache, getSocialMediaAPIsInfo } from '@/lib/social-media-apis'
 import { Separator } from '@/components/ui/separator'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Badge } from '@/components/ui/badge'
 
 export function ApiSettings() {
   const [exaApiKey, setExaApiKey] = useKV<string>('exa-api-key', '')
+  const [redditClientId, setRedditClientId] = useKV<string>('reddit-client-id', '')
+  const [redditClientSecret, setRedditClientSecret] = useKV<string>('reddit-client-secret', '')
+  const [rapidApiKey, setRapidApiKey] = useKV<string>('rapidapi-key', '')
+  
   const [isOpen, setIsOpen] = useState(false)
-  const [tempKey, setTempKey] = useState('')
-  const [showKey, setShowKey] = useState(false)
+  const [tempKeys, setTempKeys] = useState({
+    exa: '',
+    redditClientId: '',
+    redditClientSecret: '',
+    rapidApi: ''
+  })
+  const [showKeys, setShowKeys] = useState({
+    exa: false,
+    redditClientId: false,
+    redditClientSecret: false,
+    rapidApi: false
+  })
   const [cacheStats, setCacheStats] = useState({
     totalCached: 0,
     oldestCache: null as number | null,
     newestCache: null as number | null,
     totalSize: 0
   })
+  const [socialCacheStats, setSocialCacheStats] = useState({
+    totalCached: 0,
+    oldestCache: null as number | null,
+    newestCache: null as number | null
+  })
 
   const handleOpen = async () => {
-    setTempKey(exaApiKey || '')
+    setTempKeys({
+      exa: exaApiKey || '',
+      redditClientId: redditClientId || '',
+      redditClientSecret: redditClientSecret || '',
+      rapidApi: rapidApiKey || ''
+    })
     setIsOpen(true)
-    setShowKey(false)
+    setShowKeys({ exa: false, redditClientId: false, redditClientSecret: false, rapidApi: false })
+    
     const stats = await getCacheStats()
     setCacheStats(stats)
+    
+    const socialStats = await getSocialMediaCacheStats()
+    setSocialCacheStats(socialStats)
   }
 
   const handleSave = () => {
-    setExaApiKey(tempKey.trim())
-    toast.success(tempKey.trim() ? 'EXA API key saved!' : 'EXA API key removed')
+    setExaApiKey(tempKeys.exa.trim())
+    setRedditClientId(tempKeys.redditClientId.trim())
+    setRedditClientSecret(tempKeys.redditClientSecret.trim())
+    setRapidApiKey(tempKeys.rapidApi.trim())
+    
+    toast.success('API settings saved!')
     setIsOpen(false)
   }
 
   const handleCancel = () => {
-    setTempKey('')
     setIsOpen(false)
   }
 
-  const handleClearCache = async () => {
+  const handleClearExaCache = async () => {
     const cleared = await clearExaCache()
     toast.success(`Cleared ${cleared} cached EXA ${cleared === 1 ? 'result' : 'results'}`)
     const stats = await getCacheStats()
     setCacheStats(stats)
   }
 
-  useEffect(() => {
-    if (isOpen) {
-      getCacheStats().then(setCacheStats)
-    }
-  }, [isOpen])
+  const handleClearSocialCache = async () => {
+    const cleared = await clearSocialMediaCache()
+    toast.success(`Cleared ${cleared} cached social media ${cleared === 1 ? 'result' : 'results'}`)
+    const socialStats = await getSocialMediaCacheStats()
+    setSocialCacheStats(socialStats)
+  }
 
   const formatCacheAge = (timestamp: number | null) => {
     if (!timestamp) return 'N/A'
@@ -64,7 +100,20 @@ export function ApiSettings() {
     return `${Math.floor(hours / 24)}d ago`
   }
 
-  const isConfigured = !!(exaApiKey && exaApiKey.trim())
+  const toggleShowKey = (key: keyof typeof showKeys) => {
+    setShowKeys(prev => ({ ...prev, [key]: !prev[key] }))
+  }
+
+  const updateTempKey = (key: keyof typeof tempKeys, value: string) => {
+    setTempKeys(prev => ({ ...prev, [key]: value }))
+  }
+
+  const apiInfo = getSocialMediaAPIsInfo()
+  const activeAPIs = [
+    exaApiKey && exaApiKey.trim() && 'EXA',
+    redditClientId && redditClientId.trim() && redditClientSecret && redditClientSecret.trim() && 'Reddit',
+    rapidApiKey && rapidApiKey.trim() && 'RapidAPI'
+  ].filter(Boolean)
 
   return (
     <>
@@ -75,119 +124,269 @@ export function ApiSettings() {
         className="gap-2"
       >
         <Gear className="w-4 h-4" />
-        {isConfigured ? 'EXA Enabled' : 'Configure EXA'}
-        {isConfigured && <Check className="w-4 h-4 text-green-600" />}
+        API Settings
+        {activeAPIs.length > 0 && (
+          <Badge variant="secondary" className="ml-1">
+            {activeAPIs.length} Active
+          </Badge>
+        )}
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh]">
           <DialogHeader>
-            <DialogTitle>Configure EXA API</DialogTitle>
+            <DialogTitle>Social Media API Configuration</DialogTitle>
             <DialogDescription>
-              Add your EXA API key to enable real-time web search for supplement trends
+              Configure API keys to discover real supplement trends from social platforms
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            <Alert>
-              <AlertDescription className="text-sm">
-                <strong>Get your EXA API key:</strong>
-                <br />
-                1. Visit <a href="https://exa.ai" target="_blank" rel="noopener noreferrer" className="text-primary underline">exa.ai</a>
-                <br />
-                2. Sign up for an account
-                <br />
-                3. Generate an API key from your dashboard
-                <br />
-                4. Paste it below
-              </AlertDescription>
-            </Alert>
+          <ScrollArea className="max-h-[calc(90vh-200px)] pr-4">
+            <Tabs defaultValue="apis" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="apis">API Keys</TabsTrigger>
+                <TabsTrigger value="cache">Cache Management</TabsTrigger>
+              </TabsList>
 
-            <div className="space-y-2">
-              <Label htmlFor="exa-key">EXA API Key</Label>
-              <div className="relative">
-                <Input
-                  id="exa-key"
-                  type={showKey ? 'text' : 'password'}
-                  value={tempKey}
-                  onChange={(e) => setTempKey(e.target.value)}
-                  placeholder="Enter your EXA API key..."
-                  className="pr-10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
-                  onClick={() => setShowKey(!showKey)}
-                >
-                  {showKey ? <X className="w-4 h-4" /> : '👁️'}
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Your API key is stored locally and never sent to external servers except EXA
-              </p>
-            </div>
+              <TabsContent value="apis" className="space-y-6 mt-4">
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3 p-4 bg-accent/10 rounded-lg border border-accent/20">
+                      <Info className="w-5 h-5 text-accent mt-0.5" />
+                      <div className="text-sm">
+                        <p className="font-medium mb-1">Multiple Data Sources Available</p>
+                        <p className="text-muted-foreground">
+                          Configure one or more APIs below to aggregate supplement trends from Reddit, X/Twitter, TikTok, LinkedIn, and the broader web.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
 
-            {isConfigured && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                <p className="text-sm text-green-800 flex items-center gap-2">
-                  <Check className="w-4 h-4" weight="bold" />
-                  <strong>EXA Integration Active</strong>
-                </p>
-                <p className="text-xs text-green-700 mt-1">
-                  Real-time web search will be used to discover actual supplement trends from Reddit, forums, and communities
-                </p>
-              </div>
-            )}
+                  <div className="space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-base font-semibold">EXA Search API</Label>
+                        <a href={apiInfo.exa.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1">
+                          <LinkSimple className="w-3 h-3" />
+                          Get API Key
+                        </a>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{apiInfo.exa.description} • Cost: {apiInfo.exa.cost}</p>
+                      <div className="relative">
+                        <Input
+                          type={showKeys.exa ? 'text' : 'password'}
+                          value={tempKeys.exa}
+                          onChange={(e) => updateTempKey('exa', e.target.value)}
+                          placeholder="Enter EXA API key..."
+                          className="pr-10"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+                          onClick={() => toggleShowKey('exa')}
+                        >
+                          {showKeys.exa ? <X className="w-4 h-4" /> : '👁️'}
+                        </Button>
+                      </div>
+                    </div>
 
-            <Separator />
+                    <Separator />
 
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Database className="w-4 h-4 text-muted-foreground" />
-                  <h4 className="text-sm font-medium">Cache Statistics</h4>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-base font-semibold">Reddit API</Label>
+                        <a href={apiInfo.reddit.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1">
+                          <LinkSimple className="w-3 h-3" />
+                          Get Credentials
+                        </a>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{apiInfo.reddit.description} • Cost: {apiInfo.reddit.cost}</p>
+                      
+                      <div className="space-y-2">
+                        <Label className="text-sm">Client ID</Label>
+                        <div className="relative">
+                          <Input
+                            type={showKeys.redditClientId ? 'text' : 'password'}
+                            value={tempKeys.redditClientId}
+                            onChange={(e) => updateTempKey('redditClientId', e.target.value)}
+                            placeholder="Enter Reddit Client ID..."
+                            className="pr-10"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+                            onClick={() => toggleShowKey('redditClientId')}
+                          >
+                            {showKeys.redditClientId ? <X className="w-4 h-4" /> : '👁️'}
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm">Client Secret</Label>
+                        <div className="relative">
+                          <Input
+                            type={showKeys.redditClientSecret ? 'text' : 'password'}
+                            value={tempKeys.redditClientSecret}
+                            onChange={(e) => updateTempKey('redditClientSecret', e.target.value)}
+                            placeholder="Enter Reddit Client Secret..."
+                            className="pr-10"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+                            onClick={() => toggleShowKey('redditClientSecret')}
+                          >
+                            {showKeys.redditClientSecret ? <X className="w-4 h-4" /> : '👁️'}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-base font-semibold">RapidAPI Key</Label>
+                        <a href="https://rapidapi.com/hub" target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1">
+                          <LinkSimple className="w-3 h-3" />
+                          Get API Key
+                        </a>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Access Twitter/X, TikTok, and LinkedIn APIs (one key for all platforms)
+                      </p>
+                      <ul className="text-xs text-muted-foreground space-y-1 pl-4">
+                        <li>• {apiInfo.twitter.description}</li>
+                        <li>• {apiInfo.tiktok.description}</li>
+                        <li>• {apiInfo.linkedin.description}</li>
+                      </ul>
+                      <div className="relative">
+                        <Input
+                          type={showKeys.rapidApi ? 'text' : 'password'}
+                          value={tempKeys.rapidApi}
+                          onChange={(e) => updateTempKey('rapidApi', e.target.value)}
+                          placeholder="Enter RapidAPI key..."
+                          className="pr-10"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+                          onClick={() => toggleShowKey('rapidApi')}
+                        >
+                          {showKeys.rapidApi ? <X className="w-4 h-4" /> : '👁️'}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {(tempKeys.exa || tempKeys.redditClientId || tempKeys.rapidApi) && (
+                    <Alert>
+                      <Check className="w-4 h-4" />
+                      <AlertDescription className="text-sm">
+                        <strong>Data Privacy:</strong> All API keys are stored locally in your browser and only sent to their respective services for trend discovery.
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleClearCache}
-                  disabled={cacheStats.totalCached === 0}
-                  className="gap-2"
-                >
-                  <Trash className="w-4 h-4" />
-                  Clear Cache
-                </Button>
-              </div>
-              
-              <div className="bg-muted rounded-lg p-3 space-y-2">
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Cached Results:</span>
-                  <span className="font-medium">{cacheStats.totalCached}</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Oldest Cache:</span>
-                  <span className="font-medium">{formatCacheAge(cacheStats.oldestCache)}</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Newest Cache:</span>
-                  <span className="font-medium">{formatCacheAge(cacheStats.newestCache)}</span>
-                </div>
-              </div>
+              </TabsContent>
 
-              <p className="text-xs text-muted-foreground">
-                Cached EXA results are valid for 24 hours. Clearing cache will force fresh API calls on next trend discovery.
-              </p>
-            </div>
-          </div>
+              <TabsContent value="cache" className="space-y-6 mt-4">
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Database className="w-5 h-5 text-muted-foreground" />
+                        <h4 className="font-semibold">EXA API Cache</h4>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleClearExaCache}
+                        disabled={cacheStats.totalCached === 0}
+                        className="gap-2"
+                      >
+                        <Trash className="w-4 h-4" />
+                        Clear Cache
+                      </Button>
+                    </div>
+                    
+                    <div className="bg-muted rounded-lg p-4 space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Cached Results:</span>
+                        <span className="font-medium">{cacheStats.totalCached}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Oldest Cache:</span>
+                        <span className="font-medium">{formatCacheAge(cacheStats.oldestCache)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Newest Cache:</span>
+                        <span className="font-medium">{formatCacheAge(cacheStats.newestCache)}</span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      EXA results are cached for 24 hours to reduce API costs.
+                    </p>
+                  </div>
 
-          <DialogFooter>
+                  <Separator />
+
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Database className="w-5 h-5 text-muted-foreground" />
+                        <h4 className="font-semibold">Social Media Cache</h4>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleClearSocialCache}
+                        disabled={socialCacheStats.totalCached === 0}
+                        className="gap-2"
+                      >
+                        <Trash className="w-4 h-4" />
+                        Clear Cache
+                      </Button>
+                    </div>
+                    
+                    <div className="bg-muted rounded-lg p-4 space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Cached Results:</span>
+                        <span className="font-medium">{socialCacheStats.totalCached}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Oldest Cache:</span>
+                        <span className="font-medium">{formatCacheAge(socialCacheStats.oldestCache)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Newest Cache:</span>
+                        <span className="font-medium">{formatCacheAge(socialCacheStats.newestCache)}</span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Social media results are cached for 24 hours (Reddit, Twitter, TikTok, LinkedIn).
+                    </p>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </ScrollArea>
+
+          <DialogFooter className="mt-4">
             <Button variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
             <Button onClick={handleSave}>
-              Save API Key
+              Save Settings
             </Button>
           </DialogFooter>
         </DialogContent>

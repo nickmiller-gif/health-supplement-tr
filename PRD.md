@@ -12,19 +12,24 @@ An AI-powered trend discovery platform that uses LLM analysis to surface emergin
 
 ## Essential Features
 
-### EXA API Integration (Real Web Search)
-- **Functionality**: Optional integration with EXA API for real-time web search to discover actual supplement trends from Reddit, forums, and biohacking communities. Includes intelligent caching to minimize API calls and costs.
-- **Purpose**: Eliminates LLM hallucination by using real web search results to identify trending supplements and stacks. Caching ensures previously fetched results are reused for 24 hours.
-- **Trigger**: User configures EXA API key via settings dialog, then trend discovery automatically uses EXA when available
-- **Progression**: User clicks "Configure EXA" → Enters API key → Saves → Refresh Trends button now uses real web search → Results show actual discussions with source links → Subsequent requests use cached data when available
-- **Success criteria**: When configured, EXA searches Reddit (r/Peptides, r/Nootropics, r/Supplements, r/Biohacking), forums, and communities, extracting real trending supplements with genuine discussion links. Cache reduces API calls by ~90% after initial discovery.
+### Multi-Platform Social Media API Integration
+- **Functionality**: Integrated support for multiple social media APIs to aggregate real supplement trends from diverse platforms:
+  - **EXA Search**: Neural web search across the entire internet
+  - **Reddit API**: Direct access to r/Peptides, r/Nootropics, r/Supplements, r/Biohacking
+  - **Twitter/X (via RapidAPI)**: Recent tweets and discussions about supplements
+  - **TikTok (via RapidAPI)**: Trending supplement content and videos
+  - **LinkedIn (via RapidAPI)**: Professional health and wellness discussions
+- **Purpose**: Eliminates LLM hallucination by aggregating real data from multiple social platforms. Users can configure one or all APIs based on their budget and preferred data sources.
+- **Trigger**: User opens API Settings dialog, selects "API Keys" tab, configures desired platforms
+- **Progression**: User clicks "API Settings" → Switches to "API Keys" tab → Enters credentials for desired platforms → Saves → Refresh Trends uses all configured APIs → Results show aggregated data with platform attribution
+- **Success criteria**: Each configured API successfully searches its platform and returns genuine discussions with source links. Multiple APIs work together to provide comprehensive trend coverage.
 
-### EXA Cache Management
-- **Functionality**: Automatic caching of EXA API search results with 24-hour expiration. Users can view cache statistics and manually clear cache via settings dialog.
-- **Purpose**: Reduce API costs and improve performance by reusing search results when queries are repeated within 24 hours
-- **Trigger**: Automatically caches all EXA API responses; users can access cache stats and clear cache via API Settings dialog
-- **Progression**: EXA query → Check cache for existing result → If found and fresh, use cached data → Otherwise fetch from API and cache → Display cache stats in settings
-- **Success criteria**: Cache hit rate above 80% for typical usage, with clear visibility into cached results count and age in settings dialog
+### Intelligent Multi-Source Caching
+- **Functionality**: Automatic caching of all API responses (EXA, Reddit, Twitter, TikTok, LinkedIn) with 24-hour expiration. Separate cache management for web search and social media APIs.
+- **Purpose**: Drastically reduce API costs and improve performance by reusing search results. Critical for RapidAPI which has limited free tier requests.
+- **Trigger**: Automatically caches all API responses; users can view separate cache statistics and clear caches independently via API Settings → Cache Management tab
+- **Progression**: API query → Check platform-specific cache → If found and fresh (<24hrs), use cached data → Otherwise fetch from API and cache → Display cache stats split by source
+- **Success criteria**: Cache hit rate above 80% for typical usage. Users can see exactly how many cached results exist for EXA vs social media platforms and clear them independently.
 
 ### Real-Time Trend Discovery
 - **Functionality**: Uses EXA API (if configured) or AI to analyze current discussions across Reddit (r/Peptides, r/Nootropics, r/Supplements, r/Biohacking), Twitter/X, and biohacking communities to discover what's actually trending
