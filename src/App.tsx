@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<SupplementCategory | 'all'>('all')
+  const [sortBy, setSortBy] = useState<'popularity' | 'trend' | 'name'>('popularity')
   const [combinationSearchQuery, setCombinationSearchQuery] = useState('')
   const [selectedCombinationTrend, setSelectedCombinationTrend] = useState<'all' | 'rising' | 'stable' | 'declining'>('all')
   const [combinationSortBy, setCombinationSortBy] = useState<'popularity' | 'trend' | 'name'>('popularity')
@@ -31,13 +32,32 @@ function App() {
   const [combinationDialogOpen, setCombinationDialogOpen] = useState(false)
 
   const filteredSupplements = useMemo(() => {
-    return supplements.filter(supplement => {
+    const filtered = supplements.filter(supplement => {
       const matchesSearch = supplement.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         supplement.description.toLowerCase().includes(searchQuery.toLowerCase())
       const matchesCategory = selectedCategory === 'all' || supplement.category === selectedCategory
       return matchesSearch && matchesCategory
     })
-  }, [supplements, searchQuery, selectedCategory])
+
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'popularity':
+          return b.popularityScore - a.popularityScore
+        case 'trend': {
+          const trendOrder = { rising: 3, stable: 2, declining: 1 }
+          const trendDiff = trendOrder[b.trendDirection] - trendOrder[a.trendDirection]
+          if (trendDiff !== 0) return trendDiff
+          return b.popularityScore - a.popularityScore
+        }
+        case 'name':
+          return a.name.localeCompare(b.name)
+        default:
+          return 0
+      }
+    })
+
+    return sorted
+  }, [supplements, searchQuery, selectedCategory, sortBy])
 
   const trackedSupplementsList = useMemo(() => {
     const trackedIds = new Set((trackedSupplements || []).map(t => t.supplementId))
@@ -135,14 +155,30 @@ function App() {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="mb-6 space-y-4">
-          <div className="relative">
-            <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input
-              placeholder="Search supplements..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-12 text-base"
-            />
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                placeholder="Search supplements..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-12 text-base"
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <SortAscending className="w-5 h-5 text-muted-foreground" />
+              <Select value={sortBy} onValueChange={(value: 'popularity' | 'trend' | 'name') => setSortBy(value)}>
+                <SelectTrigger className="w-[180px] h-12">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="popularity">Popularity</SelectItem>
+                  <SelectItem value="trend">Trend Direction</SelectItem>
+                  <SelectItem value="name">Name (A-Z)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="flex gap-2 flex-wrap">
