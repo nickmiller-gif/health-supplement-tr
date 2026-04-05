@@ -1,7 +1,8 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Supplement, TrackedSupplement, SupplementCategory, SupplementCombination } from '@/lib/types'
 import { INITIAL_SUPPLEMENTS, SUPPLEMENT_COMBINATIONS } from '@/lib/data'
+import { discoverSupplementTrends, discoverSupplementCombinations } from '@/lib/trend-discovery'
 import { SupplementCard } from '@/components/SupplementCard'
 import { InsightDialog } from '@/components/InsightDialog'
 import { CombinationCard } from '@/components/CombinationCard'
@@ -10,10 +11,13 @@ import { SuggestedSupplements } from '@/components/SuggestedSupplements'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { MagnifyingGlass, Flask, Pill, Brain, Atom, Stack, SortAscending } from '@phosphor-icons/react'
+import { Button } from '@/components/ui/button'
+import { MagnifyingGlass, Flask, Pill, Brain, Atom, Stack, SortAscending, ArrowsClockwise, Sparkle } from '@phosphor-icons/react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Toaster } from '@/components/ui/sonner'
+import { toast } from 'sonner'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 function App() {
@@ -24,12 +28,14 @@ function App() {
   const [selectedCombinationTrend, setSelectedCombinationTrend] = useState<'all' | 'rising' | 'stable' | 'declining'>('all')
   const [combinationSortBy, setCombinationSortBy] = useState<'popularity' | 'trend' | 'name'>('popularity')
   const [trackedSupplements, setTrackedSupplements] = useKV<TrackedSupplement[]>('tracked-supplements', [])
-  const [supplements] = useState<Supplement[]>(INITIAL_SUPPLEMENTS)
-  const [combinations] = useState<SupplementCombination[]>(SUPPLEMENT_COMBINATIONS)
+  const [supplements, setSupplements] = useState<Supplement[]>(INITIAL_SUPPLEMENTS)
+  const [combinations, setCombinations] = useState<SupplementCombination[]>(SUPPLEMENT_COMBINATIONS)
   const [selectedSupplement, setSelectedSupplement] = useState<Supplement | null>(null)
   const [selectedCombination, setSelectedCombination] = useState<SupplementCombination | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [combinationDialogOpen, setCombinationDialogOpen] = useState(false)
+  const [isLoadingTrends, setIsLoadingTrends] = useState(false)
+  const [lastUpdated, setLastUpdated] = useState<number | null>(null)
 
   const filteredSupplements = useMemo(() => {
     const filtered = supplements.filter(supplement => {
@@ -142,14 +148,86 @@ function App() {
     { value: 'mineral', label: 'Minerals' },
   ]
 
+  const handleDiscoverTrends = async () => {
+    setIsLoadingTrends(true)
+    try {
+      toast.promise(
+        async () => {
+          const trendData = await discoverSupplementTrends()
+          setSupplements(trendData.supplements)
+          setLastUpdated(trendData.lastUpdated)
+
+          const combosData = await discoverSupplementCombinations(trendData.supplements)
+          setCombinations(combosData)
+        },
+        {
+          loading: 'Discovering latest supplement trends...',
+          success: 'Trends updated with real-time data!',
+          error: 'Failed to fetch trends. Using cached data.',
+        }
+      )
+    } catch (error) {
+      console.error('Error discovering trends:', error)
+    } finally {
+      setIsLoadingTrends(false)
+    }
+  }
+
+  useEffect(() => {
+    const checkAndRefreshTrends = async () => {
+      const lastUpdate = await window.spark.kv.get<number>('last-trend-update')
+      const now = Date.now()
+      const CACHE_DURATION = 1000 * 60 * 30
+
+      if (!lastUpdate || (now - lastUpdate) > CACHE_DURATION) {
+        handleDiscoverTrends()
+        await window.spark.kv.set('last-trend-update', now)
+      } else {
+        setLastUpdated(lastUpdate)
+      }
+    }
+
+    checkAndRefreshTrends()
+  }, [])
+
+  const formatLastUpdated = () => {
+    if (!lastUpdated) return 'Never'
+    const minutes = Math.floor((Date.now() - lastUpdated) / 1000 / 60)
+    if (minutes < 1) return 'Just now'
+    if (minutes < 60) return `${minutes}m ago`
+    const hours = Math.floor(minutes / 60)
+    if (hours < 24) return `${hours}h ago`
+    return `${Math.floor(hours / 24)}d ago`
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="bg-gradient-to-br from-primary via-primary/90 to-accent/80 text-primary-foreground py-12 px-6">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold tracking-tight mb-2">TrendPulse</h1>
-          <p className="text-primary-foreground/80 text-lg">
-            AI-Powered Supplement Trend Discovery
-          </p>
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-4xl font-bold tracking-tight">TrendPulse</h1>
+              <Sparkle weight="duotone" className="w-8 h-8" />
+            </div>
+            <p className="text-primary-foreground/80 text-lg">
+              AI-Powered Supplement Trend Discovery
+            </p>
+          </div>
+          <div className="flex flex-col items-end gap-2">
+            <Button
+              onClick={handleDiscoverTrends}
+              disabled={isLoadingTrends}
+              variant="secondary"
+              size="lg"
+              className="gap-2"
+            >
+              <ArrowsClockwise className={`w-5 h-5 ${isLoadingTrends ? 'animate-spin' : ''}`} />
+              {isLoadingTrends ? 'Discovering...' : 'Refresh Trends'}
+            </Button>
+            <p className="text-xs text-primary-foreground/60">
+              Last updated: {formatLastUpdated()}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -224,7 +302,7 @@ function App() {
           <TabsContent value="all">
             <ScrollArea className="h-[calc(100vh-400px)]">
               <div className="space-y-6 pb-4">
-                {trackedSupplementsList.length >= 2 && (
+                {trackedSupplementsList.length >= 2 && !isLoadingTrends && (
                   <div className="mb-6">
                     <SuggestedSupplements
                       trackedSupplements={trackedSupplementsList}
@@ -236,7 +314,26 @@ function App() {
                   </div>
                 )}
 
-                {filteredSupplements.length === 0 ? (
+                {isLoadingTrends ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div key={i} className="space-y-3 border rounded-lg p-5">
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-2 flex-1">
+                            <Skeleton className="h-6 w-3/4" />
+                            <Skeleton className="h-4 w-1/4" />
+                          </div>
+                          <Skeleton className="h-8 w-8 rounded-full" />
+                        </div>
+                        <Skeleton className="h-16 w-full" />
+                        <div className="flex gap-2">
+                          <Skeleton className="h-9 flex-1" />
+                          <Skeleton className="h-9 flex-1" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : filteredSupplements.length === 0 ? (
                   <div className="text-center py-12">
                     <p className="text-muted-foreground text-lg">
                       No supplements found matching your criteria.

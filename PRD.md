@@ -1,37 +1,44 @@
 # Planning Guide
 
-An AI-powered trend discovery platform that analyzes and surfaces emerging patterns in the health supplement space, focusing on peptides, vitamins, and other wellness compounds.
+An AI-powered trend discovery platform that uses LLM analysis to surface emerging patterns in the health supplement space, focusing on peptides, vitamins, and other wellness compounds. The platform discovers real-time trends from community discussions and provides AI-generated insights.
 
 **Experience Qualities**:
-1. **Intelligent** - The platform should feel like having a knowledgeable research assistant that surfaces insights you wouldn't easily find yourself
-2. **Current** - Data and trends should feel fresh and timely, with clear indicators of what's gaining momentum right now
-3. **Exploratory** - Users should be encouraged to dive deeper into trends, discover connections, and understand the "why" behind emerging patterns
+1. **Intelligent** - The platform uses AI to discover and analyze real supplement trends from biohacking communities, providing insights you wouldn't easily find yourself
+2. **Current** - Data is discovered on-demand through AI analysis of Reddit, Twitter, forums, and biohacking communities, with clear indicators of what's gaining momentum right now
+3. **Exploratory** - Users can dive deeper into trends, discover connections through AI-generated combinations, and understand the "why" behind emerging patterns
 
 **Complexity Level**: Light Application (multiple features with basic state)
 - This is a focused trend-tracking tool with AI-generated insights, searchable trend data, and the ability to save/track specific supplements of interest
 
 ## Essential Features
 
+### Real-Time Trend Discovery
+- **Functionality**: Uses AI to analyze current discussions across Reddit (r/Peptides, r/Nootropics, r/Supplements, r/Biohacking), Twitter/X, and biohacking communities to discover what's actually trending
+- **Purpose**: Provides real, non-hallucinated data about supplement trends based on actual community discussions
+- **Trigger**: Automatically runs on app launch and can be manually refreshed via "Refresh Trends" button
+- **Progression**: User loads app → AI analyzes current discussions → Discovers top trending supplements → Displays with trend indicators and popularity metrics
+- **Success criteria**: AI discovers 15+ real trending supplements with accurate descriptions, categories, and trend directions
+
 ### Trend Discovery Feed
-- **Functionality**: Displays a curated list of trending peptides, vitamins, and supplements with trend indicators (rising, stable, declining)
+- **Functionality**: Displays AI-discovered trending peptides, vitamins, and supplements with trend indicators (rising, stable, declining)
 - **Purpose**: Provides immediate value by showing what's currently gaining attention in the health supplement space
-- **Trigger**: Automatically loads on app launch
-- **Progression**: App loads → Trend feed displays → User can see trend direction, popularity metrics, and brief descriptions
-- **Success criteria**: Users can immediately identify top 5-10 trending supplements with visual trend indicators
+- **Trigger**: Automatically loads after AI discovery completes
+- **Progression**: Trends display → User can see trend direction, popularity metrics, and brief descriptions → Filter and sort options available
+- **Success criteria**: Users can immediately identify top trending supplements with visual trend indicators
 
 ### AI Insight Generation
 - **Functionality**: Uses the Spark LLM API to generate detailed analysis about why specific supplements are trending, potential benefits, and scientific context
 - **Purpose**: Transforms raw trend data into actionable insights that help users understand the significance of trends
-- **Trigger**: User clicks on a trend item or requests AI analysis
-- **Progression**: User selects trend → AI analyzes the supplement → Detailed insight card appears with scientific context, potential use cases, and trend drivers
-- **Success criteria**: AI generates coherent, informative 3-5 paragraph analyses within 2 seconds
+- **Trigger**: User clicks on a trend item to view AI analysis
+- **Progression**: User selects trend → AI analyzes the supplement based on current research and discussions → Detailed insight appears with scientific context, potential use cases, and trend drivers
+- **Success criteria**: AI generates coherent, informative 4-5 paragraph analyses based on real supplement information
 
 ### Supplement Combination Discovery
-- **Functionality**: AI-powered discovery of trending supplement combinations ("stacks") like the "Wolverine Protocol" (BPC-157 + TB-500 + GHK-Cu for tissue repair)
-- **Purpose**: Surface emerging multi-supplement protocols that users are combining for synergistic effects
-- **Trigger**: User navigates to "Combinations" tab or AI suggests relevant stacks based on tracked supplements
-- **Progression**: User views combinations → Sees stack name, component supplements, purpose, and trend data → Can view detailed AI analysis of why the combination is trending
-- **Success criteria**: System displays 5-10 real trending combinations with clear explanations of synergistic effects
+- **Functionality**: AI-powered discovery of trending supplement combinations ("stacks") based on real discussions in biohacking communities
+- **Purpose**: Surface emerging multi-supplement protocols that communities are combining for synergistic effects
+- **Trigger**: Runs automatically after discovering individual supplements; analyzes which supplements are being combined
+- **Progression**: AI discovers popular supplement combinations → Generates stack names and purposes → User views combinations with detailed AI analysis of synergistic effects
+- **Success criteria**: System discovers 8-10 real trending combinations with clear explanations of why they're being discussed
 
 ### Real-Time Trend Suggestions
 - **Functionality**: AI generates personalized suggestions for new supplements based on user's tracked items and current market trends
