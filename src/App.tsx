@@ -18,6 +18,8 @@ import { Toaster } from '@/components/ui/sonner'
 function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<SupplementCategory | 'all'>('all')
+  const [combinationSearchQuery, setCombinationSearchQuery] = useState('')
+  const [selectedCombinationTrend, setSelectedCombinationTrend] = useState<'all' | 'rising' | 'stable' | 'declining'>('all')
   const [trackedSupplements, setTrackedSupplements] = useKV<TrackedSupplement[]>('tracked-supplements', [])
   const [supplements] = useState<Supplement[]>(INITIAL_SUPPLEMENTS)
   const [combinations] = useState<SupplementCombination[]>(SUPPLEMENT_COMBINATIONS)
@@ -39,6 +41,17 @@ function App() {
     const trackedIds = new Set((trackedSupplements || []).map(t => t.supplementId))
     return supplements.filter(s => trackedIds.has(s.id))
   }, [supplements, trackedSupplements])
+
+  const filteredCombinations = useMemo(() => {
+    return combinations.filter(combination => {
+      const matchesSearch = 
+        combination.name.toLowerCase().includes(combinationSearchQuery.toLowerCase()) ||
+        combination.description.toLowerCase().includes(combinationSearchQuery.toLowerCase()) ||
+        combination.purpose.toLowerCase().includes(combinationSearchQuery.toLowerCase())
+      const matchesTrend = selectedCombinationTrend === 'all' || combination.trendDirection === selectedCombinationTrend
+      return matchesSearch && matchesTrend
+    })
+  }, [combinations, combinationSearchQuery, selectedCombinationTrend])
 
   const handleToggleTrack = (id: string) => {
     setTrackedSupplements((current) => {
@@ -140,7 +153,7 @@ function App() {
               <Stack weight="duotone" className="w-4 h-4" />
               Stacks
               <Badge variant="secondary" className="ml-2">
-                {combinations.length}
+                {filteredCombinations.length}
               </Badge>
             </TabsTrigger>
             <TabsTrigger value="tracked" className="text-base px-6">
@@ -190,7 +203,50 @@ function App() {
           </TabsContent>
 
           <TabsContent value="combinations">
-            <ScrollArea className="h-[calc(100vh-400px)]">
+            <div className="space-y-4 mb-4">
+              <div className="relative">
+                <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  placeholder="Search stacks by name, purpose, or description..."
+                  value={combinationSearchQuery}
+                  onChange={(e) => setCombinationSearchQuery(e.target.value)}
+                  className="pl-10 h-12 text-base"
+                />
+              </div>
+
+              <div className="flex gap-2 flex-wrap">
+                <Badge
+                  variant={selectedCombinationTrend === 'all' ? 'default' : 'secondary'}
+                  className="cursor-pointer px-4 py-2 text-sm flex items-center gap-2 hover:bg-accent hover:text-accent-foreground transition-colors"
+                  onClick={() => setSelectedCombinationTrend('all')}
+                >
+                  All Trends
+                </Badge>
+                <Badge
+                  variant={selectedCombinationTrend === 'rising' ? 'default' : 'secondary'}
+                  className="cursor-pointer px-4 py-2 text-sm flex items-center gap-2 hover:bg-accent hover:text-accent-foreground transition-colors"
+                  onClick={() => setSelectedCombinationTrend('rising')}
+                >
+                  Rising
+                </Badge>
+                <Badge
+                  variant={selectedCombinationTrend === 'stable' ? 'default' : 'secondary'}
+                  className="cursor-pointer px-4 py-2 text-sm flex items-center gap-2 hover:bg-accent hover:text-accent-foreground transition-colors"
+                  onClick={() => setSelectedCombinationTrend('stable')}
+                >
+                  Stable
+                </Badge>
+                <Badge
+                  variant={selectedCombinationTrend === 'declining' ? 'default' : 'secondary'}
+                  className="cursor-pointer px-4 py-2 text-sm flex items-center gap-2 hover:bg-accent hover:text-accent-foreground transition-colors"
+                  onClick={() => setSelectedCombinationTrend('declining')}
+                >
+                  Declining
+                </Badge>
+              </div>
+            </div>
+
+            <ScrollArea className="h-[calc(100vh-500px)]">
               <div className="space-y-4 pb-4">
                 <div className="mb-4">
                   <h2 className="text-2xl font-bold mb-2">Trending Supplement Stacks</h2>
@@ -199,16 +255,24 @@ function App() {
                   </p>
                 </div>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {combinations.map((combination) => (
-                    <CombinationCard
-                      key={combination.id}
-                      combination={combination}
-                      supplements={supplements}
-                      onViewInsight={handleViewCombinationInsight}
-                    />
-                  ))}
-                </div>
+                {filteredCombinations.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground text-lg">
+                      No supplement stacks found matching your criteria.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {filteredCombinations.map((combination) => (
+                      <CombinationCard
+                        key={combination.id}
+                        combination={combination}
+                        supplements={supplements}
+                        onViewInsight={handleViewCombinationInsight}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             </ScrollArea>
           </TabsContent>
