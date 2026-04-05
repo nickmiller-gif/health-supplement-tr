@@ -10,16 +10,18 @@ import { SuggestedSupplements } from '@/components/SuggestedSupplements'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { MagnifyingGlass, Flask, Pill, Brain, Atom, Stack } from '@phosphor-icons/react'
+import { MagnifyingGlass, Flask, Pill, Brain, Atom, Stack, SortAscending } from '@phosphor-icons/react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Toaster } from '@/components/ui/sonner'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<SupplementCategory | 'all'>('all')
   const [combinationSearchQuery, setCombinationSearchQuery] = useState('')
   const [selectedCombinationTrend, setSelectedCombinationTrend] = useState<'all' | 'rising' | 'stable' | 'declining'>('all')
+  const [combinationSortBy, setCombinationSortBy] = useState<'popularity' | 'trend' | 'name'>('popularity')
   const [trackedSupplements, setTrackedSupplements] = useKV<TrackedSupplement[]>('tracked-supplements', [])
   const [supplements] = useState<Supplement[]>(INITIAL_SUPPLEMENTS)
   const [combinations] = useState<SupplementCombination[]>(SUPPLEMENT_COMBINATIONS)
@@ -43,7 +45,7 @@ function App() {
   }, [supplements, trackedSupplements])
 
   const filteredCombinations = useMemo(() => {
-    return combinations.filter(combination => {
+    const filtered = combinations.filter(combination => {
       const matchesSearch = 
         combination.name.toLowerCase().includes(combinationSearchQuery.toLowerCase()) ||
         combination.description.toLowerCase().includes(combinationSearchQuery.toLowerCase()) ||
@@ -51,7 +53,26 @@ function App() {
       const matchesTrend = selectedCombinationTrend === 'all' || combination.trendDirection === selectedCombinationTrend
       return matchesSearch && matchesTrend
     })
-  }, [combinations, combinationSearchQuery, selectedCombinationTrend])
+
+    const sorted = [...filtered].sort((a, b) => {
+      switch (combinationSortBy) {
+        case 'popularity':
+          return b.popularityScore - a.popularityScore
+        case 'trend': {
+          const trendOrder = { rising: 3, stable: 2, declining: 1 }
+          const trendDiff = trendOrder[b.trendDirection] - trendOrder[a.trendDirection]
+          if (trendDiff !== 0) return trendDiff
+          return b.popularityScore - a.popularityScore
+        }
+        case 'name':
+          return a.name.localeCompare(b.name)
+        default:
+          return 0
+      }
+    })
+
+    return sorted
+  }, [combinations, combinationSearchQuery, selectedCombinationTrend, combinationSortBy])
 
   const handleToggleTrack = (id: string) => {
     setTrackedSupplements((current) => {
@@ -204,14 +225,30 @@ function App() {
 
           <TabsContent value="combinations">
             <div className="space-y-4 mb-4">
-              <div className="relative">
-                <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  placeholder="Search stacks by name, purpose, or description..."
-                  value={combinationSearchQuery}
-                  onChange={(e) => setCombinationSearchQuery(e.target.value)}
-                  className="pl-10 h-12 text-base"
-                />
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Input
+                    placeholder="Search stacks by name, purpose, or description..."
+                    value={combinationSearchQuery}
+                    onChange={(e) => setCombinationSearchQuery(e.target.value)}
+                    className="pl-10 h-12 text-base"
+                  />
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <SortAscending className="w-5 h-5 text-muted-foreground" />
+                  <Select value={combinationSortBy} onValueChange={(value: 'popularity' | 'trend' | 'name') => setCombinationSortBy(value)}>
+                    <SelectTrigger className="w-[180px] h-12">
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="popularity">Popularity</SelectItem>
+                      <SelectItem value="trend">Trend Direction</SelectItem>
+                      <SelectItem value="name">Name (A-Z)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <div className="flex gap-2 flex-wrap">
