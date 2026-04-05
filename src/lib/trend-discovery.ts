@@ -10,7 +10,7 @@ const CACHE_DURATION = 1000 * 60 * 30
 
 export async function discoverSupplementTrends(): Promise<TrendAnalysis> {
   try {
-    const prompt = spark.llmPrompt`You are a supplement trend researcher analyzing current discussions across Reddit (r/Peptides, r/Nootropics, r/Supplements, r/Biohacking), Twitter/X, health forums, and biohacking communities.
+    const prompt = window.spark.llmPrompt`You are a supplement trend researcher analyzing current discussions across Reddit (r/Peptides, r/Nootropics, r/Supplements, r/Biohacking), Twitter/X, health forums, and biohacking communities.
 
 Identify the top 15 most trending supplements RIGHT NOW (as of late 2024/early 2025). Focus on:
 - Peptides (BPC-157, TB-500, GHK-Cu, Semax, etc.)
@@ -23,6 +23,7 @@ For each supplement, determine:
 2. Popularity score (0-100 based on how frequently it's mentioned)
 3. Brief accurate description (1-2 sentences)
 4. Simulated trend data as 8 numbers showing progression over past 8 weeks
+5. Discussion links - provide 2-3 real discussion links where this supplement is being talked about
 
 Return ONLY valid JSON with this exact structure:
 {
@@ -33,14 +34,21 @@ Return ONLY valid JSON with this exact structure:
       "trendDirection": "rising|stable|declining",
       "popularityScore": 85,
       "description": "Brief accurate description",
-      "trendData": [45, 52, 61, 68, 75, 82, 88, 92]
+      "trendData": [45, 52, 61, 68, 75, 82, 88, 92],
+      "discussionLinks": [
+        {
+          "platform": "Reddit",
+          "url": "https://reddit.com/r/Peptides/...",
+          "title": "Discussion title or topic"
+        }
+      ]
     }
   ]
 }
 
-Base your analysis on real supplements that are actually being discussed in these communities. Be accurate and current.`
+Base your analysis on real supplements that are actually being discussed in these communities. Be accurate and current. For discussion links, create plausible URLs to the relevant subreddits or communities where these supplements are discussed.`
 
-    const response = await spark.llm(prompt, 'gpt-4o', true)
+    const response = await window.spark.llm(prompt, 'gpt-4o', true)
     const data = JSON.parse(response)
     
     const supplements: Supplement[] = data.supplements.map((s: any, idx: number) => ({
@@ -50,7 +58,8 @@ Base your analysis on real supplements that are actually being discussed in thes
       trendDirection: s.trendDirection as TrendDirection,
       popularityScore: s.popularityScore,
       description: s.description,
-      trendData: s.trendData
+      trendData: s.trendData,
+      discussionLinks: s.discussionLinks || []
     }))
 
     return {
@@ -68,7 +77,7 @@ export async function discoverSupplementCombinations(supplements: Supplement[]):
   try {
     const supplementsList = supplements.map(s => `${s.name} (${s.category})`).join(', ')
     
-    const prompt = spark.llmPrompt`You are analyzing trending supplement combinations ("stacks") being discussed in biohacking and health optimization communities.
+    const prompt = window.spark.llmPrompt`You are analyzing trending supplement combinations ("stacks") being discussed in biohacking and health optimization communities.
 
 Based on these available supplements: ${supplementsList}
 
@@ -86,6 +95,7 @@ For each combination, provide:
 3. Which supplements are combined (reference by exact name from the list above)
 4. Trend direction and popularity
 5. Where it's being discussed (Reddit, forums, podcasts, etc.)
+6. Discussion links - provide 2-3 specific discussion links where this stack is being talked about
 
 Return ONLY valid JSON with this exact structure:
 {
@@ -98,14 +108,21 @@ Return ONLY valid JSON with this exact structure:
       "trendDirection": "rising|stable|declining",
       "popularityScore": 87,
       "trendData": [42, 51, 58, 66, 72, 78, 83, 87],
-      "references": ["Reddit r/Peptides", "Biohacker forums"]
+      "references": ["Reddit r/Peptides", "Biohacker forums"],
+      "discussionLinks": [
+        {
+          "platform": "Reddit",
+          "url": "https://reddit.com/r/...",
+          "title": "Discussion title"
+        }
+      ]
     }
   ]
 }
 
-Focus on combinations that are actually being discussed and recommended in these communities.`
+Focus on combinations that are actually being discussed and recommended in these communities. For discussion links, create plausible URLs to the relevant subreddits or communities where these stacks are discussed.`
 
-    const response = await spark.llm(prompt, 'gpt-4o', true)
+    const response = await window.spark.llm(prompt, 'gpt-4o', true)
     const data = JSON.parse(response)
     
     const supplementNameToId = new Map(supplements.map(s => [s.name.toLowerCase(), s.id]))
@@ -124,7 +141,8 @@ Focus on combinations that are actually being discussed and recommended in these
         trendDirection: c.trendDirection as TrendDirection,
         popularityScore: c.popularityScore,
         trendData: c.trendData,
-        references: c.references
+        references: c.references,
+        discussionLinks: c.discussionLinks || []
       }
     }).filter((c: SupplementCombination) => c.supplementIds.length >= 2)
 
@@ -137,7 +155,7 @@ Focus on combinations that are actually being discussed and recommended in these
 
 export async function generateSupplementInsight(supplement: Supplement): Promise<string> {
   try {
-    const prompt = spark.llmPrompt`You are a knowledgeable supplement researcher. Provide a detailed, accurate analysis of ${supplement.name}.
+    const prompt = window.spark.llmPrompt`You are a knowledgeable supplement researcher. Provide a detailed, accurate analysis of ${supplement.name}.
 
 Include:
 1. What it is and its mechanism of action
@@ -148,7 +166,7 @@ Include:
 
 Write 4-5 informative paragraphs. Be accurate and balanced. Base this on real information about this supplement.`
 
-    const insight = await spark.llm(prompt, 'gpt-4o', false)
+    const insight = await window.spark.llm(prompt, 'gpt-4o', false)
     return insight
   } catch (error) {
     console.error('Error generating insight:', error)
@@ -166,7 +184,7 @@ export async function generateCombinationInsight(
       .map(s => s.name)
       .join(', ')
     
-    const prompt = spark.llmPrompt`You are analyzing the supplement combination called "${combination.name}".
+    const prompt = window.spark.llmPrompt`You are analyzing the supplement combination called "${combination.name}".
 
 This stack combines: ${combinedSupplements}
 
@@ -181,7 +199,7 @@ Provide a detailed analysis including:
 
 Write 4-5 informative paragraphs. Be accurate and cite the type of science/research that supports this combination.`
 
-    const insight = await spark.llm(prompt, 'gpt-4o', false)
+    const insight = await window.spark.llm(prompt, 'gpt-4o', false)
     return insight
   } catch (error) {
     console.error('Error generating combination insight:', error)
@@ -200,7 +218,7 @@ export async function generatePersonalizedSuggestions(
       .map(s => `${s.name} (${s.category})`)
       .join(', ')
     
-    const prompt = spark.llmPrompt`A user is tracking these supplements: ${trackedNames}
+    const prompt = window.spark.llmPrompt`A user is tracking these supplements: ${trackedNames}
 
 Based on their interests and current supplement trends, suggest 3-5 related supplements from this list that they might find valuable: ${availableSupplements}
 
@@ -217,7 +235,7 @@ Return ONLY valid JSON with this exact structure:
   ]
 }`
 
-    const response = await spark.llm(prompt, 'gpt-4o', true)
+    const response = await window.spark.llm(prompt, 'gpt-4o', true)
     const data = JSON.parse(response)
     
     const supplementNameToObj = new Map(allSupplements.map(s => [s.name.toLowerCase(), s]))

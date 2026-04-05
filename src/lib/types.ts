@@ -2,6 +2,12 @@ export type TrendDirection = 'rising' | 'stable' | 'declining'
 
 export type SupplementCategory = 'peptide' | 'vitamin' | 'mineral' | 'nootropic' | 'amino-acid' | 'other'
 
+export interface DiscussionLink {
+  platform: string
+  url: string
+  title: string
+}
+
 export interface Supplement {
   id: string
   name: string
@@ -10,6 +16,7 @@ export interface Supplement {
   popularityScore: number
   description: string
   trendData: number[]
+  discussionLinks?: DiscussionLink[]
   aiInsight?: string
 }
 
@@ -28,6 +35,7 @@ export interface SupplementCombination {
   popularityScore: number
   trendData: number[]
   references: string[]
+  discussionLinks?: DiscussionLink[]
   aiInsight?: string
 }
 

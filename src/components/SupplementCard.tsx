@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { TrendSparkline } from './TrendSparkline'
-import { TrendUp, TrendDown, Minus, Heart, Flask, Pill, Brain, Atom } from '@phosphor-icons/react'
+import { TrendUp, TrendDown, Minus, Heart, Flask, Pill, Brain, Atom, ChatCircleDots, ArrowSquareOut } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
 interface SupplementCardProps {
@@ -79,15 +79,14 @@ export function SupplementCard({
 
   return (
     <Card 
-      className="p-5 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-border/50 hover:border-accent/30 bg-gradient-to-br from-card to-secondary/30 cursor-pointer group"
-      onClick={() => onViewInsight(supplement)}
+      className="p-5 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-border/50 hover:border-accent/30 bg-gradient-to-br from-card to-secondary/30 group"
     >
       <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <div className="text-muted-foreground">
+        <div className="flex items-center gap-2 flex-1" onClick={() => onViewInsight(supplement)}>
+          <div className="text-muted-foreground cursor-pointer">
             {getCategoryIcon()}
           </div>
-          <h3 className="font-semibold text-lg text-foreground">{supplement.name}</h3>
+          <h3 className="font-semibold text-lg text-foreground cursor-pointer">{supplement.name}</h3>
         </div>
         <Button
           variant="ghost"
@@ -108,15 +107,44 @@ export function SupplementCard({
         </Button>
       </div>
 
-      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+      <p className="text-sm text-muted-foreground mb-4 line-clamp-2" onClick={() => onViewInsight(supplement)}>
         {supplement.description}
       </p>
 
-      <div className="flex items-center justify-between mb-3">
+      {supplement.discussionLinks && supplement.discussionLinks.length > 0 && (
+        <div className="mb-3 pb-3 border-b border-border/50">
+          <div className="flex items-center gap-1 mb-2">
+            <ChatCircleDots weight="duotone" className="w-4 h-4 text-muted-foreground" />
+            <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+              Community Discussions
+            </span>
+          </div>
+          <div className="space-y-1.5">
+            {supplement.discussionLinks.slice(0, 2).map((link, idx) => (
+              <a
+                key={idx}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center gap-1.5 text-xs text-accent hover:text-accent-foreground hover:underline group/link"
+              >
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0.5 font-medium">
+                  {link.platform}
+                </Badge>
+                <span className="flex-1 line-clamp-1">{link.title}</span>
+                <ArrowSquareOut className="w-3 h-3 opacity-0 group-hover/link:opacity-100 transition-opacity" />
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between mb-3" onClick={() => onViewInsight(supplement)}>
         <Badge 
           variant="secondary" 
           className={cn(
-            'text-xs font-medium uppercase tracking-wide flex items-center gap-1.5 px-2.5 py-1',
+            'text-xs font-medium uppercase tracking-wide flex items-center gap-1.5 px-2.5 py-1 cursor-pointer',
             getTrendColor(),
             getTrendBgColor()
           )}
@@ -124,7 +152,7 @@ export function SupplementCard({
           {getTrendIcon()}
           {supplement.trendDirection}
         </Badge>
-        <div className="text-right">
+        <div className="text-right cursor-pointer">
           <div className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
             Popularity
           </div>
@@ -134,7 +162,7 @@ export function SupplementCard({
         </div>
       </div>
 
-      <div className="mt-4 flex justify-center">
+      <div className="mt-4 flex justify-center cursor-pointer" onClick={() => onViewInsight(supplement)}>
         <TrendSparkline 
           data={supplement.trendData} 
           color={getSparklineColor()}
