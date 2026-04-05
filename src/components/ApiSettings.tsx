@@ -1,23 +1,33 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import { Gear, Check, X } from '@phosphor-icons/react'
+import { Gear, Check, X, Database, Trash } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { getCacheStats, clearExaCache } from '@/lib/cache-utils'
+import { Separator } from '@/components/ui/separator'
 
 export function ApiSettings() {
   const [exaApiKey, setExaApiKey] = useKV<string>('exa-api-key', '')
   const [isOpen, setIsOpen] = useState(false)
   const [tempKey, setTempKey] = useState('')
   const [showKey, setShowKey] = useState(false)
+  const [cacheStats, setCacheStats] = useState({
+    totalCached: 0,
+    oldestCache: null as number | null,
+    newestCache: null as number | null,
+    totalSize: 0
+  })
 
-  const handleOpen = () => {
+  const handleOpen = async () => {
     setTempKey(exaApiKey || '')
     setIsOpen(true)
     setShowKey(false)
+    const stats = await getCacheStats()
+    setCacheStats(stats)
   }
 
   const handleSave = () => {
@@ -29,6 +39,29 @@ export function ApiSettings() {
   const handleCancel = () => {
     setTempKey('')
     setIsOpen(false)
+  }
+
+  const handleClearCache = async () => {
+    const cleared = await clearExaCache()
+    toast.success(`Cleared ${cleared} cached EXA ${cleared === 1 ? 'result' : 'results'}`)
+    const stats = await getCacheStats()
+    setCacheStats(stats)
+  }
+
+  useEffect(() => {
+    if (isOpen) {
+      getCacheStats().then(setCacheStats)
+    }
+  }, [isOpen])
+
+  const formatCacheAge = (timestamp: number | null) => {
+    if (!timestamp) return 'N/A'
+    const minutes = Math.floor((Date.now() - timestamp) / 1000 / 60)
+    if (minutes < 1) return 'Just now'
+    if (minutes < 60) return `${minutes}m ago`
+    const hours = Math.floor(minutes / 60)
+    if (hours < 24) return `${hours}h ago`
+    return `${Math.floor(hours / 24)}d ago`
   }
 
   const isConfigured = !!(exaApiKey && exaApiKey.trim())
@@ -107,6 +140,46 @@ export function ApiSettings() {
                 </p>
               </div>
             )}
+
+            <Separator />
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Database className="w-4 h-4 text-muted-foreground" />
+                  <h4 className="text-sm font-medium">Cache Statistics</h4>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleClearCache}
+                  disabled={cacheStats.totalCached === 0}
+                  className="gap-2"
+                >
+                  <Trash className="w-4 h-4" />
+                  Clear Cache
+                </Button>
+              </div>
+              
+              <div className="bg-muted rounded-lg p-3 space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Cached Results:</span>
+                  <span className="font-medium">{cacheStats.totalCached}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Oldest Cache:</span>
+                  <span className="font-medium">{formatCacheAge(cacheStats.oldestCache)}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Newest Cache:</span>
+                  <span className="font-medium">{formatCacheAge(cacheStats.newestCache)}</span>
+                </div>
+              </div>
+
+              <p className="text-xs text-muted-foreground">
+                Cached EXA results are valid for 24 hours. Clearing cache will force fresh API calls on next trend discovery.
+              </p>
+            </div>
           </div>
 
           <DialogFooter>

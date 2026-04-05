@@ -13,11 +13,18 @@ An AI-powered trend discovery platform that uses LLM analysis to surface emergin
 ## Essential Features
 
 ### EXA API Integration (Real Web Search)
-- **Functionality**: Optional integration with EXA API for real-time web search to discover actual supplement trends from Reddit, forums, and biohacking communities
-- **Purpose**: Eliminates LLM hallucination by using real web search results to identify trending supplements and stacks
+- **Functionality**: Optional integration with EXA API for real-time web search to discover actual supplement trends from Reddit, forums, and biohacking communities. Includes intelligent caching to minimize API calls and costs.
+- **Purpose**: Eliminates LLM hallucination by using real web search results to identify trending supplements and stacks. Caching ensures previously fetched results are reused for 24 hours.
 - **Trigger**: User configures EXA API key via settings dialog, then trend discovery automatically uses EXA when available
-- **Progression**: User clicks "Configure EXA" → Enters API key → Saves → Refresh Trends button now uses real web search → Results show actual discussions with source links
-- **Success criteria**: When configured, EXA searches Reddit (r/Peptides, r/Nootropics, r/Supplements, r/Biohacking), forums, and communities, extracting real trending supplements with genuine discussion links
+- **Progression**: User clicks "Configure EXA" → Enters API key → Saves → Refresh Trends button now uses real web search → Results show actual discussions with source links → Subsequent requests use cached data when available
+- **Success criteria**: When configured, EXA searches Reddit (r/Peptides, r/Nootropics, r/Supplements, r/Biohacking), forums, and communities, extracting real trending supplements with genuine discussion links. Cache reduces API calls by ~90% after initial discovery.
+
+### EXA Cache Management
+- **Functionality**: Automatic caching of EXA API search results with 24-hour expiration. Users can view cache statistics and manually clear cache via settings dialog.
+- **Purpose**: Reduce API costs and improve performance by reusing search results when queries are repeated within 24 hours
+- **Trigger**: Automatically caches all EXA API responses; users can access cache stats and clear cache via API Settings dialog
+- **Progression**: EXA query → Check cache for existing result → If found and fresh, use cached data → Otherwise fetch from API and cache → Display cache stats in settings
+- **Success criteria**: Cache hit rate above 80% for typical usage, with clear visibility into cached results count and age in settings dialog
 
 ### Real-Time Trend Discovery
 - **Functionality**: Uses EXA API (if configured) or AI to analyze current discussions across Reddit (r/Peptides, r/Nootropics, r/Supplements, r/Biohacking), Twitter/X, and biohacking communities to discover what's actually trending

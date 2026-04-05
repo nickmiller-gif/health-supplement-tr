@@ -14,13 +14,66 @@ interface ExaResponse {
   results: ExaSearchResult[]
 }
 
+interface CachedExaResult {
+  data: ExaResponse
+  timestamp: number
+}
+
 const EXA_API_BASE = 'https://api.exa.ai/search'
+const CACHE_DURATION = 1000 * 60 * 60 * 24
+const CACHE_KEY_PREFIX = 'exa-cache-'
+
+function getCacheKey(query: string, numResults: number): string {
+  return `${CACHE_KEY_PREFIX}${query}-${numResults}`
+}
+
+async function getCachedExaResult(query: string, numResults: number): Promise<ExaResponse | null> {
+  try {
+    const cacheKey = getCacheKey(query, numResults)
+    const cached = await window.spark.kv.get<CachedExaResult>(cacheKey)
+    
+    if (!cached) {
+      return null
+    }
+    
+    const age = Date.now() - cached.timestamp
+    if (age > CACHE_DURATION) {
+      await window.spark.kv.delete(cacheKey)
+      return null
+    }
+    
+    return cached.data
+  } catch (error) {
+    console.error('Error reading EXA cache:', error)
+    return null
+  }
+}
+
+async function setCachedExaResult(query: string, numResults: number, data: ExaResponse): Promise<void> {
+  try {
+    const cacheKey = getCacheKey(query, numResults)
+    const cached: CachedExaResult = {
+      data,
+      timestamp: Date.now()
+    }
+    await window.spark.kv.set(cacheKey, cached)
+  } catch (error) {
+    console.error('Error writing EXA cache:', error)
+  }
+}
 
 async function exaSearch(query: string, numResults: number = 10, apiKey?: string): Promise<ExaResponse> {
   if (!apiKey) {
     throw new Error('EXA API key not configured')
   }
 
+  const cachedResult = await getCachedExaResult(query, numResults)
+  if (cachedResult) {
+    console.log(`Using cached EXA result for query: ${query}`)
+    return cachedResult
+  }
+
+  console.log(`Fetching fresh EXA data for query: ${query}`)
   const response = await fetch(EXA_API_BASE, {
     method: 'POST',
     headers: {
@@ -43,7 +96,10 @@ async function exaSearch(query: string, numResults: number = 10, apiKey?: string
     throw new Error(`EXA API error: ${response.statusText}`)
   }
 
-  return response.json()
+  const data = await response.json()
+  await setCachedExaResult(query, numResults, data)
+  
+  return data
 }
 
 export async function discoverSupplementTrendsWithExa(apiKey: string): Promise<{
