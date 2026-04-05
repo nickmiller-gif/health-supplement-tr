@@ -1,13 +1,16 @@
 import { useState, useMemo } from 'react'
 import { useKV } from '@github/spark/hooks'
-import { Supplement, TrackedSupplement, SupplementCategory } from '@/lib/types'
-import { INITIAL_SUPPLEMENTS } from '@/lib/data'
+import { Supplement, TrackedSupplement, SupplementCategory, SupplementCombination } from '@/lib/types'
+import { INITIAL_SUPPLEMENTS, SUPPLEMENT_COMBINATIONS } from '@/lib/data'
 import { SupplementCard } from '@/components/SupplementCard'
 import { InsightDialog } from '@/components/InsightDialog'
+import { CombinationCard } from '@/components/CombinationCard'
+import { CombinationInsightDialog } from '@/components/CombinationInsightDialog'
+import { SuggestedSupplements } from '@/components/SuggestedSupplements'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { MagnifyingGlass, Flask, Pill, Brain, Atom } from '@phosphor-icons/react'
+import { MagnifyingGlass, Flask, Pill, Brain, Atom, Stack } from '@phosphor-icons/react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Toaster } from '@/components/ui/sonner'
@@ -17,8 +20,11 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState<SupplementCategory | 'all'>('all')
   const [trackedSupplements, setTrackedSupplements] = useKV<TrackedSupplement[]>('tracked-supplements', [])
   const [supplements] = useState<Supplement[]>(INITIAL_SUPPLEMENTS)
+  const [combinations] = useState<SupplementCombination[]>(SUPPLEMENT_COMBINATIONS)
   const [selectedSupplement, setSelectedSupplement] = useState<Supplement | null>(null)
+  const [selectedCombination, setSelectedCombination] = useState<SupplementCombination | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [combinationDialogOpen, setCombinationDialogOpen] = useState(false)
 
   const filteredSupplements = useMemo(() => {
     return supplements.filter(supplement => {
@@ -53,6 +59,11 @@ function App() {
   const handleViewInsight = (supplement: Supplement) => {
     setSelectedSupplement(supplement)
     setDialogOpen(true)
+  }
+
+  const handleViewCombinationInsight = (combination: SupplementCombination) => {
+    setSelectedCombination(combination)
+    setCombinationDialogOpen(true)
   }
 
   const getCategoryIcon = (category: SupplementCategory | 'all') => {
@@ -125,6 +136,13 @@ function App() {
                 {filteredSupplements.length}
               </Badge>
             </TabsTrigger>
+            <TabsTrigger value="combinations" className="text-base px-6 flex items-center gap-2">
+              <Stack weight="duotone" className="w-4 h-4" />
+              Stacks
+              <Badge variant="secondary" className="ml-2">
+                {combinations.length}
+              </Badge>
+            </TabsTrigger>
             <TabsTrigger value="tracked" className="text-base px-6">
               Tracked
               <Badge variant="secondary" className="ml-2">
@@ -135,52 +153,104 @@ function App() {
 
           <TabsContent value="all">
             <ScrollArea className="h-[calc(100vh-400px)]">
-              {filteredSupplements.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground text-lg">
-                    No supplements found matching your criteria.
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
-                  {filteredSupplements.map((supplement) => (
-                    <SupplementCard
-                      key={supplement.id}
-                      supplement={supplement}
-                      isTracked={isTracked(supplement.id)}
+              <div className="space-y-6 pb-4">
+                {trackedSupplementsList.length >= 2 && (
+                  <div className="mb-6">
+                    <SuggestedSupplements
+                      trackedSupplements={trackedSupplementsList}
+                      allSupplements={supplements}
+                      isTracked={isTracked}
                       onToggleTrack={handleToggleTrack}
                       onViewInsight={handleViewInsight}
                     />
+                  </div>
+                )}
+
+                {filteredSupplements.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground text-lg">
+                      No supplements found matching your criteria.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredSupplements.map((supplement) => (
+                      <SupplementCard
+                        key={supplement.id}
+                        supplement={supplement}
+                        isTracked={isTracked(supplement.id)}
+                        onToggleTrack={handleToggleTrack}
+                        onViewInsight={handleViewInsight}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          </TabsContent>
+
+          <TabsContent value="combinations">
+            <ScrollArea className="h-[calc(100vh-400px)]">
+              <div className="space-y-4 pb-4">
+                <div className="mb-4">
+                  <h2 className="text-2xl font-bold mb-2">Trending Supplement Stacks</h2>
+                  <p className="text-muted-foreground">
+                    Discover popular supplement combinations and protocols being discussed across biohacking communities
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {combinations.map((combination) => (
+                    <CombinationCard
+                      key={combination.id}
+                      combination={combination}
+                      supplements={supplements}
+                      onViewInsight={handleViewCombinationInsight}
+                    />
                   ))}
                 </div>
-              )}
+              </div>
             </ScrollArea>
           </TabsContent>
 
           <TabsContent value="tracked">
             <ScrollArea className="h-[calc(100vh-400px)]">
-              {trackedSupplementsList.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground text-lg mb-2">
-                    No tracked supplements yet.
-                  </p>
-                  <p className="text-muted-foreground text-sm">
-                    Click the heart icon on any supplement to start tracking it.
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
-                  {trackedSupplementsList.map((supplement) => (
-                    <SupplementCard
-                      key={supplement.id}
-                      supplement={supplement}
-                      isTracked={true}
+              <div className="space-y-6 pb-4">
+                {trackedSupplementsList.length >= 2 && (
+                  <div className="mb-6">
+                    <SuggestedSupplements
+                      trackedSupplements={trackedSupplementsList}
+                      allSupplements={supplements}
+                      isTracked={isTracked}
                       onToggleTrack={handleToggleTrack}
                       onViewInsight={handleViewInsight}
                     />
-                  ))}
-                </div>
-              )}
+                  </div>
+                )}
+
+                {trackedSupplementsList.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground text-lg mb-2">
+                      No tracked supplements yet.
+                    </p>
+                    <p className="text-muted-foreground text-sm">
+                      Click the heart icon on any supplement to start tracking it.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {trackedSupplementsList.map((supplement) => (
+                      <SupplementCard
+                        key={supplement.id}
+                        supplement={supplement}
+                        isTracked={true}
+                        onToggleTrack={handleToggleTrack}
+                        onViewInsight={handleViewInsight}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             </ScrollArea>
           </TabsContent>
         </Tabs>
@@ -190,6 +260,13 @@ function App() {
         supplement={selectedSupplement}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
+      />
+
+      <CombinationInsightDialog
+        combination={selectedCombination}
+        supplements={supplements}
+        open={combinationDialogOpen}
+        onOpenChange={setCombinationDialogOpen}
       />
       
       <Toaster />

@@ -17,3 +17,22 @@ export interface TrackedSupplement {
   supplementId: string
   trackedAt: number
 }
+
+export interface SupplementCombination {
+  id: string
+  name: string
+  description: string
+  purpose: string
+  supplementIds: string[]
+  trendDirection: TrendDirection
+  popularityScore: number
+  trendData: number[]
+  references: string[]
+  aiInsight?: string
+}
+
+export interface SuggestedSupplement {
+  supplement: Supplement
+  reason: string
+  relevanceScore: number
+}

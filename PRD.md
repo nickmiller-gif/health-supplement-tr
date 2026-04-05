@@ -26,6 +26,20 @@ An AI-powered trend discovery platform that analyzes and surfaces emerging patte
 - **Progression**: User selects trend → AI analyzes the supplement → Detailed insight card appears with scientific context, potential use cases, and trend drivers
 - **Success criteria**: AI generates coherent, informative 3-5 paragraph analyses within 2 seconds
 
+### Supplement Combination Discovery
+- **Functionality**: AI-powered discovery of trending supplement combinations ("stacks") like the "Wolverine Protocol" (BPC-157 + TB-500 + GHK-Cu for tissue repair)
+- **Purpose**: Surface emerging multi-supplement protocols that users are combining for synergistic effects
+- **Trigger**: User navigates to "Combinations" tab or AI suggests relevant stacks based on tracked supplements
+- **Progression**: User views combinations → Sees stack name, component supplements, purpose, and trend data → Can view detailed AI analysis of why the combination is trending
+- **Success criteria**: System displays 5-10 real trending combinations with clear explanations of synergistic effects
+
+### Real-Time Trend Suggestions
+- **Functionality**: AI generates personalized suggestions for new supplements based on user's tracked items and current market trends
+- **Purpose**: Helps users discover relevant supplements they might not know about
+- **Trigger**: Displayed automatically when user has 2+ tracked supplements
+- **Progression**: System analyzes tracked supplements → AI identifies related trending compounds → Shows "Suggested for You" section with reasoning
+- **Success criteria**: Suggestions are contextually relevant and include brief explanation of why they're recommended
+
 ### Search & Filter
 - **Functionality**: Allows users to search for specific supplements or filter by category (peptides, vitamins, minerals, nootropics, etc.)
 - **Purpose**: Enables users to quickly find information about specific compounds they're researching

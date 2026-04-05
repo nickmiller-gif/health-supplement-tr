@@ -1,4 +1,4 @@
-import { Supplement } from './types'
+import { Supplement, SupplementCombination } from './types'
 
 export const INITIAL_SUPPLEMENTS: Supplement[] = [
   {
@@ -108,5 +108,83 @@ export const INITIAL_SUPPLEMENTS: Supplement[] = [
     popularityScore: 58,
     description: 'The bioactive form of folate, crucial for methylation and genetic expression.',
     trendData: [56, 57, 58, 58, 59, 58, 58, 58]
+  }
+]
+
+export const SUPPLEMENT_COMBINATIONS: SupplementCombination[] = [
+  {
+    id: 'combo-1',
+    name: 'Wolverine Protocol',
+    description: 'A powerful regenerative stack combining three peptides for enhanced tissue repair and recovery.',
+    purpose: 'Accelerated healing, injury recovery, anti-aging',
+    supplementIds: ['1', '4', '11'],
+    trendDirection: 'rising',
+    popularityScore: 87,
+    trendData: [42, 51, 58, 66, 72, 78, 83, 87],
+    references: [
+      'Reddit r/Peptides',
+      'Biohacker forums',
+      'Athletic recovery communities'
+    ]
+  },
+  {
+    id: 'combo-2',
+    name: 'Cognitive Enhancement Stack',
+    description: 'Combines mitochondrial support with nootropic peptides for peak mental performance.',
+    purpose: 'Focus, memory, neuroprotection',
+    supplementIds: ['3', '8', '6'],
+    trendDirection: 'rising',
+    popularityScore: 79,
+    trendData: [35, 44, 52, 59, 65, 71, 76, 79],
+    references: [
+      'Nootropics subreddit',
+      'Biohacking podcasts',
+      'Quantified self blogs'
+    ]
+  },
+  {
+    id: 'combo-3',
+    name: 'Longevity Foundation',
+    description: 'Core vitamins and NAD+ boosters for cellular health and aging optimization.',
+    purpose: 'Anti-aging, cellular energy, healthspan',
+    supplementIds: ['2', '5', '9'],
+    trendDirection: 'rising',
+    popularityScore: 82,
+    trendData: [58, 62, 67, 71, 75, 78, 80, 82],
+    references: [
+      'Longevity research forums',
+      'Peter Attia podcast',
+      'David Sinclair discussions'
+    ]
+  },
+  {
+    id: 'combo-4',
+    name: 'Calm Focus Protocol',
+    description: 'Natural nootropics for relaxed concentration without jitters or crashes.',
+    purpose: 'Sustained focus, stress reduction, mood balance',
+    supplementIds: ['7', '6', '3'],
+    trendDirection: 'stable',
+    popularityScore: 73,
+    trendData: [68, 70, 71, 73, 74, 73, 73, 73],
+    references: [
+      'Productivity forums',
+      'ADHD support groups',
+      'Student study communities'
+    ]
+  },
+  {
+    id: 'combo-5',
+    name: 'Metabolic Optimizer',
+    description: 'Compounds targeting blood sugar, mitochondrial function, and metabolic health.',
+    purpose: 'Glucose control, energy metabolism, weight management',
+    supplementIds: ['10', '2', '9'],
+    trendDirection: 'declining',
+    popularityScore: 68,
+    trendData: [78, 76, 74, 72, 70, 69, 68, 68],
+    references: [
+      'Fitness communities',
+      'Type 2 diabetes forums',
+      'Keto diet groups'
+    ]
   }
 ]
