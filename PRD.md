@@ -12,12 +12,19 @@ An AI-powered trend discovery platform that uses LLM analysis to surface emergin
 
 ## Essential Features
 
+### EXA API Integration (Real Web Search)
+- **Functionality**: Optional integration with EXA API for real-time web search to discover actual supplement trends from Reddit, forums, and biohacking communities
+- **Purpose**: Eliminates LLM hallucination by using real web search results to identify trending supplements and stacks
+- **Trigger**: User configures EXA API key via settings dialog, then trend discovery automatically uses EXA when available
+- **Progression**: User clicks "Configure EXA" → Enters API key → Saves → Refresh Trends button now uses real web search → Results show actual discussions with source links
+- **Success criteria**: When configured, EXA searches Reddit (r/Peptides, r/Nootropics, r/Supplements, r/Biohacking), forums, and communities, extracting real trending supplements with genuine discussion links
+
 ### Real-Time Trend Discovery
-- **Functionality**: Uses AI to analyze current discussions across Reddit (r/Peptides, r/Nootropics, r/Supplements, r/Biohacking), Twitter/X, and biohacking communities to discover what's actually trending
+- **Functionality**: Uses EXA API (if configured) or AI to analyze current discussions across Reddit (r/Peptides, r/Nootropics, r/Supplements, r/Biohacking), Twitter/X, and biohacking communities to discover what's actually trending
 - **Purpose**: Provides real, non-hallucinated data about supplement trends based on actual community discussions
 - **Trigger**: Automatically runs on app launch and can be manually refreshed via "Refresh Trends" button
-- **Progression**: User loads app → AI analyzes current discussions → Discovers top trending supplements → Displays with trend indicators and popularity metrics
-- **Success criteria**: AI discovers 15+ real trending supplements with accurate descriptions, categories, and trend directions
+- **Progression**: User loads app → System checks for EXA API key → If available, searches real web sources → Discovers top trending supplements → LLM analyzes search results → Displays with trend indicators and popularity metrics
+- **Success criteria**: System discovers 15+ real trending supplements with accurate descriptions, categories, trend directions, and authentic source links
 
 ### Trend Discovery Feed
 - **Functionality**: Displays AI-discovered trending peptides, vitamins, and supplements with trend indicators (rising, stable, declining)

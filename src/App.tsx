@@ -8,6 +8,7 @@ import { InsightDialog } from '@/components/InsightDialog'
 import { CombinationCard } from '@/components/CombinationCard'
 import { CombinationInsightDialog } from '@/components/CombinationInsightDialog'
 import { SuggestedSupplements } from '@/components/SuggestedSupplements'
+import { ApiSettings } from '@/components/ApiSettings'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
@@ -28,6 +29,7 @@ function App() {
   const [selectedCombinationTrend, setSelectedCombinationTrend] = useState<'all' | 'rising' | 'stable' | 'declining'>('all')
   const [combinationSortBy, setCombinationSortBy] = useState<'popularity' | 'trend' | 'name'>('popularity')
   const [trackedSupplements, setTrackedSupplements] = useKV<TrackedSupplement[]>('tracked-supplements', [])
+  const [exaApiKey] = useKV<string>('exa-api-key', '')
   const [supplements, setSupplements] = useState<Supplement[]>(INITIAL_SUPPLEMENTS)
   const [combinations, setCombinations] = useState<SupplementCombination[]>(SUPPLEMENT_COMBINATIONS)
   const [selectedSupplement, setSelectedSupplement] = useState<Supplement | null>(null)
@@ -151,18 +153,20 @@ function App() {
   const handleDiscoverTrends = async () => {
     setIsLoadingTrends(true)
     try {
+      const apiKey = exaApiKey && exaApiKey.trim() ? exaApiKey.trim() : undefined
+      
       toast.promise(
         async () => {
-          const trendData = await discoverSupplementTrends()
+          const trendData = await discoverSupplementTrends(apiKey)
           setSupplements(trendData.supplements)
           setLastUpdated(trendData.lastUpdated)
 
-          const combosData = await discoverSupplementCombinations(trendData.supplements)
+          const combosData = await discoverSupplementCombinations(trendData.supplements, apiKey)
           setCombinations(combosData)
         },
         {
-          loading: 'Discovering latest supplement trends...',
-          success: 'Trends updated with real-time data!',
+          loading: apiKey ? 'Using EXA to discover real web trends...' : 'Discovering latest supplement trends...',
+          success: apiKey ? 'Real web data from Reddit, forums & communities!' : 'Trends updated with AI analysis!',
           error: 'Failed to fetch trends. Using cached data.',
         }
       )
@@ -214,16 +218,19 @@ function App() {
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <Button
-              onClick={handleDiscoverTrends}
-              disabled={isLoadingTrends}
-              variant="secondary"
-              size="lg"
-              className="gap-2"
-            >
-              <ArrowsClockwise className={`w-5 h-5 ${isLoadingTrends ? 'animate-spin' : ''}`} />
-              {isLoadingTrends ? 'Discovering...' : 'Refresh Trends'}
-            </Button>
+            <div className="flex gap-2">
+              <ApiSettings />
+              <Button
+                onClick={handleDiscoverTrends}
+                disabled={isLoadingTrends}
+                variant="secondary"
+                size="lg"
+                className="gap-2"
+              >
+                <ArrowsClockwise className={`w-5 h-5 ${isLoadingTrends ? 'animate-spin' : ''}`} />
+                {isLoadingTrends ? 'Discovering...' : 'Refresh Trends'}
+              </Button>
+            </div>
             <p className="text-xs text-primary-foreground/60">
               Last updated: {formatLastUpdated()}
             </p>

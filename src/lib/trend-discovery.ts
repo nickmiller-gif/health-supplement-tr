@@ -1,4 +1,5 @@
 import { Supplement, SupplementCombination, TrendDirection, SupplementCategory } from './types'
+import { discoverSupplementTrendsWithExa, discoverCombinationsWithExa } from './exa-api'
 
 interface TrendAnalysis {
   supplements: Supplement[]
@@ -8,7 +9,23 @@ interface TrendAnalysis {
 
 const CACHE_DURATION = 1000 * 60 * 30
 
-export async function discoverSupplementTrends(): Promise<TrendAnalysis> {
+export async function discoverSupplementTrends(exaApiKey?: string): Promise<TrendAnalysis> {
+  if (exaApiKey) {
+    try {
+      const exaResults = await discoverSupplementTrendsWithExa(exaApiKey)
+      return {
+        ...exaResults,
+        combinations: []
+      }
+    } catch (error) {
+      console.error('EXA API failed, falling back to LLM-only:', error)
+    }
+  }
+  
+  return discoverSupplementTrendsLLMOnly()
+}
+
+async function discoverSupplementTrendsLLMOnly(): Promise<TrendAnalysis> {
   try {
     const prompt = window.spark.llmPrompt`You are a supplement trend researcher analyzing current discussions across Reddit (r/Peptides, r/Nootropics, r/Supplements, r/Biohacking), Twitter/X, health forums, and biohacking communities.
 
@@ -73,7 +90,19 @@ Base your analysis on real supplements that are actually being discussed in thes
   }
 }
 
-export async function discoverSupplementCombinations(supplements: Supplement[]): Promise<SupplementCombination[]> {
+export async function discoverSupplementCombinations(supplements: Supplement[], exaApiKey?: string): Promise<SupplementCombination[]> {
+  if (exaApiKey) {
+    try {
+      return await discoverCombinationsWithExa(supplements, exaApiKey)
+    } catch (error) {
+      console.error('EXA API failed for combinations, falling back to LLM-only:', error)
+    }
+  }
+  
+  return discoverCombinationsLLMOnly(supplements)
+}
+
+async function discoverCombinationsLLMOnly(supplements: Supplement[]): Promise<SupplementCombination[]> {
   try {
     const supplementsList = supplements.map(s => `${s.name} (${s.category})`).join(', ')
     
