@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Supplement, TrackedSupplement, SupplementCategory, SupplementCombination } from '@/lib/types'
 import { INITIAL_SUPPLEMENTS, SUPPLEMENT_COMBINATIONS } from '@/lib/data'
@@ -205,7 +205,7 @@ function App() {
     { value: 'mineral', label: 'Minerals' },
   ]
 
-  const handleDiscoverTrends = async () => {
+  const handleDiscoverTrends = useCallback(async () => {
     setIsLoadingTrends(true)
     try {
       const apiKey = exaApiKey && exaApiKey.trim() ? exaApiKey.trim() : undefined
@@ -241,7 +241,7 @@ function App() {
     } finally {
       setIsLoadingTrends(false)
     }
-  }
+  }, [exaApiKey, redditClientId, redditClientSecret, rapidApiKey])
 
   useEffect(() => {
     const checkAndRefreshTrends = async () => {

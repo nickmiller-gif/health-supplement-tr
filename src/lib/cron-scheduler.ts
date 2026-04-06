@@ -63,13 +63,14 @@ function scheduleCronJob(id: string, callback: CronCallback): void {
     const job = jobs[id]
     
     if (!job || !job.enabled) {
+      setTimeout(checkAndRun, 60000)
       return
     }
     
     const now = Date.now()
     
     if (now >= job.nextRun) {
-      console.log(`Running cron job: ${job.name}`)
+      console.log(`Running scheduled cron job: ${job.name}`)
       
       try {
         await callback()
@@ -87,7 +88,7 @@ function scheduleCronJob(id: string, callback: CronCallback): void {
     }
     
     const msUntilNext = job.nextRun - Date.now()
-    const checkInterval = Math.min(msUntilNext + 1000, job.checkInterval || 60000)
+    const checkInterval = Math.min(Math.max(msUntilNext, 60000), job.checkInterval || 300000)
     
     setTimeout(checkAndRun, checkInterval)
   }
