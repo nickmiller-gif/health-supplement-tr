@@ -38,6 +38,18 @@
  * Access Twitter/X, TikTok, LinkedIn (one key works for all platforms)
  * Cost: Varies by plan
  * 
+ * OpenAI API (OPTIONAL - Enhanced AI analysis)
+ * --------------------------------------------
+ * Website: https://platform.openai.com/api-keys
+ * Use GPT-4 or GPT-3.5 for AI-powered insights
+ * Cost: Pay-per-use (typically $0.01-0.03 per request)
+ * 
+ * Anthropic API (OPTIONAL - Claude AI models)
+ * -------------------------------------------
+ * Website: https://console.anthropic.com/settings/keys
+ * Use Claude 3 models for AI analysis
+ * Cost: Pay-per-use (typically $0.01-0.03 per request)
+ * 
  * DEVELOPER NOTE:
  * ===============
  * If you're developing locally and want to hardcode keys for testing,
@@ -50,5 +62,7 @@ export const API_KEYS = {
   reddit: {
     clientId: '',
     clientSecret: ''
-  }
+  },
+  openai: '',
+  anthropic: ''
 }

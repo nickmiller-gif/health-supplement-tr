@@ -19,19 +19,25 @@ export function ApiSettings() {
   const [redditClientId, setRedditClientId] = useKV<string>('reddit-client-id', '')
   const [redditClientSecret, setRedditClientSecret] = useKV<string>('reddit-client-secret', '')
   const [rapidApiKey, setRapidApiKey] = useKV<string>('rapidapi-key', '')
+  const [openaiApiKey, setOpenaiApiKey] = useKV<string>('openai-api-key', '')
+  const [anthropicApiKey, setAnthropicApiKey] = useKV<string>('anthropic-api-key', '')
   
   const [isOpen, setIsOpen] = useState(false)
   const [tempKeys, setTempKeys] = useState({
     exa: '',
     redditClientId: '',
     redditClientSecret: '',
-    rapidApi: ''
+    rapidApi: '',
+    openai: '',
+    anthropic: ''
   })
   const [showKeys, setShowKeys] = useState({
     exa: false,
     redditClientId: false,
     redditClientSecret: false,
-    rapidApi: false
+    rapidApi: false,
+    openai: false,
+    anthropic: false
   })
   const [cacheStats, setCacheStats] = useState({
     totalCached: 0,
@@ -50,10 +56,12 @@ export function ApiSettings() {
       exa: exaApiKey || '',
       redditClientId: redditClientId || '',
       redditClientSecret: redditClientSecret || '',
-      rapidApi: rapidApiKey || ''
+      rapidApi: rapidApiKey || '',
+      openai: openaiApiKey || '',
+      anthropic: anthropicApiKey || ''
     })
     setIsOpen(true)
-    setShowKeys({ exa: false, redditClientId: false, redditClientSecret: false, rapidApi: false })
+    setShowKeys({ exa: false, redditClientId: false, redditClientSecret: false, rapidApi: false, openai: false, anthropic: false })
     
     const stats = await getCacheStats()
     setCacheStats(stats)
@@ -67,6 +75,8 @@ export function ApiSettings() {
     setRedditClientId(tempKeys.redditClientId.trim())
     setRedditClientSecret(tempKeys.redditClientSecret.trim())
     setRapidApiKey(tempKeys.rapidApi.trim())
+    setOpenaiApiKey(tempKeys.openai.trim())
+    setAnthropicApiKey(tempKeys.anthropic.trim())
     
     toast.success('API settings saved!')
     setIsOpen(false)
@@ -112,7 +122,9 @@ export function ApiSettings() {
   const activeAPIs = [
     exaApiKey && exaApiKey.trim() && 'EXA',
     redditClientId && redditClientId.trim() && redditClientSecret && redditClientSecret.trim() && 'Reddit',
-    rapidApiKey && rapidApiKey.trim() && 'RapidAPI'
+    rapidApiKey && rapidApiKey.trim() && 'RapidAPI',
+    openaiApiKey && openaiApiKey.trim() && 'OpenAI',
+    anthropicApiKey && anthropicApiKey.trim() && 'Anthropic'
   ].filter(Boolean)
 
   return (
@@ -136,9 +148,9 @@ export function ApiSettings() {
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-[700px] max-h-[90vh]">
           <DialogHeader>
-            <DialogTitle>Social Media API Configuration</DialogTitle>
+            <DialogTitle>API Configuration</DialogTitle>
             <DialogDescription>
-              Configure API keys to discover real supplement trends from social platforms
+              Configure API keys for social media data, web search, and AI providers
             </DialogDescription>
           </DialogHeader>
 
@@ -287,9 +299,75 @@ export function ApiSettings() {
                         </Button>
                       </div>
                     </div>
+
+                    <Separator />
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-base font-semibold">OpenAI API</Label>
+                        <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1">
+                          <LinkSimple className="w-3 h-3" />
+                          Get API Key
+                        </a>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Use GPT-4 or GPT-3.5 for enhanced AI analysis • Cost: Pay-per-use
+                      </p>
+                      <div className="relative">
+                        <Input
+                          type={showKeys.openai ? 'text' : 'password'}
+                          value={tempKeys.openai}
+                          onChange={(e) => updateTempKey('openai', e.target.value)}
+                          placeholder="Enter OpenAI API key..."
+                          className="pr-10"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+                          onClick={() => toggleShowKey('openai')}
+                        >
+                          {showKeys.openai ? <X className="w-4 h-4" /> : '👁️'}
+                        </Button>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-base font-semibold">Anthropic API</Label>
+                        <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1">
+                          <LinkSimple className="w-3 h-3" />
+                          Get API Key
+                        </a>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Use Claude 3 models for AI analysis • Cost: Pay-per-use
+                      </p>
+                      <div className="relative">
+                        <Input
+                          type={showKeys.anthropic ? 'text' : 'password'}
+                          value={tempKeys.anthropic}
+                          onChange={(e) => updateTempKey('anthropic', e.target.value)}
+                          placeholder="Enter Anthropic API key..."
+                          className="pr-10"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+                          onClick={() => toggleShowKey('anthropic')}
+                        >
+                          {showKeys.anthropic ? <X className="w-4 h-4" /> : '👁️'}
+                        </Button>
+                      </div>
+                    </div>
                   </div>
 
-                  {(tempKeys.exa || tempKeys.redditClientId || tempKeys.rapidApi) && (
+                  {(tempKeys.exa || tempKeys.redditClientId || tempKeys.rapidApi || tempKeys.openai || tempKeys.anthropic) && (
                     <Alert>
                       <Check className="w-4 h-4" />
                       <AlertDescription className="text-sm">

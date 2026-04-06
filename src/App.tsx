@@ -44,11 +44,15 @@ function App() {
   const [storedRedditId] = useKV<string>('reddit-client-id', '')
   const [storedRedditSecret] = useKV<string>('reddit-client-secret', '')
   const [storedRapidKey] = useKV<string>('rapidapi-key', '')
+  const [storedOpenaiKey] = useKV<string>('openai-api-key', '')
+  const [storedAnthropicKey] = useKV<string>('anthropic-api-key', '')
   
   const exaApiKey = API_KEYS.exa || storedExaKey || ''
   const redditClientId = API_KEYS.reddit.clientId || storedRedditId || ''
   const redditClientSecret = API_KEYS.reddit.clientSecret || storedRedditSecret || ''
   const rapidApiKey = API_KEYS.rapidApi || storedRapidKey || ''
+  const openaiApiKey = API_KEYS.openai || storedOpenaiKey || ''
+  const anthropicApiKey = API_KEYS.anthropic || storedAnthropicKey || ''
   const [supplements, setSupplements] = useState<Supplement[]>(INITIAL_SUPPLEMENTS)
   const [combinations, setCombinations] = useState<SupplementCombination[]>(SUPPLEMENT_COMBINATIONS)
   const [emergingSignals, setEmergingSignals] = useState<EmergingSupplementSignal[]>([])
