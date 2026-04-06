@@ -1,37 +1,44 @@
 # Planning Guide
 
-An AI-powered trend discovery platform with secure backend architecture that uses LLM analysis to surface emerging patterns in the health supplement space. Features conversational AI chatbot for intelligent search, Supabase backend for secure data storage, and an upgraded modern interface optimized for desktop and mobile.
+A centralized AI-powered supplement intelligence platform with a single source of truth backend. Users access daily trend data from a shared Supabase database and interact with an AI chatbot for personalized supplement insights. All API keys and data management handled server-side for security and simplicity.
 
 **Experience Qualities**:
-1. **Secure & Scalable** - Backend-first architecture with Supabase database, server-side API handling, and secure authentication
-2. **Conversational** - AI-powered chatbot allows natural language queries about supplements, trends, and personalized recommendations
-3. **Modern & Responsive** - Premium design with smooth animations, optimized for desktop and mobile with touch-friendly interfaces
+1. **Centralized & Secure** - Single backend with server-side API management; all trends stored in shared Supabase database; users consume pre-generated daily data
+2. **Conversational & Intuitive** - AI chatbot for natural language queries about supplements, stacks, and trends; simplified read-only interface
+3. **Modern & Performant** - Clean, responsive design optimized for viewing trends; fast load times with pre-computed data
 
-**Complexity Level**: Complex Application (advanced functionality with backend integration)
-- Full-stack application with Supabase backend, real-time data sync, AI chatbot, secure API management, and responsive design system
+**Complexity Level**: Complex Application (backend-driven architecture with centralized data management)
+- Full-stack application with centralized Supabase backend, server-side API key management, shared daily trend updates, AI chatbot, and responsive read-only frontend
 
 ## Essential Features
 
-### Supabase Backend Architecture
-- **Functionality**: Complete backend infrastructure with Supabase for database, authentication, and serverless functions. All API keys and sensitive operations moved server-side.
-- **Purpose**: Secure API key management, scalable data storage, and prevent client-side exposure of credentials
-- **Trigger**: Automatically connects on app initialization
-- **Progression**: App loads → Supabase client initializes → User authenticates → Backend handles all API calls → Frontend receives sanitized data
-- **Success criteria**: Zero API keys exposed in frontend code; all trend data persists in database; backend handles external API calls securely
+### Centralized Backend with Supabase
+- **Functionality**: Single shared Supabase database stores all supplement trends, stacks, and API configuration. API keys managed server-side in `api_configuration` table. Trend updates run centrally (manually or via cron) and all users see the same daily data.
+- **Purpose**: Eliminate per-user API costs, ensure data consistency, simplify UX by removing configuration complexity, and improve security by keeping secrets server-side
+- **Trigger**: App loads and automatically fetches latest trends from shared database
+- **Progression**: App initializes → Connects to Supabase → Fetches daily supplements and combinations → Displays read-only trend data → User can browse/filter/sort
+- **Success criteria**: All users see identical daily trends; API keys never exposed in frontend code; data loads instantly from database cache; single admin can update trends for all users
+
+### Read-Only Trend Viewing
+- **Functionality**: Users browse pre-computed daily supplement trends and stacks. Can filter by category (peptides, vitamins, nootropics), sort by popularity/trend/name, and view detailed AI insights for each supplement or combination.
+- **Purpose**: Provide immediate value without requiring user configuration or API setup
+- **Trigger**: App loads with latest trends from database
+- **Progression**: User lands on app → Sees categorized trends → Applies filters → Views detailed insights → Explores related stacks
+- **Success criteria**: Trends load in <2 seconds; filters/sorting work instantly; detailed insights available for all items; responsive on mobile and desktop
 
 ### AI Chatbot for Supplement Search
-- **Functionality**: Conversational AI interface allowing users to ask questions about supplements, search for specific needs ("show me peptides for muscle recovery"), get personalized recommendations, or narrow down suggestions
-- **Purpose**: Provides intuitive natural language interface for exploring supplement data and getting AI-powered insights
-- **Trigger**: User clicks chatbot button (floating action button) or types in chat interface
-- **Progression**: User opens chat → Types natural query → AI analyzes query against supplement database → Returns relevant supplements with explanations → User can ask follow-up questions → AI maintains conversation context
-- **Success criteria**: Chatbot understands queries about categories, benefits, trends, combinations; provides relevant supplement recommendations with reasoning; maintains conversation context for follow-ups
+- **Functionality**: Conversational AI interface using Spark LLM or configured OpenAI/Anthropic APIs. Users ask natural language questions about supplements ("show me peptides for muscle recovery", "what's trending for sleep?"), get personalized recommendations based on available data, and can drill down with follow-up questions.
+- **Purpose**: Provide intuitive, conversational access to supplement insights without manual browsing
+- **Trigger**: User clicks floating chatbot button or types in chat interface
+- **Progression**: User opens chat → Types query → AI analyzes against supplement database → Returns relevant recommendations with explanations → User asks follow-ups → Maintains conversation context
+- **Success criteria**: Understands category queries, benefit searches, and trend questions; provides supplement recommendations with reasoning; handles typos and colloquial language; responds in <3 seconds
 
-### Upgraded Desktop & Mobile UI
-- **Functionality**: Modern, premium interface with enhanced animations, improved layouts for desktop (multi-column grids, sidebar navigation), and mobile-optimized views (bottom sheets, swipe gestures, responsive cards)
-- **Purpose**: Professional appearance that scales beautifully across devices with touch-friendly controls on mobile
-- **Trigger**: Responsive design adapts automatically based on viewport
-- **Progression**: Desktop shows multi-column layouts with hover effects → Mobile switches to single column with touch gestures → Animations enhance transitions → Bottom navigation on mobile for easy thumb access
-- **Success criteria**: Smooth 60fps animations; desktop utilizes horizontal space with grids and sidebars; mobile has bottom navigation, swipeable cards, and large touch targets
+### Simplified User Interface
+- **Functionality**: Clean, focused interface showing only essential features: trend browsing (All Trends tab), stack combinations (Stacks tab), filtering/sorting controls, and chatbot access. No API settings, export options, or complex configuration.
+- **Purpose**: Reduce cognitive load and focus on core value: viewing trends and getting AI insights
+- **Trigger**: Automatically on app load
+- **Progression**: User sees header with app branding → Two main tabs (All Trends, Stacks) → Search and filter controls → Grid of supplement cards → Floating chatbot button
+- **Success criteria**: <5 clicks to any piece of information; mobile-optimized with bottom navigation; no configuration UI visible; chatbot easily accessible
 
 ### Multi-Platform Social Media API Integration
 - **Functionality**: Integrated support for multiple social media APIs to aggregate real supplement trends from diverse platforms:

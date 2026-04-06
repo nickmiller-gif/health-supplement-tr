@@ -1,93 +1,119 @@
-# TrendPulse - AI-Powered Supplement Intelligence Platform
+# TrendPulse - Daily Supplement Intelligence Platform
 
-> **🎉 Now with AI Chatbot, Supabase Backend & Premium UI!**
+> **🎉 v2.0: Centralized Backend Architecture - No User Configuration Required!**
 
-An intelligent platform for discovering supplement trends with conversational AI search, secure backend storage, and beautiful responsive design.
+A simplified, centralized supplement intelligence platform where users access daily curated trends from a shared backend and get personalized insights through an AI chatbot.
 
-## ✨ What's New in V2.0
+## 🆕 What's New in V2.0
 
-- **🤖 AI Chatbot** - Ask questions in natural language: "Show me peptides for muscle recovery"
-- **🔐 Supabase Backend** - Secure PostgreSQL database with real-time capabilities
-- **🎨 Premium UI/UX** - Modern design with smooth animations
-- **📱 Mobile-First** - Fully optimized for touch devices
-- **🔒 Security** - No API keys exposed in frontend code
+- **🔄 Centralized Architecture** - Single Supabase backend with server-side API management
+- **👥 Shared Daily Trends** - All users see the same curated data (updated daily)
+- **🤖 AI Chatbot** - Natural language queries without any setup
+- **🎯 Simplified UX** - Clean 2-tab interface focused on viewing and chatting
+- **🔒 Enhanced Security** - API keys stored server-side, never in frontend
 
 ## 🚀 Quick Start
 
-### 1. Install & Run (30 seconds)
-```bash
-npm install
-npm run dev
-```
+### For Users (Zero Setup)
 
-The app works immediately with sample data! Open `http://localhost:5173`
+1. Navigate to the deployed app
+2. Browse trending supplements instantly
+3. Use the chatbot for personalized recommendations
 
-### 2. Connect Supabase Database (10 minutes) - **Recommended**
+That's it! No API keys, no configuration needed.
 
-For persistent data storage and production-ready backend:
+### For Administrators (Deploying Your Own Instance)
 
-**📚 Complete Supabase Documentation: [`SUPABASE_DOCS_INDEX.md`](./SUPABASE_DOCS_INDEX.md)**
+**📚 Complete Setup Guide: [`SETUP_CHECKLIST.md`](./SETUP_CHECKLIST.md)**
 
-**Quick Links:**
-- 🚀 **Fast Setup:** [`SUPABASE_QUICKSTART.md`](./SUPABASE_QUICKSTART.md) (5 min)
-- 📖 **Detailed Guide:** [`SUPABASE_SETUP.md`](./SUPABASE_SETUP.md) (10 min)
-- 🔧 **Troubleshooting:** [`SUPABASE_TROUBLESHOOTING.md`](./SUPABASE_TROUBLESHOOTING.md)
+**Quick Version:**
+1. Set up Supabase database ([`SUPABASE_SETUP.md`](./SUPABASE_SETUP.md))
+2. Run schema migration ([`SUPABASE_SCHEMA_UPDATE.sql`](./SUPABASE_SCHEMA_UPDATE.sql))
+3. Add API keys to database
+4. Run initial trend update
+5. Deploy frontend
 
-Without Supabase, the app uses local mock data (resets on refresh). With Supabase, you get:
-- ✅ Data persistence across sessions
-- ✅ Real-time synchronization
-- ✅ Scalable PostgreSQL database
-- ✅ Production-ready architecture
-
-**👉 See [`QUICK_START.md`](./QUICK_START.md) for complete instructions**
+See [`V2_SUMMARY.md`](./V2_SUMMARY.md) for architecture overview.
 
 ## 📚 Documentation
 
-### Getting Started
-- **[QUICK_START.md](./QUICK_START.md)** - Get the app running in 30 seconds
-- **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)** - Complete database setup guide (10 min)
-- **[SUPABASE_QUICKSTART.md](./SUPABASE_QUICKSTART.md)** - Quick checklist for experienced devs
+### v2.0 Architecture (Current)
+- **[V2_SUMMARY.md](./V2_SUMMARY.md)** - Executive summary of v2.0 changes
+- **[CENTRALIZED_BACKEND.md](./CENTRALIZED_BACKEND.md)** - Complete architecture guide
+- **[SETUP_CHECKLIST.md](./SETUP_CHECKLIST.md)** - Step-by-step deployment guide
+- **[MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md)** - Upgrading from v1.x
 
-### Architecture & Features
-- **[BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md)** - Complete backend architecture
-- **[UPGRADE_SUMMARY.md](./UPGRADE_SUMMARY.md)** - What's new in V2.0  
-- **[V2_IMPLEMENTATION.md](./V2_IMPLEMENTATION.md)** - Technical implementation details
-- **[PRD.md](./PRD.md)** - Product requirements and design decisions
+### Database Setup
+- **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)** - Complete database configuration (10 min)
+- **[SUPABASE_SCHEMA_UPDATE.sql](./SUPABASE_SCHEMA_UPDATE.sql)** - v2.0 schema migration
+- **[SUPABASE_TROUBLESHOOTING.md](./SUPABASE_TROUBLESHOOTING.md)** - Common issues
 
-### Advanced
-- **[API_SETUP_GUIDE.md](./API_SETUP_GUIDE.md)** - Configure real API integrations
-- **[SECURITY.md](./SECURITY.md)** - Security best practices
-- **[EMAIL_SCHEDULING.md](./EMAIL_SCHEDULING.md)** - Email report scheduling
+### Legacy Documentation (v1.x)
+- **[README_V2.md](./README_V2.md)** - Previous version docs
+- **[QUICK_START.md](./QUICK_START.md)** - Old quick start guide  
+- **[API_SETUP_GUIDE.md](./API_SETUP_GUIDE.md)** - User API configuration (deprecated)
 
-## 🎯 Key Features
+## 🏗️ Architecture
 
-### 🤖 Conversational AI Search
-Click the chat button and ask:
+### Centralized Backend Model
+
+```
+┌─────────────────────────────────────────────────┐
+│        Admin/Automation (Trend Updates)          │
+│  • Fetches API keys from Supabase               │
+│  • Calls external APIs (EXA, Reddit, etc.)       │
+│  • AI analyzes and saves to database            │
+└──────────────────┬──────────────────────────────┘
+                   │
+                   ▼
+         ┌─────────────────────┐
+         │      Supabase       │
+         │  (Single Database)  │
+         │                     │
+         │  • api_configuration│ ← API keys (server-side)
+         │  • supplements      │ ← Daily trends
+         │  • combinations     │ ← Supplement stacks
+         └──────────┬──────────┘
+                    │
+                    ▼
+         ┌─────────────────────┐
+         │   Frontend (Users)  │
+         │    (Read-Only)      │
+         │                     │
+         │  • Browse trends    │
+         │  • Use chatbot      │
+         │  • View insights    │
+         └─────────────────────┘
+```
+
+**Key Principle**: One backend, all users see the same daily data
+
+## ✨ Features
+
+### For Users
+- ✅ **Zero Setup** - No API keys or configuration needed
+- ✅ **Daily Trends** - Curated supplement insights updated automatically
+- ✅ **AI Chatbot** - Ask questions in natural language
+- ✅ **Detailed Insights** - AI-generated analysis for each supplement
+- ✅ **Supplement Stacks** - Popular combinations and protocols
+- ✅ **Mobile Optimized** - Responsive design for any device
+
+### For Administrators  
+- ✅ **Centralized Management** - One set of API keys for all users
+- ✅ **Automated Updates** - Schedule daily trend refreshes
+- ✅ **Cost Efficient** - Shared API costs across all users
+- ✅ **Secure** - API keys stored server-side only
+- ✅ **Scalable** - Handle thousands of users with ease
+
+## 🤖 Using the Chatbot
+
+Click the chat button (bottom-right floating button) and ask:
+- "What's trending for sleep?"
 - "Show me peptides for muscle recovery"
-- "What's trending in nootropics?"
-- "Find supplements for better sleep"
-- "Which supplements are rising?"
+- "Which nootropics are rising?"
+- "Tell me about popular supplement stacks"
 
-### 🔐 Secure Backend (Supabase)
-- PostgreSQL database for scalable storage
-- Row Level Security for data protection
-- Real-time subscriptions
-- Serverless Edge Functions ready
-- **Works with or without** - Uses mock data if Supabase not configured
-
-### 🎨 Premium Design
-- Modern OKLCH color system
-- Space Grotesk + Inter typography
-- Framer Motion animations
-- Glass effects and gradients
-- Mobile-optimized layouts
-
-### 💡 Smart Features
-- Supplement tracking (saved across sessions)
-- AI-generated insights
-- Trend predictions
-- Combination/stack discovery
-- Advanced filtering and sorting
+The chatbot uses the supplement data and configured AI APIs to provide intelligent, context-aware responses.
 
 ## 🛠️ Tech Stack
 

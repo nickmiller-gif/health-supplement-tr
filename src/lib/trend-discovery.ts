@@ -99,23 +99,23 @@ For each supplement, determine:
 
 Return ONLY valid JSON with this exact structure:
 {
-  "supplements": [
+"supplements": [
+{
+  "name": "Supplement Name",
+  "category": "peptide|vitamin|mineral|nootropic|amino-acid|other",
+  "trendDirection": "rising|stable|declining",
+  "popularityScore": 85,
+  "description": "Brief accurate description",
+  "trendData": [45, 52, 61, 68, 75, 82, 88, 92],
+  "discussionLinks": [
     {
-      "name": "Supplement Name",
-      "category": "peptide|vitamin|mineral|nootropic|amino-acid|other",
-      "trendDirection": "rising|stable|declining",
-      "popularityScore": 85,
-      "description": "Brief accurate description",
-      "trendData": [45, 52, 61, 68, 75, 82, 88, 92],
-      "discussionLinks": [
-        {
-          "platform": "Reddit",
-          "url": "https://reddit.com/...",
-          "title": "Discussion title"
-        }
-      ]
+      "platform": "Reddit",
+      "url": "https://reddit.com/...",
+      "title": "Discussion title"
     }
   ]
+}
+]
 }`
 
     const response = await window.spark.llm(prompt, 'gpt-4o', true)

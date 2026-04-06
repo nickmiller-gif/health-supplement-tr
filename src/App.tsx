@@ -1,39 +1,24 @@
-import { useState, useMemo, useEffect, useCallback } from 'react'
-import { useKV } from '@github/spark/hooks'
-import { Supplement, TrackedSupplement, SupplementCategory, SupplementCombination } from '@/lib/types'
-import { discoverSupplementTrends, discoverSupplementCombinations } from '@/lib/trend-discovery'
-import { discoverEmergingSupplements, EmergingSupplementSignal } from '@/lib/research-discovery'
-import { SupplementService } from '@/lib/supplement-service'
+import { useState, useMemo, useEffect } from 'react'
+import { Supplement, SupplementCategory, SupplementCombination } from '@/lib/types'
+import { BackendService } from '@/lib/backend-service'
 import { SupplementCard } from '@/components/SupplementCard'
 import { InsightDialog } from '@/components/InsightDialog'
 import { CombinationCard } from '@/components/CombinationCard'
 import { CombinationInsightDialog } from '@/components/CombinationInsightDialog'
-import { SuggestedSupplements } from '@/components/SuggestedSupplements'
-import { TrendPredictionDialog } from '@/components/TrendPredictionDialog'
-import { EmergingResearchCard } from '@/components/EmergingResearchCard'
-import { ResearchInsightDialog } from '@/components/ResearchInsightDialog'
 import { Chatbot } from '@/components/Chatbot'
-import { SupabaseStatus } from '@/components/SupabaseStatus'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { MagnifyingGlass, Flask, Pill, Brain, Atom, Stack, SortAscending, ArrowsClockwise, Sparkle, Info, Rocket, TrendUp, Clock, Database } from '@phosphor-icons/react'
+import { MagnifyingGlass, Flask, Pill, Brain, Atom, Stack, SortAscending, Sparkle, Clock, ArrowsClockwise, Info } from '@phosphor-icons/react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Toaster } from '@/components/ui/sonner'
-import { toast } from 'sonner'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { API_KEYS } from '@/config/api-keys'
-import { ApiSettings } from '@/components/ApiSettings'
-import { ApiTester } from '@/components/ApiTester'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { registerCronJob, getCronJobs, formatNextRun } from '@/lib/cron-scheduler'
-import { ExportDialog } from '@/components/ExportDialog'
-import { EmailScheduler } from '@/components/EmailScheduler'
-import { checkAndSendScheduledEmails } from '@/lib/email-scheduler'
 import { motion } from 'framer-motion'
+import { isSupabaseConfigured } from '@/lib/supabase'
+import { Button } from '@/components/ui/button'
 
 function App() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -42,37 +27,15 @@ function App() {
   const [combinationSearchQuery, setCombinationSearchQuery] = useState('')
   const [selectedCombinationTrend, setSelectedCombinationTrend] = useState<'all' | 'rising' | 'stable' | 'declining'>('all')
   const [combinationSortBy, setCombinationSortBy] = useState<'popularity' | 'trend' | 'name'>('popularity')
-  const [trackedSupplements, setTrackedSupplements] = useKV<TrackedSupplement[]>('tracked-supplements', [])
   
-  const [storedExaKey] = useKV<string>('exa-api-key', '')
-  const [storedRedditId] = useKV<string>('reddit-client-id', '')
-  const [storedRedditSecret] = useKV<string>('reddit-client-secret', '')
-  const [storedRapidKey] = useKV<string>('rapidapi-key', '')
-  const [storedOpenaiKey] = useKV<string>('openai-api-key', '')
-  const [storedAnthropicKey] = useKV<string>('anthropic-api-key', '')
-  
-  const exaApiKey = API_KEYS.exa || storedExaKey || ''
-  const redditClientId = API_KEYS.reddit.clientId || storedRedditId || ''
-  const redditClientSecret = API_KEYS.reddit.clientSecret || storedRedditSecret || ''
-  const rapidApiKey = API_KEYS.rapidApi || storedRapidKey || ''
-  const openaiApiKey = API_KEYS.openai || storedOpenaiKey || ''
-  const anthropicApiKey = API_KEYS.anthropic || storedAnthropicKey || ''
   const [supplements, setSupplements] = useState<Supplement[]>([])
   const [combinations, setCombinations] = useState<SupplementCombination[]>([])
-  const [emergingSignals, setEmergingSignals] = useState<EmergingSupplementSignal[]>([])
   const [selectedSupplement, setSelectedSupplement] = useState<Supplement | null>(null)
   const [selectedCombination, setSelectedCombination] = useState<SupplementCombination | null>(null)
-  const [selectedResearchSignal, setSelectedResearchSignal] = useState<EmergingSupplementSignal | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [combinationDialogOpen, setCombinationDialogOpen] = useState(false)
-  const [researchDialogOpen, setResearchDialogOpen] = useState(false)
-  const [predictionDialogOpen, setPredictionDialogOpen] = useState(false)
-  const [predictionSupplement, setPredictionSupplement] = useState<Supplement | null>(null)
-  const [isLoadingTrends, setIsLoadingTrends] = useState(false)
-  const [isLoadingResearch, setIsLoadingResearch] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [lastUpdated, setLastUpdated] = useState<number | null>(null)
-  const [dismissedWelcome, setDismissedWelcome] = useKV<boolean>('dismissed-welcome', false)
-  const [nextScheduledUpdate, setNextScheduledUpdate] = useState<string>('')
 
   const filteredSupplements = useMemo(() => {
     const filtered = supplements.filter(supplement => {
@@ -101,11 +64,6 @@ function App() {
 
     return sorted
   }, [supplements, searchQuery, selectedCategory, sortBy])
-
-  const trackedSupplementsList = useMemo(() => {
-    const trackedIds = new Set((trackedSupplements || []).map(t => t.supplementId))
-    return supplements.filter(s => trackedIds.has(s.id))
-  }, [supplements, trackedSupplements])
 
   const filteredCombinations = useMemo(() => {
     const filtered = combinations.filter(combination => {
@@ -137,22 +95,6 @@ function App() {
     return sorted
   }, [combinations, combinationSearchQuery, selectedCombinationTrend, combinationSortBy])
 
-  const handleToggleTrack = (id: string) => {
-    setTrackedSupplements((current) => {
-      const currentList = current || []
-      const isTracked = currentList.some(t => t.supplementId === id)
-      if (isTracked) {
-        return currentList.filter(t => t.supplementId !== id)
-      } else {
-        return [...currentList, { supplementId: id, trackedAt: Date.now() }]
-      }
-    })
-  }
-
-  const isTracked = (id: string) => {
-    return (trackedSupplements || []).some(t => t.supplementId === id)
-  }
-
   const handleViewInsight = (supplement: Supplement) => {
     setSelectedSupplement(supplement)
     setDialogOpen(true)
@@ -161,34 +103,6 @@ function App() {
   const handleViewCombinationInsight = (combination: SupplementCombination) => {
     setSelectedCombination(combination)
     setCombinationDialogOpen(true)
-  }
-
-  const handleViewPrediction = (supplement: Supplement) => {
-    setPredictionSupplement(supplement)
-    setPredictionDialogOpen(true)
-  }
-
-  const handleViewResearchSignal = (signal: EmergingSupplementSignal) => {
-    setSelectedResearchSignal(signal)
-    setResearchDialogOpen(true)
-  }
-
-  const handleDiscoverResearch = async () => {
-    setIsLoadingResearch(true)
-    const apiKey = exaApiKey && exaApiKey.trim() ? exaApiKey.trim() : undefined
-    
-    toast.promise(
-      async () => {
-        const signals = await discoverEmergingSupplements(apiKey)
-        setEmergingSignals(signals)
-      },
-      {
-        loading: apiKey ? 'Scanning PubMed and research databases for emerging compounds...' : 'Analyzing emerging supplement research...',
-        success: apiKey ? 'Research signals discovered from scientific literature!' : 'Emerging trends identified!',
-        error: 'Failed to discover research signals.',
-      }
-    )
-    setIsLoadingResearch(false)
   }
 
   const getCategoryIcon = (category: SupplementCategory | 'all') => {
@@ -213,107 +127,27 @@ function App() {
     { value: 'mineral', label: 'Minerals' },
   ]
 
-  const handleDiscoverTrends = useCallback(async () => {
-    setIsLoadingTrends(true)
+  const loadTrends = async () => {
+    setIsLoading(true)
     try {
-      const apiKey = exaApiKey && exaApiKey.trim() ? exaApiKey.trim() : undefined
-      const socialConfig = {
-        redditClientId: redditClientId && redditClientId.trim() ? redditClientId.trim() : undefined,
-        redditClientSecret: redditClientSecret && redditClientSecret.trim() ? redditClientSecret.trim() : undefined,
-        rapidApiKey: rapidApiKey && rapidApiKey.trim() ? rapidApiKey.trim() : undefined
-      }
+      const [supplementsData, combinationsData, lastUpdate] = await Promise.all([
+        BackendService.getTodaysSupplements(),
+        BackendService.getTodaysCombinations(),
+        BackendService.getLastUpdateTime()
+      ])
 
-      const hasSocialAPIs = !!(socialConfig.redditClientId || socialConfig.rapidApiKey)
-      
-      toast.promise(
-        async () => {
-          const trendData = await discoverSupplementTrends(apiKey, socialConfig)
-          setSupplements(trendData.supplements)
-          setLastUpdated(trendData.lastUpdated)
-
-          await SupplementService.upsertSupplements(trendData.supplements)
-
-          const combosData = await discoverSupplementCombinations(trendData.supplements, apiKey, socialConfig)
-          setCombinations(combosData)
-
-          await SupplementService.upsertCombinations(combosData)
-        },
-        {
-          loading: hasSocialAPIs ? 'Scanning Reddit, Twitter, TikTok & LinkedIn for real trends...' : 
-                   apiKey ? 'Using EXA to discover real web trends...' : 
-                   'Discovering latest supplement trends...',
-          success: hasSocialAPIs ? 'Real social media data saved to database!' : 
-                   apiKey ? 'Real web data saved to database!' : 
-                   'Trends updated and saved!',
-          error: 'Failed to fetch trends. Using cached data.',
-        }
-      )
+      setSupplements(supplementsData)
+      setCombinations(combinationsData)
+      setLastUpdated(lastUpdate)
     } catch (error) {
-      console.error('Error discovering trends:', error)
+      console.error('Error loading trends:', error)
     } finally {
-      setIsLoadingTrends(false)
+      setIsLoading(false)
     }
-  }, [exaApiKey, redditClientId, redditClientSecret, rapidApiKey])
+  }
 
   useEffect(() => {
-    const loadInitialData = async () => {
-      try {
-        const [loadedSupplements, loadedCombinations] = await Promise.all([
-          SupplementService.getAllSupplements(),
-          SupplementService.getAllCombinations()
-        ])
-        
-        setSupplements(loadedSupplements)
-        setCombinations(loadedCombinations)
-
-        const lastUpdate = await window.spark.kv.get<number>('last-trend-update')
-        const now = Date.now()
-        const CACHE_DURATION = 1000 * 60 * 30
-
-        if (!lastUpdate || (now - lastUpdate) > CACHE_DURATION) {
-          handleDiscoverTrends()
-          await window.spark.kv.set('last-trend-update', now)
-        } else {
-          setLastUpdated(lastUpdate)
-        }
-      } catch (error) {
-        console.error('Error loading initial data:', error)
-        toast.error('Failed to load data from database')
-      }
-    }
-
-    loadInitialData()
-  }, [])
-
-  useEffect(() => {
-    const setupCronJobs = async () => {
-      await registerCronJob(
-        'daily-trend-update',
-        'Daily Morning Trend Refresh',
-        async () => {
-          console.log('Running daily scheduled trend update...')
-          await handleDiscoverTrends()
-        }
-      )
-
-      await registerCronJob(
-        'email-schedule-check',
-        'Email Schedule Checker',
-        async () => {
-          console.log('Checking for scheduled email reports...')
-          await checkAndSendScheduledEmails(supplements, combinations)
-        },
-        { checkInterval: 300000 }
-      )
-
-      const jobs = await getCronJobs()
-      const dailyJob = jobs.find(j => j.id === 'daily-trend-update')
-      if (dailyJob) {
-        setNextScheduledUpdate(formatNextRun(dailyJob.nextRun))
-      }
-    }
-
-    setupCronJobs()
+    loadTrends()
   }, [])
 
   const formatLastUpdated = () => {
@@ -347,30 +181,24 @@ function App() {
                   <h1 className="text-5xl font-bold tracking-tight">TrendPulse</h1>
                 </div>
                 <p className="text-primary-foreground/90 text-lg font-medium max-w-2xl">
-                  AI-Powered Supplement Intelligence Platform
+                  Daily Supplement Intelligence & AI Insights
                 </p>
                 <p className="text-primary-foreground/70 text-sm max-w-2xl">
-                  Discover emerging trends, analyze combinations, and get personalized recommendations with our AI chatbot
+                  View today's trending supplements and get AI-powered recommendations through our chatbot
                 </p>
               </motion.div>
               
               <div className="flex flex-col items-start md:items-end gap-3">
-                <div className="flex gap-2 flex-wrap">
-                  <ApiTester />
-                  <ApiSettings />
-                  <EmailScheduler supplements={supplements} combinations={combinations} />
-                  <ExportDialog supplements={supplements} combinations={combinations} />
-                  <Button
-                    onClick={handleDiscoverTrends}
-                    disabled={isLoadingTrends}
-                    variant="secondary"
-                    size="lg"
-                    className="gap-2 shadow-lg"
-                  >
-                    <ArrowsClockwise className={`w-5 h-5 ${isLoadingTrends ? 'animate-spin' : ''}`} />
-                    {isLoadingTrends ? 'Discovering...' : 'Refresh Trends'}
-                  </Button>
-                </div>
+                <Button
+                  onClick={loadTrends}
+                  disabled={isLoading}
+                  variant="secondary"
+                  size="lg"
+                  className="gap-2 shadow-lg"
+                >
+                  <ArrowsClockwise className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+                  {isLoading ? 'Loading...' : 'Refresh'}
+                </Button>
                 <div className="flex flex-col items-start md:items-end gap-1">
                   <p className="text-xs text-primary-foreground/70 flex items-center gap-2">
                     <Clock className="w-3 h-3" />
@@ -379,11 +207,6 @@ function App() {
                   <p className="text-xs text-primary-foreground/70">
                     {supplements.length} supplements • {combinations.length} stacks
                   </p>
-                  {nextScheduledUpdate && (
-                    <p className="text-xs text-primary-foreground/70">
-                      Next auto-update: {nextScheduledUpdate}
-                    </p>
-                  )}
                 </div>
               </div>
             </div>
@@ -392,50 +215,15 @@ function App() {
       </motion.div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="mb-6">
-          <SupabaseStatus />
-        </div>
-
-        {!dismissedWelcome && !exaApiKey && !redditClientId && !rapidApiKey && (
+        {!isSupabaseConfigured && (
           <Alert className="mb-6 border-accent/50 bg-gradient-to-r from-accent/10 to-primary/10">
-            <Rocket className="h-5 w-5 text-accent" />
+            <Info className="h-5 w-5 text-accent" />
             <AlertDescription className="ml-6">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <p className="font-semibold text-foreground mb-2">🚀 Unlock Real Supplement Trends!</p>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Currently showing AI-generated trends. Add your <strong>FREE EXA API key</strong> to discover actual supplement discussions from Reddit, forums, and biohacking communities.
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="default"
-                      onClick={() => {
-                        const settingsButton = document.querySelector('[data-api-settings-button]') as HTMLButtonElement
-                        settingsButton?.click()
-                      }}
-                      className="gap-2"
-                    >
-                      <Rocket className="w-4 h-4" />
-                      Add API Key (2 min setup)
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setDismissedWelcome(true)}
-                    >
-                      Maybe later
-                    </Button>
-                  </div>
-                </div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-6 w-6 p-0"
-                  onClick={() => setDismissedWelcome(true)}
-                >
-                  ×
-                </Button>
+              <div className="flex-1">
+                <p className="font-semibold text-foreground mb-2">⚙️ Supabase Not Configured</p>
+                <p className="text-sm text-muted-foreground">
+                  Please configure your Supabase connection in the <code>.env</code> file to enable data persistence. See <code>SUPABASE_SETUP.md</code> for instructions.
+                </p>
               </div>
             </AlertDescription>
           </Alert>
@@ -500,41 +288,12 @@ function App() {
                 {filteredCombinations.length}
               </Badge>
             </TabsTrigger>
-            <TabsTrigger value="research" className="text-base px-6 flex items-center gap-2">
-              <Database weight="duotone" className="w-4 h-4" />
-              Research Signals
-              <Badge variant="secondary" className="ml-2">
-                {emergingSignals.length}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger value="predictions" className="text-base px-6 flex items-center gap-2">
-              <TrendUp weight="duotone" className="w-4 h-4" />
-              Predictions
-            </TabsTrigger>
-            <TabsTrigger value="tracked" className="text-base px-6">
-              Tracked
-              <Badge variant="secondary" className="ml-2">
-                {trackedSupplementsList.length}
-              </Badge>
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="all">
             <ScrollArea className="h-[calc(100vh-400px)]">
               <div className="space-y-6 pb-4">
-                {trackedSupplementsList.length >= 2 && !isLoadingTrends && (
-                  <div className="mb-6">
-                    <SuggestedSupplements
-                      trackedSupplements={trackedSupplementsList}
-                      allSupplements={supplements}
-                      isTracked={isTracked}
-                      onToggleTrack={handleToggleTrack}
-                      onViewInsight={handleViewInsight}
-                    />
-                  </div>
-                )}
-
-                {isLoadingTrends ? (
+                {isLoading ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {Array.from({ length: 6 }).map((_, i) => (
                       <div key={i} className="space-y-3 border rounded-lg p-5">
@@ -547,7 +306,6 @@ function App() {
                         </div>
                         <Skeleton className="h-16 w-full" />
                         <div className="flex gap-2">
-                          <Skeleton className="h-9 flex-1" />
                           <Skeleton className="h-9 flex-1" />
                         </div>
                       </div>
@@ -565,8 +323,8 @@ function App() {
                       <SupplementCard
                         key={supplement.id}
                         supplement={supplement}
-                        isTracked={isTracked(supplement.id)}
-                        onToggleTrack={handleToggleTrack}
+                        isTracked={false}
+                        onToggleTrack={() => {}}
                         onViewInsight={handleViewInsight}
                       />
                     ))}
@@ -666,168 +424,6 @@ function App() {
               </div>
             </ScrollArea>
           </TabsContent>
-
-          <TabsContent value="predictions">
-            <ScrollArea className="h-[calc(100vh-400px)]">
-              <div className="space-y-6 pb-4">
-                <div className="mb-4">
-                  <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
-                    <Sparkle weight="duotone" className="w-6 h-6 text-accent" />
-                    Future Trend Predictions
-                  </h2>
-                  <p className="text-muted-foreground">
-                    AI-powered predictions for supplement trends 45, 90, and 180 days from now
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredSupplements.slice(0, 9).map((supplement) => (
-                    <div key={supplement.id} className="border rounded-lg p-4 space-y-3 hover:border-accent/50 transition-colors">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h4 className="font-semibold">{supplement.name}</h4>
-                          <p className="text-xs text-muted-foreground mt-1">{supplement.category}</p>
-                        </div>
-                        <Badge variant={supplement.trendDirection === 'rising' ? 'default' : 'secondary'}>
-                          {supplement.trendDirection}
-                        </Badge>
-                      </div>
-                      
-                      <div className="text-sm text-muted-foreground line-clamp-2">
-                        {supplement.description}
-                      </div>
-
-                      <Button
-                        onClick={() => handleViewPrediction(supplement)}
-                        variant="outline"
-                        size="sm"
-                        className="w-full gap-2"
-                      >
-                        <Sparkle weight="duotone" className="w-4 h-4" />
-                        View Prediction
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </ScrollArea>
-          </TabsContent>
-
-          <TabsContent value="research">
-            <ScrollArea className="h-[calc(100vh-400px)]">
-              <div className="space-y-6 pb-4">
-                <div className="mb-4 flex items-start justify-between gap-4">
-                  <div>
-                    <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
-                      <Database weight="duotone" className="w-6 h-6 text-accent" />
-                      Early Research Signals
-                    </h2>
-                    <p className="text-muted-foreground">
-                      Emerging supplements identified from recent research before they hit mainstream. Based on PubMed, clinical trials, and scientific literature.
-                    </p>
-                  </div>
-                  <Button
-                    onClick={handleDiscoverResearch}
-                    disabled={isLoadingResearch}
-                    variant="default"
-                    className="gap-2"
-                  >
-                    <ArrowsClockwise className={`w-5 h-5 ${isLoadingResearch ? 'animate-spin' : ''}`} />
-                    {isLoadingResearch ? 'Scanning...' : 'Scan Research'}
-                  </Button>
-                </div>
-
-                {emergingSignals.length === 0 && !isLoadingResearch ? (
-                  <div className="text-center py-12 space-y-4">
-                    <Database weight="duotone" className="w-16 h-16 mx-auto text-muted-foreground opacity-50" />
-                    <div>
-                      <p className="text-muted-foreground text-lg mb-2">
-                        No research signals discovered yet.
-                      </p>
-                      <p className="text-muted-foreground text-sm mb-4">
-                        Click "Scan Research" to discover emerging supplements from recent scientific publications.
-                      </p>
-                      <Button onClick={handleDiscoverResearch} variant="outline" className="gap-2">
-                        <Database weight="duotone" className="w-5 h-5" />
-                        Start Research Scan
-                      </Button>
-                    </div>
-                  </div>
-                ) : isLoadingResearch ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {Array.from({ length: 6 }).map((_, i) => (
-                      <div key={i} className="space-y-3 border rounded-lg p-5">
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-2 flex-1">
-                            <Skeleton className="h-6 w-3/4" />
-                            <Skeleton className="h-4 w-1/4" />
-                          </div>
-                          <Skeleton className="h-6 w-16" />
-                        </div>
-                        <Skeleton className="h-16 w-full" />
-                        <div className="flex gap-2">
-                          <Skeleton className="h-2 flex-1" />
-                          <Skeleton className="h-4 w-12" />
-                        </div>
-                        <Skeleton className="h-9 w-full" />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {emergingSignals.map((signal) => (
-                      <EmergingResearchCard
-                        key={signal.id}
-                        signal={signal}
-                        onViewDetails={handleViewResearchSignal}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            </ScrollArea>
-          </TabsContent>
-
-          <TabsContent value="tracked">
-            <ScrollArea className="h-[calc(100vh-400px)]">
-              <div className="space-y-6 pb-4">
-                {trackedSupplementsList.length >= 2 && (
-                  <div className="mb-6">
-                    <SuggestedSupplements
-                      trackedSupplements={trackedSupplementsList}
-                      allSupplements={supplements}
-                      isTracked={isTracked}
-                      onToggleTrack={handleToggleTrack}
-                      onViewInsight={handleViewInsight}
-                    />
-                  </div>
-                )}
-
-                {trackedSupplementsList.length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground text-lg mb-2">
-                      No tracked supplements yet.
-                    </p>
-                    <p className="text-muted-foreground text-sm">
-                      Click the heart icon on any supplement to start tracking it.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {trackedSupplementsList.map((supplement) => (
-                      <SupplementCard
-                        key={supplement.id}
-                        supplement={supplement}
-                        isTracked={true}
-                        onToggleTrack={handleToggleTrack}
-                        onViewInsight={handleViewInsight}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            </ScrollArea>
-          </TabsContent>
         </Tabs>
       </div>
 
@@ -842,18 +438,6 @@ function App() {
         supplements={supplements}
         open={combinationDialogOpen}
         onOpenChange={setCombinationDialogOpen}
-      />
-
-      <TrendPredictionDialog
-        supplement={predictionSupplement}
-        open={predictionDialogOpen}
-        onOpenChange={setPredictionDialogOpen}
-      />
-
-      <ResearchInsightDialog
-        signal={selectedResearchSignal}
-        open={researchDialogOpen}
-        onOpenChange={setResearchDialogOpen}
       />
       
       <Chatbot supplements={supplements} combinations={combinations} onSupplementSelect={handleViewInsight} />

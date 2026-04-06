@@ -7,6 +7,7 @@ import { ChatCircleDots, X, PaperPlaneTilt, Robot, User } from '@phosphor-icons/
 import { motion, AnimatePresence } from 'framer-motion'
 import { Supplement, SupplementCombination } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { BackendService } from '@/lib/backend-service'
 
 interface Message {
   id: string
@@ -317,14 +318,14 @@ async function generateResponse(
     return response
   }
 
-  const prompt = window.spark.llmPrompt`You are a helpful supplement trend assistant. Based on this user query: "${query}"
+  const prompt = spark.llmPrompt`You are a helpful supplement trend assistant. Based on this user query: "${query}"
 
 Available supplements: ${supplements.slice(0, 10).map(s => `${s.name} (${s.category}, ${s.trendDirection}): ${s.description.substring(0, 100)}`).join('\n')}
 
 Provide a helpful, concise response (3-4 sentences max) about relevant supplements or trends. Be conversational and helpful.`
 
   try {
-    const response = await window.spark.llm(prompt, 'gpt-4o-mini')
+    const response = await spark.llm(prompt, 'gpt-4o-mini')
     return response
   } catch (error) {
     return "I can help you explore supplements! Try asking about specific categories like 'peptides' or 'nootropics', or ask what's trending right now."
