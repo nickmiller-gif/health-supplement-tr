@@ -8,7 +8,6 @@ import { InsightDialog } from '@/components/InsightDialog'
 import { CombinationCard } from '@/components/CombinationCard'
 import { CombinationInsightDialog } from '@/components/CombinationInsightDialog'
 import { SuggestedSupplements } from '@/components/SuggestedSupplements'
-import { ApiSettings } from '@/components/ApiSettings'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
@@ -29,10 +28,11 @@ function App() {
   const [selectedCombinationTrend, setSelectedCombinationTrend] = useState<'all' | 'rising' | 'stable' | 'declining'>('all')
   const [combinationSortBy, setCombinationSortBy] = useState<'popularity' | 'trend' | 'name'>('popularity')
   const [trackedSupplements, setTrackedSupplements] = useKV<TrackedSupplement[]>('tracked-supplements', [])
-  const [exaApiKey] = useKV<string>('exa-api-key', '')
-  const [redditClientId] = useKV<string>('reddit-client-id', '')
-  const [redditClientSecret] = useKV<string>('reddit-client-secret', '')
-  const [rapidApiKey] = useKV<string>('rapid-api-key', '')
+  
+  const exaApiKey: string = ''
+  const redditClientId: string = ''
+  const redditClientSecret: string = ''
+  const rapidApiKey: string = ''
   const [supplements, setSupplements] = useState<Supplement[]>(INITIAL_SUPPLEMENTS)
   const [combinations, setCombinations] = useState<SupplementCombination[]>(SUPPLEMENT_COMBINATIONS)
   const [selectedSupplement, setSelectedSupplement] = useState<Supplement | null>(null)
@@ -232,19 +232,16 @@ function App() {
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <div className="flex gap-2">
-              <ApiSettings />
-              <Button
-                onClick={handleDiscoverTrends}
-                disabled={isLoadingTrends}
-                variant="secondary"
-                size="lg"
-                className="gap-2"
-              >
-                <ArrowsClockwise className={`w-5 h-5 ${isLoadingTrends ? 'animate-spin' : ''}`} />
-                {isLoadingTrends ? 'Discovering...' : 'Refresh Trends'}
-              </Button>
-            </div>
+            <Button
+              onClick={handleDiscoverTrends}
+              disabled={isLoadingTrends}
+              variant="secondary"
+              size="lg"
+              className="gap-2"
+            >
+              <ArrowsClockwise className={`w-5 h-5 ${isLoadingTrends ? 'animate-spin' : ''}`} />
+              {isLoadingTrends ? 'Discovering...' : 'Refresh Trends'}
+            </Button>
             <p className="text-xs text-primary-foreground/60">
               Last updated: {formatLastUpdated()}
             </p>
