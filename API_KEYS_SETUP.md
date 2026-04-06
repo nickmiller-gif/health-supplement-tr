@@ -99,12 +99,8 @@ Here's what your `src/config/api-keys.ts` file should look like with all keys fi
 
 ```typescript
 export const API_KEYS = {
-  exa: 'abc123xyz789',
-  reddit: {
-    clientId: 'a1b2c3d4e5f6g7',
-    clientSecret: 'x1y2z3a4b5c6d7e8f9g0h1i2'
-  },
-  rapidApi: 'def456uvw012'
+  exa: '8805b859-b175-4097-9ceb-eb424e40ef0e',
+  rapidApi: 'fbd977f6d6msha78628ae99e0e78p18c74cjsne54b63bfded9'
 }
 ```
 
