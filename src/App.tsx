@@ -8,11 +8,12 @@ import { InsightDialog } from '@/components/InsightDialog'
 import { CombinationCard } from '@/components/CombinationCard'
 import { CombinationInsightDialog } from '@/components/CombinationInsightDialog'
 import { SuggestedSupplements } from '@/components/SuggestedSupplements'
+import { TrendPredictionDialog } from '@/components/TrendPredictionDialog'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { MagnifyingGlass, Flask, Pill, Brain, Atom, Stack, SortAscending, ArrowsClockwise, Sparkle, Info, Rocket } from '@phosphor-icons/react'
+import { MagnifyingGlass, Flask, Pill, Brain, Atom, Stack, SortAscending, ArrowsClockwise, Sparkle, Info, Rocket, TrendUp, Clock } from '@phosphor-icons/react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -22,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { API_KEYS } from '@/config/api-keys'
 import { ApiSettings } from '@/components/ApiSettings'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { registerCronJob, getCronJobs, formatNextRun } from '@/lib/cron-scheduler'
 
 function App() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -47,9 +49,12 @@ function App() {
   const [selectedCombination, setSelectedCombination] = useState<SupplementCombination | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [combinationDialogOpen, setCombinationDialogOpen] = useState(false)
+  const [predictionDialogOpen, setPredictionDialogOpen] = useState(false)
+  const [predictionSupplement, setPredictionSupplement] = useState<Supplement | null>(null)
   const [isLoadingTrends, setIsLoadingTrends] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<number | null>(null)
   const [dismissedWelcome, setDismissedWelcome] = useKV<boolean>('dismissed-welcome', false)
+  const [nextScheduledUpdate, setNextScheduledUpdate] = useState<string>('')
 
   const filteredSupplements = useMemo(() => {
     const filtered = supplements.filter(supplement => {
@@ -140,6 +145,11 @@ function App() {
     setCombinationDialogOpen(true)
   }
 
+  const handleViewPrediction = (supplement: Supplement) => {
+    setPredictionSupplement(supplement)
+    setPredictionDialogOpen(true)
+  }
+
   const getCategoryIcon = (category: SupplementCategory | 'all') => {
     switch (category) {
       case 'peptide':
@@ -217,6 +227,27 @@ function App() {
     checkAndRefreshTrends()
   }, [])
 
+  useEffect(() => {
+    const setupCronJob = async () => {
+      await registerCronJob(
+        'daily-trend-update',
+        'Daily Morning Trend Refresh',
+        async () => {
+          console.log('Running daily scheduled trend update...')
+          await handleDiscoverTrends()
+        }
+      )
+
+      const jobs = await getCronJobs()
+      const dailyJob = jobs.find(j => j.id === 'daily-trend-update')
+      if (dailyJob) {
+        setNextScheduledUpdate(formatNextRun(dailyJob.nextRun))
+      }
+    }
+
+    setupCronJob()
+  }, [])
+
   const formatLastUpdated = () => {
     if (!lastUpdated) return 'Never'
     const minutes = Math.floor((Date.now() - lastUpdated) / 1000 / 60)
@@ -254,9 +285,17 @@ function App() {
                 {isLoadingTrends ? 'Discovering...' : 'Refresh Trends'}
               </Button>
             </div>
-            <p className="text-xs text-primary-foreground/60">
-              Last updated: {formatLastUpdated()}
-            </p>
+            <div className="flex flex-col items-end gap-1">
+              <p className="text-xs text-primary-foreground/60">
+                Last updated: {formatLastUpdated()}
+              </p>
+              {nextScheduledUpdate && (
+                <p className="text-xs text-primary-foreground/60 flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  Next auto-update: {nextScheduledUpdate}
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -365,6 +404,10 @@ function App() {
               <Badge variant="secondary" className="ml-2">
                 {filteredCombinations.length}
               </Badge>
+            </TabsTrigger>
+            <TabsTrigger value="predictions" className="text-base px-6 flex items-center gap-2">
+              <TrendUp weight="duotone" className="w-4 h-4" />
+              Predictions
             </TabsTrigger>
             <TabsTrigger value="tracked" className="text-base px-6">
               Tracked
@@ -522,6 +565,52 @@ function App() {
             </ScrollArea>
           </TabsContent>
 
+          <TabsContent value="predictions">
+            <ScrollArea className="h-[calc(100vh-400px)]">
+              <div className="space-y-6 pb-4">
+                <div className="mb-4">
+                  <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+                    <Sparkle weight="duotone" className="w-6 h-6 text-accent" />
+                    Future Trend Predictions
+                  </h2>
+                  <p className="text-muted-foreground">
+                    AI-powered predictions for supplement trends 45, 90, and 180 days from now
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredSupplements.slice(0, 9).map((supplement) => (
+                    <div key={supplement.id} className="border rounded-lg p-4 space-y-3 hover:border-accent/50 transition-colors">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h4 className="font-semibold">{supplement.name}</h4>
+                          <p className="text-xs text-muted-foreground mt-1">{supplement.category}</p>
+                        </div>
+                        <Badge variant={supplement.trendDirection === 'rising' ? 'default' : 'secondary'}>
+                          {supplement.trendDirection}
+                        </Badge>
+                      </div>
+                      
+                      <div className="text-sm text-muted-foreground line-clamp-2">
+                        {supplement.description}
+                      </div>
+
+                      <Button
+                        onClick={() => handleViewPrediction(supplement)}
+                        variant="outline"
+                        size="sm"
+                        className="w-full gap-2"
+                      >
+                        <Sparkle weight="duotone" className="w-4 h-4" />
+                        View Prediction
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </ScrollArea>
+          </TabsContent>
+
           <TabsContent value="tracked">
             <ScrollArea className="h-[calc(100vh-400px)]">
               <div className="space-y-6 pb-4">
@@ -576,6 +665,12 @@ function App() {
         supplements={supplements}
         open={combinationDialogOpen}
         onOpenChange={setCombinationDialogOpen}
+      />
+
+      <TrendPredictionDialog
+        supplement={predictionSupplement}
+        open={predictionDialogOpen}
+        onOpenChange={setPredictionDialogOpen}
       />
       
       <Toaster />
