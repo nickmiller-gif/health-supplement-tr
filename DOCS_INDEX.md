@@ -61,6 +61,10 @@ Complete guide to the automated daily trend update system for TrendPulse.
 - **[README.md](./README.md)** - Main project overview with automated updates section
 - **[PRD.md](./PRD.md)** - Product requirements including automation features
 
+### Deployment & Domain Setup
+- **[CONNECT_TO_LOVABLE.md](./CONNECT_TO_LOVABLE.md)** - Deploy TrendPulse to Lovable
+- **[CUSTOM_DOMAIN_SETUP.md](./CUSTOM_DOMAIN_SETUP.md)** - Add custom domain to Lovable deployment
+
 ### Database Setup
 - **[LOVABLE_SUPABASE_SETUP.md](./LOVABLE_SUPABASE_SETUP.md)** - Supabase configuration
 - **[SUPABASE_SCHEMA_UPDATE.sql](./SUPABASE_SCHEMA_UPDATE.sql)** - Database schema
