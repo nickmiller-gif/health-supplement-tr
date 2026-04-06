@@ -1,21 +1,49 @@
-import { Supplement, SupplementCombination, TrendDirection, SupplementCategory } from './types'
+import { Supplement, SupplementCombination, TrendDirection, SupplementCategory, DiscussionLink } from './types'
 import { discoverSupplementTrendsWithExa, discoverCombinationsWithExa } from './exa-api'
+import { searchAllPlatforms, SocialMediaConfig, SocialSearchResult } from './social-media-apis'
 
 interface TrendAnalysis {
   supplements: Supplement[]
   combinations: SupplementCombination[]
   lastUpdated: number
+  socialDataUsed?: boolean
+  platformsQueried?: string[]
 }
 
 const CACHE_DURATION = 1000 * 60 * 30
 
-export async function discoverSupplementTrends(exaApiKey?: string): Promise<TrendAnalysis> {
+export async function discoverSupplementTrends(
+  exaApiKey?: string,
+  socialConfig?: Omit<SocialMediaConfig, 'exaApiKey'>
+): Promise<TrendAnalysis> {
+  const hasSocialAPIs = !!(
+    socialConfig?.redditClientId || 
+    socialConfig?.rapidApiKey
+  )
+  
+  if (hasSocialAPIs) {
+    try {
+      const fullConfig: SocialMediaConfig = {
+        ...socialConfig,
+        exaApiKey
+      }
+      const socialResults = await discoverSupplementTrendsWithSocial(fullConfig)
+      return {
+        ...socialResults,
+        socialDataUsed: true
+      }
+    } catch (error) {
+      console.error('Social media API search failed:', error)
+    }
+  }
+  
   if (exaApiKey) {
     try {
       const exaResults = await discoverSupplementTrendsWithExa(exaApiKey)
       return {
         ...exaResults,
-        combinations: []
+        combinations: [],
+        socialDataUsed: false
       }
     } catch (error) {
       console.error('EXA API failed, falling back to LLM-only:', error)
@@ -23,6 +51,124 @@ export async function discoverSupplementTrends(exaApiKey?: string): Promise<Tren
   }
   
   return discoverSupplementTrendsLLMOnly()
+}
+
+async function discoverSupplementTrendsWithSocial(config: SocialMediaConfig): Promise<TrendAnalysis> {
+  try {
+    const supplementQueries = [
+      'peptides BPC-157 TB-500',
+      'nootropics supplements cognitive',
+      'NAD+ NMN longevity supplements',
+      'magnesium vitamin D3 K2',
+      'methylene blue supplements'
+    ]
+
+    const platformsQueried: string[] = []
+    const allSocialData: SocialSearchResult[] = []
+
+    for (const query of supplementQueries) {
+      const { allResults, byPlatform } = await searchAllPlatforms(query, config)
+      allSocialData.push(...allResults)
+      
+      Object.keys(byPlatform).forEach(platform => {
+        if (byPlatform[platform].length > 0 && !platformsQueried.includes(platform)) {
+          platformsQueried.push(platform)
+        }
+      })
+    }
+
+    const socialContext = allSocialData
+      .slice(0, 50)
+      .map(result => `[${result.platform}] ${result.title} - ${result.content?.substring(0, 150) || ''}`)
+      .join('\n')
+
+    const prompt = window.spark.llmPrompt`You are analyzing REAL social media data about supplement trends from Reddit, Twitter/X, TikTok, and LinkedIn.
+
+Here is actual social media data collected from these platforms:
+
+${socialContext}
+
+Based on this REAL data, identify the top 15 most trending supplements. Extract supplement names mentioned in the social media posts and analyze their popularity.
+
+For each supplement, determine:
+1. Current trend direction (rising, stable, or declining based on discussion volume and sentiment)
+2. Popularity score (0-100 based on how frequently it's mentioned across platforms)
+3. Brief accurate description (1-2 sentences)
+4. Simulated trend data as 8 numbers showing progression over past 8 weeks
+5. Discussion links - use the ACTUAL URLs from the social media data provided above
+
+Return ONLY valid JSON with this exact structure:
+{
+  "supplements": [
+    {
+      "name": "Supplement Name",
+      "category": "peptide|vitamin|mineral|nootropic|amino-acid|other",
+      "trendDirection": "rising|stable|declining",
+      "popularityScore": 85,
+      "description": "Brief accurate description",
+      "trendData": [45, 52, 61, 68, 75, 82, 88, 92],
+      "discussionLinks": [
+        {
+          "platform": "Reddit",
+          "url": "https://reddit.com/...",
+          "title": "Discussion title"
+        }
+      ]
+    }
+  ]
+}`
+
+    const response = await window.spark.llm(prompt, 'gpt-4o', true)
+    const data = JSON.parse(response)
+    
+    const discussionLinksByPlatform = new Map<string, SocialSearchResult[]>()
+    allSocialData.forEach(result => {
+      const platform = result.platform
+      if (!discussionLinksByPlatform.has(platform)) {
+        discussionLinksByPlatform.set(platform, [])
+      }
+      discussionLinksByPlatform.get(platform)!.push(result)
+    })
+    
+    const supplements: Supplement[] = data.supplements.map((s: any, idx: number) => {
+      let discussionLinks: DiscussionLink[] = s.discussionLinks || []
+      
+      const supplementName = s.name.toLowerCase()
+      const relatedPosts = allSocialData.filter(post => 
+        post.title?.toLowerCase().includes(supplementName) ||
+        post.content?.toLowerCase().includes(supplementName)
+      ).slice(0, 5)
+      
+      if (relatedPosts.length > 0) {
+        discussionLinks = relatedPosts.map(post => ({
+          platform: post.platform,
+          url: post.url,
+          title: post.title
+        }))
+      }
+      
+      return {
+        id: `trend-${idx + 1}`,
+        name: s.name,
+        category: s.category as SupplementCategory,
+        trendDirection: s.trendDirection as TrendDirection,
+        popularityScore: s.popularityScore,
+        description: s.description,
+        trendData: s.trendData,
+        discussionLinks
+      }
+    })
+
+    return {
+      supplements,
+      combinations: [],
+      lastUpdated: Date.now(),
+      platformsQueried
+    }
+  } catch (error) {
+    console.error('Error discovering trends with social media:', error)
+    throw error
+  }
 }
 
 async function discoverSupplementTrendsLLMOnly(): Promise<TrendAnalysis> {
@@ -90,7 +236,28 @@ Base your analysis on real supplements that are actually being discussed in thes
   }
 }
 
-export async function discoverSupplementCombinations(supplements: Supplement[], exaApiKey?: string): Promise<SupplementCombination[]> {
+export async function discoverSupplementCombinations(
+  supplements: Supplement[], 
+  exaApiKey?: string,
+  socialConfig?: Omit<SocialMediaConfig, 'exaApiKey'>
+): Promise<SupplementCombination[]> {
+  const hasSocialAPIs = !!(
+    socialConfig?.redditClientId || 
+    socialConfig?.rapidApiKey
+  )
+  
+  if (hasSocialAPIs) {
+    try {
+      const fullConfig: SocialMediaConfig = {
+        ...socialConfig,
+        exaApiKey
+      }
+      return await discoverCombinationsWithSocial(supplements, fullConfig)
+    } catch (error) {
+      console.error('Social media API search failed for combinations:', error)
+    }
+  }
+  
   if (exaApiKey) {
     try {
       return await discoverCombinationsWithExa(supplements, exaApiKey)
@@ -100,6 +267,124 @@ export async function discoverSupplementCombinations(supplements: Supplement[], 
   }
   
   return discoverCombinationsLLMOnly(supplements)
+}
+
+async function discoverCombinationsWithSocial(
+  supplements: Supplement[],
+  config: SocialMediaConfig
+): Promise<SupplementCombination[]> {
+  try {
+    const stackQueries = [
+      'supplement stacks biohacking',
+      'peptide combinations protocol',
+      'wolverine stack BPC-157 TB-500',
+      'nootropic stack cognitive',
+      'longevity supplement protocol NAD'
+    ]
+
+    const allSocialData: SocialSearchResult[] = []
+
+    for (const query of stackQueries) {
+      const { allResults } = await searchAllPlatforms(query, config)
+      allSocialData.push(...allResults)
+    }
+
+    const socialContext = allSocialData
+      .slice(0, 40)
+      .map(result => `[${result.platform}] ${result.title} - ${result.content?.substring(0, 150) || ''}`)
+      .join('\n')
+
+    const supplementsList = supplements.map(s => `${s.name} (${s.category})`).join(', ')
+    
+    const prompt = window.spark.llmPrompt`You are analyzing REAL social media data about supplement stacks and combinations from Reddit, Twitter/X, TikTok, and LinkedIn.
+
+Here is actual social media data collected from these platforms:
+
+${socialContext}
+
+Available supplements: ${supplementsList}
+
+Based on this REAL data, identify 8-10 supplement combinations/stacks that are mentioned or discussed.
+
+For each combination, provide:
+1. A catchy name (extract from the discussions if mentioned)
+2. Purpose and benefits
+3. Which supplements are combined (reference by exact name from the list above)
+4. Trend direction and popularity
+5. Discussion links - use the ACTUAL URLs from the social media data provided above
+
+Return ONLY valid JSON with this exact structure:
+{
+  "combinations": [
+    {
+      "name": "Stack Name",
+      "description": "What this combination does",
+      "purpose": "Primary goal",
+      "supplementNames": ["Exact Name 1", "Exact Name 2"],
+      "trendDirection": "rising|stable|declining",
+      "popularityScore": 87,
+      "trendData": [42, 51, 58, 66, 72, 78, 83, 87],
+      "references": ["Platform or source"],
+      "discussionLinks": [
+        {
+          "platform": "Reddit",
+          "url": "https://reddit.com/...",
+          "title": "Discussion title"
+        }
+      ]
+    }
+  ]
+}`
+
+    const response = await window.spark.llm(prompt, 'gpt-4o', true)
+    const data = JSON.parse(response)
+    
+    const supplementNameToId = new Map(supplements.map(s => [s.name.toLowerCase(), s.id]))
+    
+    const combinations: SupplementCombination[] = data.combinations.map((c: any, idx: number) => {
+      const supplementIds = c.supplementNames
+        .map((name: string) => supplementNameToId.get(name.toLowerCase()))
+        .filter((id: string | undefined) => id !== undefined)
+      
+      let discussionLinks: DiscussionLink[] = c.discussionLinks || []
+      
+      const stackName = c.name.toLowerCase()
+      const relatedPosts = allSocialData.filter(post => 
+        post.title?.toLowerCase().includes(stackName) ||
+        post.content?.toLowerCase().includes(stackName) ||
+        c.supplementNames.some((suppName: string) => 
+          post.title?.toLowerCase().includes(suppName.toLowerCase()) ||
+          post.content?.toLowerCase().includes(suppName.toLowerCase())
+        )
+      ).slice(0, 5)
+      
+      if (relatedPosts.length > 0) {
+        discussionLinks = relatedPosts.map(post => ({
+          platform: post.platform,
+          url: post.url,
+          title: post.title
+        }))
+      }
+      
+      return {
+        id: `combo-${idx + 1}`,
+        name: c.name,
+        description: c.description,
+        purpose: c.purpose,
+        supplementIds,
+        trendDirection: c.trendDirection as TrendDirection,
+        popularityScore: c.popularityScore,
+        trendData: c.trendData,
+        references: c.references,
+        discussionLinks
+      }
+    }).filter((c: SupplementCombination) => c.supplementIds.length >= 2)
+
+    return combinations
+  } catch (error) {
+    console.error('Error discovering combinations with social media:', error)
+    throw error
+  }
 }
 
 async function discoverCombinationsLLMOnly(supplements: Supplement[]): Promise<SupplementCombination[]> {

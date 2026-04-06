@@ -30,6 +30,9 @@ function App() {
   const [combinationSortBy, setCombinationSortBy] = useState<'popularity' | 'trend' | 'name'>('popularity')
   const [trackedSupplements, setTrackedSupplements] = useKV<TrackedSupplement[]>('tracked-supplements', [])
   const [exaApiKey] = useKV<string>('exa-api-key', '')
+  const [redditClientId] = useKV<string>('reddit-client-id', '')
+  const [redditClientSecret] = useKV<string>('reddit-client-secret', '')
+  const [rapidApiKey] = useKV<string>('rapid-api-key', '')
   const [supplements, setSupplements] = useState<Supplement[]>(INITIAL_SUPPLEMENTS)
   const [combinations, setCombinations] = useState<SupplementCombination[]>(SUPPLEMENT_COMBINATIONS)
   const [selectedSupplement, setSelectedSupplement] = useState<Supplement | null>(null)
@@ -154,19 +157,30 @@ function App() {
     setIsLoadingTrends(true)
     try {
       const apiKey = exaApiKey && exaApiKey.trim() ? exaApiKey.trim() : undefined
+      const socialConfig = {
+        redditClientId: redditClientId && redditClientId.trim() ? redditClientId.trim() : undefined,
+        redditClientSecret: redditClientSecret && redditClientSecret.trim() ? redditClientSecret.trim() : undefined,
+        rapidApiKey: rapidApiKey && rapidApiKey.trim() ? rapidApiKey.trim() : undefined
+      }
+
+      const hasSocialAPIs = !!(socialConfig.redditClientId || socialConfig.rapidApiKey)
       
       toast.promise(
         async () => {
-          const trendData = await discoverSupplementTrends(apiKey)
+          const trendData = await discoverSupplementTrends(apiKey, socialConfig)
           setSupplements(trendData.supplements)
           setLastUpdated(trendData.lastUpdated)
 
-          const combosData = await discoverSupplementCombinations(trendData.supplements, apiKey)
+          const combosData = await discoverSupplementCombinations(trendData.supplements, apiKey, socialConfig)
           setCombinations(combosData)
         },
         {
-          loading: apiKey ? 'Using EXA to discover real web trends...' : 'Discovering latest supplement trends...',
-          success: apiKey ? 'Real web data from Reddit, forums & communities!' : 'Trends updated with AI analysis!',
+          loading: hasSocialAPIs ? 'Scanning Reddit, Twitter, TikTok & LinkedIn for real trends...' : 
+                   apiKey ? 'Using EXA to discover real web trends...' : 
+                   'Discovering latest supplement trends...',
+          success: hasSocialAPIs ? 'Real social media data from multiple platforms!' : 
+                   apiKey ? 'Real web data from Reddit, forums & communities!' : 
+                   'Trends updated with AI analysis!',
           error: 'Failed to fetch trends. Using cached data.',
         }
       )
