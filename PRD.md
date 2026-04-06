@@ -1,23 +1,37 @@
 # Planning Guide
 
-A centralized AI-powered supplement intelligence platform with a single source of truth backend. Users access daily trend data from a shared Supabase database and interact with an AI chatbot for personalized supplement insights. All API keys and data management handled server-side for security and simplicity.
+A centralized AI-powered supplement intelligence platform with automated daily trend updates. Users access real-time trend data from a shared Supabase database, manage automated update schedules, and interact with an AI chatbot for personalized supplement insights. All API keys and data management handled server-side for security and simplicity.
 
 **Experience Qualities**:
-1. **Centralized & Secure** - Single backend with server-side API management; all trends stored in shared Supabase database; users consume pre-generated daily data
-2. **Conversational & Intuitive** - AI chatbot for natural language queries about supplements, stacks, and trends; simplified read-only interface
-3. **Modern & Performant** - Clean, responsive design optimized for viewing trends; fast load times with pre-computed data
+1. **Automated & Intelligent** - Daily automated trend updates at 8:00 AM; owner-controlled scheduling; real-time progress tracking; multi-source data aggregation
+2. **Centralized & Secure** - Single backend with server-side API management; all trends stored in shared Supabase database; admin dashboard for system control
+3. **Conversational & Intuitive** - AI chatbot for natural language queries about supplements, stacks, and trends; simplified read-only interface
 
-**Complexity Level**: Complex Application (backend-driven architecture with centralized data management)
-- Full-stack application with centralized Supabase backend, server-side API key management, shared daily trend updates, AI chatbot, and responsive read-only frontend
+**Complexity Level**: Complex Application (backend-driven architecture with automated scheduling and centralized data management)
+- Full-stack application with centralized Supabase backend, automated cron scheduling, server-side API key management, admin dashboard, AI chatbot, and responsive frontend
 
 ## Essential Features
 
+### Automated Daily Trend Updates
+- **Functionality**: Automated cron scheduler runs daily at 8:00 AM to fetch fresh supplement data from multiple sources (EXA, Reddit, Twitter/X, TikTok, LinkedIn) and updates the Supabase database. Owner can control scheduling, run manual updates, and monitor progress through admin dashboard. Real-time progress indicators show update phases (fetching keys, discovering supplements, discovering combinations, saving data). Success/failure notifications with detailed error messages.
+- **Purpose**: Eliminate manual update burden; ensure data freshness; provide owner control over system operations; enable troubleshooting with real-time feedback
+- **Trigger**: Automatically at scheduled time (8:00 AM) or manually via admin dashboard
+- **Progression**: Scheduler triggers → Fetches API keys from Supabase → Queries multiple data sources → Aggregates and analyzes trends → Generates AI insights → Saves to database → Notifies completion
+- **Success criteria**: Updates run automatically on schedule; manual updates complete in <2 minutes; progress tracking updates every 10%; success rate >95%; all users see fresh data within 5 minutes
+
+### Admin Dashboard
+- **Functionality**: Owner-only dashboard showing system status, update history, database statistics, and scheduler controls. Displays last update time, supplement/stack counts, database connection status. Provides toggle for enabling/disabling automatic updates, "Run Now" button for manual updates, and real-time progress tracking with phase-by-phase indicators.
+- **Purpose**: Give owner full control over system operations; enable monitoring and troubleshooting; provide transparency into update process
+- **Trigger**: Owner clicks "Admin" button in main app header
+- **Progression**: Owner navigates to admin → Verifies ownership with `spark.user().isOwner` → Views system overview → Accesses trend scheduler → Enables/disables automation or runs manual update → Monitors real-time progress → Views success/failure status
+- **Success criteria**: Only owner can access; loads in <1 second; shows accurate real-time data; progress updates every 500ms; clear error messages on failure
+
 ### Centralized Backend with Supabase
-- **Functionality**: Single shared Supabase database stores all supplement trends, stacks, and API configuration. API keys managed server-side in `api_configuration` table. Trend updates run centrally (manually or via cron) and all users see the same daily data.
+- **Functionality**: Single shared Supabase database stores all supplement trends, stacks, and API configuration. API keys managed server-side in `api_configuration` table. Trend updates run via automated scheduler and all users see the same daily data.
 - **Purpose**: Eliminate per-user API costs, ensure data consistency, simplify UX by removing configuration complexity, and improve security by keeping secrets server-side
 - **Trigger**: App loads and automatically fetches latest trends from shared database
 - **Progression**: App initializes → Connects to Supabase → Fetches daily supplements and combinations → Displays read-only trend data → User can browse/filter/sort
-- **Success criteria**: All users see identical daily trends; API keys never exposed in frontend code; data loads instantly from database cache; single admin can update trends for all users
+- **Success criteria**: All users see identical daily trends; API keys never exposed in frontend code; data loads instantly from database cache; automated updates keep data fresh
 
 ### Read-Only Trend Viewing
 - **Functionality**: Users browse pre-computed daily supplement trends and stacks. Can filter by category (peptides, vitamins, nootropics), sort by popularity/trend/name, and view detailed AI insights for each supplement or combination.

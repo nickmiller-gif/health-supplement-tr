@@ -11,6 +11,28 @@ A simplified, centralized supplement intelligence platform where users access da
 - **🤖 AI Chatbot** - Natural language queries without any setup
 - **🎯 Simplified UX** - Clean 2-tab interface focused on viewing and chatting
 - **🔒 Enhanced Security** - API keys stored server-side, never in frontend
+- **⏰ Automated Updates** - Daily automated trend updates at 8:00 AM with owner control
+
+## 🚀 Automated Daily Updates
+
+TrendPulse features a complete automated update system that keeps supplement data fresh!
+
+**Key Features:**
+- ⏰ Automatic scheduling (daily at 8:00 AM)
+- 📊 Real-time progress tracking
+- 🎛️ Owner control via admin dashboard
+- 🔒 Secure server-side API management
+- 📈 Multi-source data (Reddit, Twitter/X, TikTok, LinkedIn)
+
+**Quick Start:**
+1. Click "Admin" in app header (owner only)
+2. Go to "Trend Scheduler" tab
+3. Enable automation or run manual update
+
+**Documentation:**
+- [Quick Start Guide](./QUICK_START_UPDATES.md) - 5-minute setup
+- [Full Documentation](./AUTOMATED_UPDATES.md) - Technical details
+- [Implementation Summary](./AUTOMATED_UPDATES_SUMMARY.md) - Architecture
 
 ## 🚀 Quick Start
 

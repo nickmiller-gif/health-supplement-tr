@@ -6,10 +6,11 @@ import { InsightDialog } from '@/components/InsightDialog'
 import { CombinationCard } from '@/components/CombinationCard'
 import { CombinationInsightDialog } from '@/components/CombinationInsightDialog'
 import { Chatbot } from '@/components/Chatbot'
+import { AdminDashboard } from '@/components/AdminDashboard'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { MagnifyingGlass, Flask, Pill, Brain, Atom, Stack, SortAscending, Sparkle, Clock, ArrowsClockwise, Info } from '@phosphor-icons/react'
+import { MagnifyingGlass, Flask, Pill, Brain, Atom, Stack, SortAscending, Sparkle, Clock, ArrowsClockwise, Info, ShieldCheck } from '@phosphor-icons/react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -21,6 +22,21 @@ import { isSupabaseConfigured } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 
 function App() {
+  const [currentView, setCurrentView] = useState<'main' | 'admin'>('main')
+
+  if (currentView === 'admin') {
+    return (
+      <>
+        <AdminDashboard onBack={() => setCurrentView('main')} />
+        <Toaster />
+      </>
+    )
+  }
+
+  return <MainApp onNavigateToAdmin={() => setCurrentView('admin')} />
+}
+
+function MainApp({ onNavigateToAdmin }: { onNavigateToAdmin: () => void }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<SupplementCategory | 'all'>('all')
   const [sortBy, setSortBy] = useState<'popularity' | 'trend' | 'name'>('popularity')
@@ -189,16 +205,27 @@ function App() {
               </motion.div>
               
               <div className="flex flex-col items-start md:items-end gap-3">
-                <Button
-                  onClick={loadTrends}
-                  disabled={isLoading}
-                  variant="secondary"
-                  size="lg"
-                  className="gap-2 shadow-lg"
-                >
-                  <ArrowsClockwise className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
-                  {isLoading ? 'Loading...' : 'Refresh'}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={onNavigateToAdmin}
+                    variant="outline"
+                    size="lg"
+                    className="gap-2 bg-primary-foreground/10 border-primary-foreground/20 hover:bg-primary-foreground/20 text-primary-foreground"
+                  >
+                    <ShieldCheck className="w-5 h-5" weight="duotone" />
+                    Admin
+                  </Button>
+                  <Button
+                    onClick={loadTrends}
+                    disabled={isLoading}
+                    variant="secondary"
+                    size="lg"
+                    className="gap-2 shadow-lg"
+                  >
+                    <ArrowsClockwise className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+                    {isLoading ? 'Loading...' : 'Refresh'}
+                  </Button>
+                </div>
                 <div className="flex flex-col items-start md:items-end gap-1">
                   <p className="text-xs text-primary-foreground/70 flex items-center gap-2">
                     <Clock className="w-3 h-3" />
