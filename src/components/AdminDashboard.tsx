@@ -119,14 +119,10 @@ export function AdminDashboard({ onBack }: { onBack?: () => void }) {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <Tabs defaultValue="connections" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="connections" className="gap-2">
               <Plugs className="w-4 h-4" weight="duotone" />
               Connections
-            </TabsTrigger>
-            <TabsTrigger value="verification" className="gap-2">
-              <CheckCircle className="w-4 h-4" weight="duotone" />
-              Verify
             </TabsTrigger>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="scheduler">Trend Scheduler</TabsTrigger>
@@ -134,10 +130,6 @@ export function AdminDashboard({ onBack }: { onBack?: () => void }) {
 
           <TabsContent value="connections">
             <ConnectionManager />
-          </TabsContent>
-
-          <TabsContent value="verification">
-            <SupabaseVerification />
           </TabsContent>
 
           <TabsContent value="overview" className="space-y-6">
