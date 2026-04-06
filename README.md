@@ -14,7 +14,7 @@ An intelligent platform for discovering supplement trends with conversational AI
 
 ## 🚀 Quick Start
 
-### Instant Setup (No Configuration Required)
+### 1. Install & Run (30 seconds)
 ```bash
 npm install
 npm run dev
@@ -22,16 +22,42 @@ npm run dev
 
 The app works immediately with sample data! Open `http://localhost:5173`
 
-**👉 See [`QUICK_START.md`](./QUICK_START.md) for detailed instructions**
+### 2. Connect Supabase Database (10 minutes) - **Recommended**
+
+For persistent data storage and production-ready backend:
+
+**📚 Complete Supabase Documentation: [`SUPABASE_DOCS_INDEX.md`](./SUPABASE_DOCS_INDEX.md)**
+
+**Quick Links:**
+- 🚀 **Fast Setup:** [`SUPABASE_QUICKSTART.md`](./SUPABASE_QUICKSTART.md) (5 min)
+- 📖 **Detailed Guide:** [`SUPABASE_SETUP.md`](./SUPABASE_SETUP.md) (10 min)
+- 🔧 **Troubleshooting:** [`SUPABASE_TROUBLESHOOTING.md`](./SUPABASE_TROUBLESHOOTING.md)
+
+Without Supabase, the app uses local mock data (resets on refresh). With Supabase, you get:
+- ✅ Data persistence across sessions
+- ✅ Real-time synchronization
+- ✅ Scalable PostgreSQL database
+- ✅ Production-ready architecture
+
+**👉 See [`QUICK_START.md`](./QUICK_START.md) for complete instructions**
 
 ## 📚 Documentation
 
-- **[QUICK_START.md](./QUICK_START.md)** - Get started in 30 seconds
-- **[BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md)** - Complete backend architecture guide
-- **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)** - Database setup (5 minutes)
+### Getting Started
+- **[QUICK_START.md](./QUICK_START.md)** - Get the app running in 30 seconds
+- **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)** - Complete database setup guide (10 min)
+- **[SUPABASE_QUICKSTART.md](./SUPABASE_QUICKSTART.md)** - Quick checklist for experienced devs
+
+### Architecture & Features
+- **[BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md)** - Complete backend architecture
 - **[UPGRADE_SUMMARY.md](./UPGRADE_SUMMARY.md)** - What's new in V2.0  
 - **[V2_IMPLEMENTATION.md](./V2_IMPLEMENTATION.md)** - Technical implementation details
 - **[PRD.md](./PRD.md)** - Product requirements and design decisions
+
+### Advanced
+- **[API_SETUP_GUIDE.md](./API_SETUP_GUIDE.md)** - Configure real API integrations
+- **[SECURITY.md](./SECURITY.md)** - Security best practices
+- **[EMAIL_SCHEDULING.md](./EMAIL_SCHEDULING.md)** - Email report scheduling
 
 ## 🎯 Key Features
 
@@ -104,15 +130,30 @@ Fully responsive with:
 - Add environment variables
 - Deploy!
 
-## 📖 Optional: Add Supabase Backend
+## 📖 Database Persistence
 
-While the app works without it, Supabase adds:
-- Persistent storage across devices
-- User authentication
-- Real-time updates
-- Scalability for production
+### Without Supabase (Default)
+The app works immediately with local mock data. Great for:
+- Quick testing and demos
+- Local development
+- Learning the features
 
-**Follow [`SUPABASE_SETUP.md`](./SUPABASE_SETUP.md) when you're ready** (takes 15 minutes)
+**Limitation**: Data resets on page refresh
+
+### With Supabase (Recommended for Production)
+Connect a free PostgreSQL database to get:
+- ✅ **Persistent storage** - Data survives refreshes and sessions
+- ✅ **Real-time updates** - Changes sync instantly
+- ✅ **Multi-user ready** - Share data across devices
+- ✅ **Scalable** - Handles millions of records
+- ✅ **Backups** - Automatic point-in-time recovery
+- ✅ **Free tier** - 500MB storage, unlimited API requests
+
+**Setup Time**: 10 minutes  
+**Cost**: Free forever (with generous limits)  
+**Guide**: Follow [`SUPABASE_SETUP.md`](./SUPABASE_SETUP.md)
+
+The app automatically detects Supabase configuration and uses it when available. No code changes needed!
 
 ## 📁 Project Structure
 

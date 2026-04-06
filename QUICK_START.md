@@ -1,6 +1,6 @@
 # 🚀 Quick Start Guide
 
-## Instant Setup (No Backend Required)
+## Step 1: Install & Run (30 seconds)
 
 The app works immediately with sample data:
 
@@ -11,71 +11,112 @@ npm run dev
 
 Open `http://localhost:5173` and you're done! 🎉
 
-## Try the AI Chatbot
+## Step 2: Connect Database (10 minutes) - Optional but Recommended
 
-Click the **chat icon** in the bottom-right corner and ask:
-- "Show me peptides for muscle recovery"
-- "What's trending in nootropics?"
-- "Find supplements for better sleep"
+### Why Connect Supabase?
 
-## Want to Add Supabase Backend?
+**Without Supabase** (current state):
+- ✅ Works immediately
+- ❌ Data resets on page refresh
+- ❌ No cross-device sync
 
-Follow these steps when you're ready:
+**With Supabase**:
+- ✅ Data persists forever
+- ✅ Real-time updates
+- ✅ Production-ready
+- ✅ 100% free tier
 
-### 1. Create Supabase Project (5 min)
-- Go to [supabase.com](https://supabase.com)
-- Sign up and create a new project
-- Wait for initialization (~2 minutes)
+### Quick Setup
 
-### 2. Get Credentials (1 min)
-- Go to Settings → API in your Supabase dashboard
-- Copy your **Project URL** and **anon key**
+Choose your guide:
 
-### 3. Configure Environment (1 min)
+1. **📖 Complete Guide** (with explanations)  
+   Follow [`SUPABASE_SETUP.md`](./SUPABASE_SETUP.md) - 10 minutes
+
+2. **⚡ Quick Checklist** (for experienced devs)  
+   Follow [`SUPABASE_QUICKSTART.md`](./SUPABASE_QUICKSTART.md) - 5 minutes
+
+### TL;DR Version
+
 ```bash
-cp .env.example .env
-```
+# 1. Create Supabase account at supabase.com
+# 2. Create new project, wait 2 minutes
+# 3. Copy URL and anon key from Settings → API
+# 4. Create .env file:
+echo "VITE_SUPABASE_URL=your_url
+VITE_SUPABASE_ANON_KEY=your_key" > .env
 
-Edit `.env` and paste your credentials:
-```env
-VITE_SUPABASE_URL=https://xxxxx.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJ...
-```
-
-### 4. Set Up Database (5 min)
-- Open Supabase SQL Editor
-- Copy the SQL from `SUPABASE_SETUP.md`
-- Run it
-- Done!
-
-### 5. Restart Dev Server
-```bash
+# 5. Run SQL script from SUPABASE_SETUP.md in Supabase SQL Editor
+# 6. Restart dev server
 npm run dev
 ```
 
-Your app now has a production-ready backend! 🎉
+You should see "✅ Supabase Connected" in the app!
+
+---
 
 ## Features to Explore
 
 ### 🤖 AI Chatbot
-- Click chat icon (bottom-right)
-- Ask natural language questions
-- Get intelligent supplement recommendations
+Click the **chat icon** in the bottom-right corner and ask:
+- "Show me peptides for muscle recovery"
+- "What's trending in nootropics?"
+- "Find supplements for better sleep"
+- "Which supplements are rising?"
 
 ### 💙 Track Supplements
 - Click heart icon on any card
 - View tracked items in "Tracked" tab
-- Persists across sessions (with Supabase)
+- Get personalized recommendations (needs 2+ tracked)
+- **Persists across sessions with Supabase!**
 
 ### 🔍 Search & Filter
-- Use the search bar
-- Click category badges
-- Sort by popularity, trend, or name
+- Use the search bar for instant filtering
+- Click category badges (Peptides, Vitamins, etc.)
+- Sort by popularity, trend direction, or name
+- Filter combinations by trend status
 
 ### 📊 View Insights
-- Click "View AI Insights" on any card
-- See detailed analysis
-- Explore trending stacks
+- Click "View AI Insights" on any supplement
+- See detailed AI-generated analysis
+- Explore trending supplement stacks
+- View future trend predictions
+
+### 📈 Research Signals
+- Click "Research Signals" tab
+- Discover emerging supplements from scientific literature
+- View research phase and confidence scores
+- Click "Scan Research" for latest discoveries
+
+### 📧 Export & Schedule
+- **Export Data** - Download trends as JSON or CSV
+- **Email Scheduler** - Set up automated trend reports
+- **API Settings** - Configure real trend sources
+
+---
+
+## Try the AI Chatbot
+
+Click the **chat icon** (💬) in the bottom-right and try:
+
+**Search queries:**
+- "Show me all peptides"
+- "What nootropics are trending?"
+- "Find vitamins"
+
+**Specific questions:**
+- "Tell me about BPC-157"
+- "What's NAD+ used for?"
+- "Show rising supplements"
+
+**Recommendations:**
+- "What should I take for recovery?"
+- "Best supplements for sleep?"
+- "Cognitive enhancement stack?"
+
+The chatbot understands natural language and provides smart filtering!
+
+---
 
 ## Mobile Experience
 
