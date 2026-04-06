@@ -6,21 +6,21 @@ An intelligent platform that discovers and analyzes real-time supplement trends 
 
 To enable real-time trend discovery from social platforms, you need to add your API keys.
 
-### Option 1: Add Keys to Config File (Recommended)
+### Option 1: Add Keys to Config File (⭐ Recommended)
 
 1. Open the file: **`src/config/api-keys.ts`**
-2. Add your API keys between the quotes:
+2. Replace `'YOUR_EXA_API_KEY_HERE'` with your actual EXA API key:
 
 ```typescript
 export const API_KEYS = {
-  exa: 'your_exa_api_key_here',
+  exa: 'sk-abc123xyz789',  // Replace with your actual EXA API key
   
   reddit: {
-    clientId: 'your_reddit_client_id',
-    clientSecret: 'your_reddit_client_secret'
+    clientId: '',  // Optional: add Reddit credentials
+    clientSecret: ''
   },
   
-  rapidApi: 'your_rapidapi_key_here'
+  rapidApi: ''  // Optional: add RapidAPI key
 }
 ```
 
@@ -39,14 +39,14 @@ Keys entered this way are stored locally in your browser.
 **See the detailed guide:** [API_KEYS_SETUP.md](./API_KEYS_SETUP.md)
 
 ### Quick Links:
+- **⭐ EXA Search** (RECOMMENDED): [exa.ai](https://exa.ai) (Free tier: 1,000 searches/month, then $10/mo)
 - **Reddit API** (FREE): [reddit.com/prefs/apps](https://www.reddit.com/prefs/apps)
-- **EXA Search**: [exa.ai](https://exa.ai) (Free tier: 1,000 searches/month)
 - **RapidAPI**: [rapidapi.com/hub](https://rapidapi.com/hub) (For Twitter, TikTok, LinkedIn)
 
 ### Recommended Setup:
-1. **Start with Reddit** (100% free, great coverage)
-2. **Add EXA** for broader web coverage (~$10/month)
-3. **Optionally add RapidAPI** for premium social media access
+1. **⭐ Start with EXA API** - Best single API for comprehensive coverage (covers Reddit, forums, blogs, communities)
+2. **Optionally add Reddit** (100% free) for direct Reddit API access
+3. **Optionally add RapidAPI** for premium social media (Twitter, TikTok, LinkedIn)
 
 ## 🎯 Features
 

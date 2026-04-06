@@ -6,26 +6,33 @@ This guide will help you add your actual API keys to enable real-time supplement
 
 Open the file: **`src/config/api-keys.ts`**
 
-This file contains a simple configuration object where you can paste your API keys.
+This file contains a simple configuration object where you can paste your API keys. This is the recommended method as it builds the keys into your app, so users don't need to configure anything.
 
 ## Step-by-Step Instructions
 
-### 1. EXA Search API (Recommended - Best Coverage)
+### 1. EXA Search API (⭐ HIGHLY RECOMMENDED - Best Coverage)
 
-**What it does:** Searches Reddit, forums, and communities across the web for supplement discussions.
+**What it does:** Searches Reddit, forums, biohacking communities, and the broader web for supplement discussions and trends. This is the most comprehensive single API for supplement trend discovery.
 
 **Cost:** Free tier available with 1,000 searches/month, then $10/month for 10,000 searches.
 
+**Why EXA is recommended:**
+- Covers multiple platforms: Reddit, forums, blogs, health communities
+- Provides actual discussion excerpts and highlights
+- Better quality results than combining multiple APIs
+- More cost-effective than multiple paid APIs
+- Includes intelligent search that understands supplement terminology
+
 **How to get your key:**
 1. Go to [exa.ai](https://exa.ai)
-2. Sign up for an account
+2. Sign up for an account (free tier available)
 3. Navigate to your dashboard and create an API key
 4. Copy the API key
 
 **Add to config:**
 ```typescript
 export const API_KEYS = {
-  exa: 'your_exa_api_key_here',  // Paste your key between the quotes
+  exa: 'your_exa_api_key_here',  // Paste your actual EXA API key here
   // ... rest of config
 }
 ```
@@ -104,18 +111,18 @@ export const API_KEYS = {
 ## Recommendations
 
 **For best results, we recommend:**
-1. **Start with Reddit API (FREE)** - Great coverage of supplement communities
-2. **Add EXA API** - Broader web coverage including forums and blogs
+1. **⭐ Start with EXA API** - Best single API for comprehensive coverage (free tier available, then ~$10/month)
+2. **Optionally add Reddit API (FREE)** - Direct Reddit access for r/Nootropics, r/Supplements, r/Biohacking
 3. **Optionally add RapidAPI** - For premium social media coverage (Twitter, TikTok, LinkedIn)
 
-**Minimum setup:**
-- Just Reddit API (free) will give you good supplement trend data from Reddit communities
+**Minimum setup (RECOMMENDED):**
+- **Just EXA API** - Best coverage in one API. The free tier gives you 1,000 searches/month which is enough to discover trends multiple times per day. EXA already includes Reddit, forums, blogs, and health communities in its results.
 
-**Recommended setup:**
-- Reddit API + EXA API - Best balance of coverage and cost (~$10/month)
+**Enhanced setup:**
+- **EXA API + Reddit API** - EXA for broad coverage + direct Reddit API for real-time Reddit posts (~$10/month for EXA, Reddit is free)
 
 **Premium setup:**
-- All three - Complete social media coverage from Reddit, Twitter, TikTok, LinkedIn, and the broader web
+- **All three** - Complete social media coverage from Reddit, Twitter, TikTok, LinkedIn, forums, blogs, and the broader web (~$20-60/month depending on usage)
 
 ## After Adding Your Keys
 
