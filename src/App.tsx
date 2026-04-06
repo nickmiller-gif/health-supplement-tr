@@ -12,13 +12,15 @@ import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { MagnifyingGlass, Flask, Pill, Brain, Atom, Stack, SortAscending, ArrowsClockwise, Sparkle } from '@phosphor-icons/react'
+import { MagnifyingGlass, Flask, Pill, Brain, Atom, Stack, SortAscending, ArrowsClockwise, Sparkle, Gear } from '@phosphor-icons/react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Toaster } from '@/components/ui/sonner'
 import { toast } from 'sonner'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { API_KEYS } from '@/config/api-keys'
+import { ApiSettings } from '@/components/ApiSettings'
 
 function App() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -29,10 +31,15 @@ function App() {
   const [combinationSortBy, setCombinationSortBy] = useState<'popularity' | 'trend' | 'name'>('popularity')
   const [trackedSupplements, setTrackedSupplements] = useKV<TrackedSupplement[]>('tracked-supplements', [])
   
-  const exaApiKey: string = ''
-  const redditClientId: string = ''
-  const redditClientSecret: string = ''
-  const rapidApiKey: string = ''
+  const [storedExaKey] = useKV<string>('exa-api-key', '')
+  const [storedRedditId] = useKV<string>('reddit-client-id', '')
+  const [storedRedditSecret] = useKV<string>('reddit-client-secret', '')
+  const [storedRapidKey] = useKV<string>('rapidapi-key', '')
+  
+  const exaApiKey = API_KEYS.exa || storedExaKey || ''
+  const redditClientId = API_KEYS.reddit.clientId || storedRedditId || ''
+  const redditClientSecret = API_KEYS.reddit.clientSecret || storedRedditSecret || ''
+  const rapidApiKey = API_KEYS.rapidApi || storedRapidKey || ''
   const [supplements, setSupplements] = useState<Supplement[]>(INITIAL_SUPPLEMENTS)
   const [combinations, setCombinations] = useState<SupplementCombination[]>(SUPPLEMENT_COMBINATIONS)
   const [selectedSupplement, setSelectedSupplement] = useState<Supplement | null>(null)
@@ -232,16 +239,19 @@ function App() {
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <Button
-              onClick={handleDiscoverTrends}
-              disabled={isLoadingTrends}
-              variant="secondary"
-              size="lg"
-              className="gap-2"
-            >
-              <ArrowsClockwise className={`w-5 h-5 ${isLoadingTrends ? 'animate-spin' : ''}`} />
-              {isLoadingTrends ? 'Discovering...' : 'Refresh Trends'}
-            </Button>
+            <div className="flex gap-2">
+              <ApiSettings />
+              <Button
+                onClick={handleDiscoverTrends}
+                disabled={isLoadingTrends}
+                variant="secondary"
+                size="lg"
+                className="gap-2"
+              >
+                <ArrowsClockwise className={`w-5 h-5 ${isLoadingTrends ? 'animate-spin' : ''}`} />
+                {isLoadingTrends ? 'Discovering...' : 'Refresh Trends'}
+              </Button>
+            </div>
             <p className="text-xs text-primary-foreground/60">
               Last updated: {formatLastUpdated()}
             </p>
