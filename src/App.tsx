@@ -3,17 +3,20 @@ import { useKV } from '@github/spark/hooks'
 import { Supplement, TrackedSupplement, SupplementCategory, SupplementCombination } from '@/lib/types'
 import { INITIAL_SUPPLEMENTS, SUPPLEMENT_COMBINATIONS } from '@/lib/data'
 import { discoverSupplementTrends, discoverSupplementCombinations } from '@/lib/trend-discovery'
+import { discoverEmergingSupplements, EmergingSupplementSignal } from '@/lib/research-discovery'
 import { SupplementCard } from '@/components/SupplementCard'
 import { InsightDialog } from '@/components/InsightDialog'
 import { CombinationCard } from '@/components/CombinationCard'
 import { CombinationInsightDialog } from '@/components/CombinationInsightDialog'
 import { SuggestedSupplements } from '@/components/SuggestedSupplements'
 import { TrendPredictionDialog } from '@/components/TrendPredictionDialog'
+import { EmergingResearchCard } from '@/components/EmergingResearchCard'
+import { ResearchInsightDialog } from '@/components/ResearchInsightDialog'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { MagnifyingGlass, Flask, Pill, Brain, Atom, Stack, SortAscending, ArrowsClockwise, Sparkle, Info, Rocket, TrendUp, Clock } from '@phosphor-icons/react'
+import { MagnifyingGlass, Flask, Pill, Brain, Atom, Stack, SortAscending, ArrowsClockwise, Sparkle, Info, Rocket, TrendUp, Clock, Database } from '@phosphor-icons/react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -48,13 +51,17 @@ function App() {
   const rapidApiKey = API_KEYS.rapidApi || storedRapidKey || ''
   const [supplements, setSupplements] = useState<Supplement[]>(INITIAL_SUPPLEMENTS)
   const [combinations, setCombinations] = useState<SupplementCombination[]>(SUPPLEMENT_COMBINATIONS)
+  const [emergingSignals, setEmergingSignals] = useState<EmergingSupplementSignal[]>([])
   const [selectedSupplement, setSelectedSupplement] = useState<Supplement | null>(null)
   const [selectedCombination, setSelectedCombination] = useState<SupplementCombination | null>(null)
+  const [selectedResearchSignal, setSelectedResearchSignal] = useState<EmergingSupplementSignal | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [combinationDialogOpen, setCombinationDialogOpen] = useState(false)
+  const [researchDialogOpen, setResearchDialogOpen] = useState(false)
   const [predictionDialogOpen, setPredictionDialogOpen] = useState(false)
   const [predictionSupplement, setPredictionSupplement] = useState<Supplement | null>(null)
   const [isLoadingTrends, setIsLoadingTrends] = useState(false)
+  const [isLoadingResearch, setIsLoadingResearch] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<number | null>(null)
   const [dismissedWelcome, setDismissedWelcome] = useKV<boolean>('dismissed-welcome', false)
   const [nextScheduledUpdate, setNextScheduledUpdate] = useState<string>('')
@@ -151,6 +158,29 @@ function App() {
   const handleViewPrediction = (supplement: Supplement) => {
     setPredictionSupplement(supplement)
     setPredictionDialogOpen(true)
+  }
+
+  const handleViewResearchSignal = (signal: EmergingSupplementSignal) => {
+    setSelectedResearchSignal(signal)
+    setResearchDialogOpen(true)
+  }
+
+  const handleDiscoverResearch = async () => {
+    setIsLoadingResearch(true)
+    const apiKey = exaApiKey && exaApiKey.trim() ? exaApiKey.trim() : undefined
+    
+    toast.promise(
+      async () => {
+        const signals = await discoverEmergingSupplements(apiKey)
+        setEmergingSignals(signals)
+      },
+      {
+        loading: apiKey ? 'Scanning PubMed and research databases for emerging compounds...' : 'Analyzing emerging supplement research...',
+        success: apiKey ? 'Research signals discovered from scientific literature!' : 'Emerging trends identified!',
+        error: 'Failed to discover research signals.',
+      }
+    )
+    setIsLoadingResearch(false)
   }
 
   const getCategoryIcon = (category: SupplementCategory | 'all') => {
@@ -420,6 +450,13 @@ function App() {
                 {filteredCombinations.length}
               </Badge>
             </TabsTrigger>
+            <TabsTrigger value="research" className="text-base px-6 flex items-center gap-2">
+              <Database weight="duotone" className="w-4 h-4" />
+              Research Signals
+              <Badge variant="secondary" className="ml-2">
+                {emergingSignals.length}
+              </Badge>
+            </TabsTrigger>
             <TabsTrigger value="predictions" className="text-base px-6 flex items-center gap-2">
               <TrendUp weight="duotone" className="w-4 h-4" />
               Predictions
@@ -626,6 +663,81 @@ function App() {
             </ScrollArea>
           </TabsContent>
 
+          <TabsContent value="research">
+            <ScrollArea className="h-[calc(100vh-400px)]">
+              <div className="space-y-6 pb-4">
+                <div className="mb-4 flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+                      <Database weight="duotone" className="w-6 h-6 text-accent" />
+                      Early Research Signals
+                    </h2>
+                    <p className="text-muted-foreground">
+                      Emerging supplements identified from recent research before they hit mainstream. Based on PubMed, clinical trials, and scientific literature.
+                    </p>
+                  </div>
+                  <Button
+                    onClick={handleDiscoverResearch}
+                    disabled={isLoadingResearch}
+                    variant="default"
+                    className="gap-2"
+                  >
+                    <ArrowsClockwise className={`w-5 h-5 ${isLoadingResearch ? 'animate-spin' : ''}`} />
+                    {isLoadingResearch ? 'Scanning...' : 'Scan Research'}
+                  </Button>
+                </div>
+
+                {emergingSignals.length === 0 && !isLoadingResearch ? (
+                  <div className="text-center py-12 space-y-4">
+                    <Database weight="duotone" className="w-16 h-16 mx-auto text-muted-foreground opacity-50" />
+                    <div>
+                      <p className="text-muted-foreground text-lg mb-2">
+                        No research signals discovered yet.
+                      </p>
+                      <p className="text-muted-foreground text-sm mb-4">
+                        Click "Scan Research" to discover emerging supplements from recent scientific publications.
+                      </p>
+                      <Button onClick={handleDiscoverResearch} variant="outline" className="gap-2">
+                        <Database weight="duotone" className="w-5 h-5" />
+                        Start Research Scan
+                      </Button>
+                    </div>
+                  </div>
+                ) : isLoadingResearch ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div key={i} className="space-y-3 border rounded-lg p-5">
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-2 flex-1">
+                            <Skeleton className="h-6 w-3/4" />
+                            <Skeleton className="h-4 w-1/4" />
+                          </div>
+                          <Skeleton className="h-6 w-16" />
+                        </div>
+                        <Skeleton className="h-16 w-full" />
+                        <div className="flex gap-2">
+                          <Skeleton className="h-2 flex-1" />
+                          <Skeleton className="h-4 w-12" />
+                        </div>
+                        <Skeleton className="h-9 w-full" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {emergingSignals.map((signal) => (
+                      <EmergingResearchCard
+                        key={signal.id}
+                        signal={signal}
+                        onViewDetails={handleViewResearchSignal}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          </TabsContent>
+
           <TabsContent value="tracked">
             <ScrollArea className="h-[calc(100vh-400px)]">
               <div className="space-y-6 pb-4">
@@ -686,6 +798,12 @@ function App() {
         supplement={predictionSupplement}
         open={predictionDialogOpen}
         onOpenChange={setPredictionDialogOpen}
+      />
+
+      <ResearchInsightDialog
+        signal={selectedResearchSignal}
+        open={researchDialogOpen}
+        onOpenChange={setResearchDialogOpen}
       />
       
       <Toaster />

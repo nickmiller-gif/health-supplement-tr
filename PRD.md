@@ -59,6 +59,20 @@ An AI-powered trend discovery platform that uses LLM analysis to surface emergin
 - **Progression**: AI discovers popular supplement combinations → Generates stack names and purposes → User views combinations with detailed AI analysis of synergistic effects
 - **Success criteria**: System discovers 8-10 real trending combinations with clear explanations of why they're being discussed
 
+### Research-Based Early Signal Detection
+- **Functionality**: Scans PubMed, scientific journals, and research databases to identify supplements with recent research publications before they become mainstream trends
+- **Purpose**: Predict future supplement trends 3-12 months ahead by identifying compounds with promising new research but low current awareness
+- **Trigger**: User clicks "Scan Research" button in Research Signals tab
+- **Progression**: User clicks Scan Research → System queries PubMed API for recent publications (past 12-24 months) → Optional: EXA API searches research sites (nature.com, thelancet.com, nih.gov) → AI analyzes research abstracts and titles → Identifies emerging compounds mentioned in recent studies → Calculates emergence scores, signal strength, and time-to-trend estimates → Displays emerging supplements with research article links
+- **Success criteria**: 
+  - Successfully queries PubMed API and retrieves recent research articles
+  - Identifies 8-12 emerging supplements with recent clinical or pre-clinical research
+  - Each emerging supplement includes research phase, confidence score, and timing prediction
+  - Links to actual research articles (PubMed URLs) for verification
+  - Accurately predicts which compounds will trend in 1-3, 3-6, 6-12, or 12+ months
+  - Distinguishes between pre-clinical, clinical trials, recent clinical, and meta-analysis research phases
+  - Provides reasoning for why each compound will trend based on research momentum
+
 ### Real-Time Trend Suggestions
 - **Functionality**: AI generates personalized suggestions for new supplements based on user's tracked items and current market trends
 - **Purpose**: Helps users discover relevant supplements they might not know about
