@@ -1,224 +1,132 @@
-# API Setup Guide for TrendPulse
+# 🔑 API Setup Guide - TrendPulse
 
-This guide will walk you through obtaining all the API keys needed to power TrendPulse's real-time supplement trend discovery.
+Get real supplement trends from Reddit, forums, and social media by adding your API keys!
 
----
+## 🚀 Quick Start (Recommended)
 
-## 🔍 EXA API (Web Search & Research)
+### Step 1: Get Your EXA API Key (FREE)
 
-**What it does:** Powers intelligent web search across Reddit, forums, research papers, and community discussions to discover supplement trends.
+**EXA is the easiest and most powerful option** - it gives you access to Reddit, forums, blogs, and the entire web with a single API key.
 
-**Cost:** Free tier available (1,000 searches/month)
+1. **Sign up at [exa.ai](https://exa.ai)**
+2. **Create a free account** (1,000 searches/month included)
+3. **Generate an API key** from your dashboard
+4. **Add it to TrendPulse:**
+   - Click the **"API Settings"** button (⚙️ gear icon) in the app header
+   - Paste your EXA API key in the first field
+   - Click **"Save Settings"**
+5. **Click "Refresh Trends"** to discover real supplement data!
 
-### Steps to Get Your EXA API Key:
-
-1. **Visit EXA's Website**
-   - Go to [https://exa.ai](https://exa.ai)
-
-2. **Sign Up**
-   - Click "Get Started" or "Sign Up"
-   - Create an account with your email
-
-3. **Access Dashboard**
-   - After signing up, you'll be redirected to your dashboard
-   - Navigate to the API section
-
-4. **Generate API Key**
-   - Click "Create API Key" or "Generate New Key"
-   - Copy your API key (it looks like: `exa_xxxxxxxxxxxxxxxxxxxxxx`)
-
-5. **Add to TrendPulse**
-   - Click the settings icon (⚙️) in the top-right of TrendPulse
-   - Paste your EXA API key in the "EXA API Key" field
-   - Click "Save Settings"
-
-**Documentation:** [https://docs.exa.ai](https://docs.exa.ai)
+**Cost:** FREE (1,000 searches/month) or $10/month for 10,000 searches
 
 ---
 
-## 🐦 Reddit API (Community Discussions)
+## 🔐 Security & Privacy
 
-**What it does:** Fetches real discussions from r/Nootropics, r/Supplements, r/Biohacking, and other health communities.
-
-**Cost:** Free
-
-### Steps to Get Reddit API Credentials:
-
-1. **Create a Reddit Account**
-   - Go to [https://www.reddit.com](https://www.reddit.com)
-   - Sign up if you don't have an account
-
-2. **Navigate to App Preferences**
-   - Go to [https://www.reddit.com/prefs/apps](https://www.reddit.com/prefs/apps)
-   - Or: Click your profile → Settings → Safety & Privacy → Manage third-party app authorization
-
-3. **Create an Application**
-   - Scroll to the bottom and click "Create App" or "Create Another App"
-
-4. **Fill Out the Form**
-   - **Name:** TrendPulse (or any name you prefer)
-   - **App type:** Select "script"
-   - **Description:** Supplement trend discovery (optional)
-   - **About URL:** Leave blank (optional)
-   - **Redirect URI:** http://localhost:8080 (required, but not used)
-   - Click "Create app"
-
-5. **Copy Your Credentials**
-   - **Client ID:** The short string under your app name (looks random, 14 characters)
-   - **Client Secret:** Click "edit" and copy the secret key
-
-6. **Add to TrendPulse**
-   - Click the settings icon (⚙️) in TrendPulse
-   - Paste **Client ID** in "Reddit Client ID"
-   - Paste **Client Secret** in "Reddit Client Secret"
-   - Click "Save Settings"
-
-**Documentation:** [https://www.reddit.com/dev/api](https://www.reddit.com/dev/api)
+✅ **Your API keys are safe:**
+- Stored **locally in your browser** only
+- **Never sent to any server** except the API providers themselves
+- **Never committed to code** or shared publicly
+- Only you have access to your keys
 
 ---
 
-## 📱 RapidAPI (Twitter, TikTok, LinkedIn, Facebook)
+## 📊 Optional: Additional Data Sources
 
-**What it does:** Provides access to social media APIs for trend discovery across multiple platforms.
+Want even more comprehensive data? Add these optional APIs:
 
-**Cost:** Free tier available (varies by API, typically 100-500 requests/month)
+### Reddit API (FREE - Direct Reddit Access)
 
-### Steps to Get RapidAPI Key:
+1. Go to [reddit.com/prefs/apps](https://www.reddit.com/prefs/apps)
+2. Click "Create App" or "Create Another App"
+3. Fill out the form:
+   - **Name:** TrendPulse (or any name you like)
+   - **Type:** Select "script"
+   - **Redirect URI:** http://localhost (required but not used)
+4. Click "Create app"
+5. Copy the **Client ID** (under your app name) and **Secret**
+6. Add them to TrendPulse via **API Settings**
 
-1. **Create RapidAPI Account**
-   - Go to [https://rapidapi.com](https://rapidapi.com)
-   - Click "Sign Up" (top-right)
-   - Sign up with email or Google
-
-2. **Get Your API Key**
-   - After signing up, go to [https://rapidapi.com/developer/dashboard](https://rapidapi.com/developer/dashboard)
-   - Your default API key is displayed in the dashboard
-   - Copy the key (starts with something like `xxxxxxxxxxxxxxxxxxxxxxx`)
-
-3. **Subscribe to Social Media APIs** (Optional but recommended)
-
-   **For Twitter/X Data:**
-   - Visit [https://rapidapi.com/search/twitter](https://rapidapi.com/search/twitter)
-   - Popular options:
-     - "Twitter API v2" - Official Twitter data
-     - "Twitter V2" - Community APIs
-   - Click "Subscribe to Test" on your chosen API
-   - Select the **Free** plan
-   - Click "Subscribe"
-
-   **For TikTok Data:**
-   - Visit [https://rapidapi.com/search/tiktok](https://rapidapi.com/search/tiktok)
-   - Popular options:
-     - "TikTok API" - Video and trend data
-     - "TikTok Data" - Hashtag and user data
-   - Click "Subscribe to Test"
-   - Select the **Free** plan
-
-   **For LinkedIn Data:**
-   - Visit [https://rapidapi.com/search/linkedin](https://rapidapi.com/search/linkedin)
-   - Options include:
-     - "LinkedIn API" - Profile and post data
-   - Subscribe to free tier
-
-4. **Add to TrendPulse**
-   - Click the settings icon (⚙️) in TrendPulse
-   - Paste your RapidAPI key in "RapidAPI Key"
-   - Click "Save Settings"
-
-**Your Dashboard:** [https://rapidapi.com/developer/dashboard](https://rapidapi.com/developer/dashboard)
+**Cost:** FREE
 
 ---
 
-## 🎯 Quick Setup Checklist
+### RapidAPI (PAID - Twitter/X, TikTok, LinkedIn)
 
-- [ ] Get EXA API key → Paste in TrendPulse settings
-- [ ] Get Reddit Client ID & Secret → Paste in TrendPulse settings
-- [ ] Get RapidAPI key → Paste in TrendPulse settings
-- [ ] Subscribe to social media APIs on RapidAPI (optional)
-- [ ] Click "Refresh Trends" in TrendPulse to test
+Access premium social media platforms:
 
----
+1. Sign up at [rapidapi.com](https://rapidapi.com/hub)
+2. Subscribe to these APIs (all use the same RapidAPI key):
+   - **Twitter/X API** - Search tweets and trends
+   - **TikTok API** - Discover viral supplement content
+   - **LinkedIn API** - Professional health discussions
+3. Copy your **RapidAPI key** from your dashboard
+4. Add it to TrendPulse via **API Settings**
 
-## 💡 Usage Tiers
-
-### Free Tier (No APIs)
-- **What you get:** AI-generated trends based on general knowledge
-- **Best for:** Exploring the app, casual use
-- **Limitations:** Not real-time, may hallucinate
-
-### EXA Only
-- **What you get:** Real web data from Reddit, forums, research papers
-- **Best for:** Accurate supplement trend discovery
-- **Free tier:** 1,000 searches/month
-- **Limitations:** No social media real-time data
-
-### Full Setup (EXA + Reddit + RapidAPI)
-- **What you get:** Complete real-time data from all sources
-- **Best for:** Comprehensive trend analysis
-- **Free tier:** Varies by API
-- **Limitations:** Rate limits on free tiers
+**Cost:** Varies by plan (typically $10-50/month depending on usage)
 
 ---
 
-## 🔐 Security Notes
+## 🎯 What Each API Provides
 
-- **Never share your API keys publicly**
-- **Keys are stored locally** in your browser (not on any server)
-- **You can rotate keys** anytime in the respective API dashboards
-- **Delete keys** from TrendPulse settings if you regenerate them
-
----
-
-## 🆘 Troubleshooting
-
-### "Failed to fetch trends"
-- Check that API keys are entered correctly (no extra spaces)
-- Verify your API keys are active in their respective dashboards
-- Check you haven't exceeded free tier limits
-
-### Reddit API not working
-- Make sure you created a "script" type app (not "web app")
-- Verify both Client ID AND Client Secret are entered
-- Reddit API is read-only for public posts
-
-### RapidAPI not working
-- Confirm you've subscribed to at least one social media API
-- Check your usage limits in RapidAPI dashboard
-- Some APIs require additional endpoint subscriptions
+| API | Data Sources | Cost | Setup Time |
+|-----|-------------|------|------------|
+| **EXA** ⭐ | Reddit, forums, blogs, communities, web | FREE/Paid | 2 min |
+| **Reddit** | r/Nootropics, r/Supplements, r/Biohacking | FREE | 3 min |
+| **RapidAPI** | Twitter/X, TikTok, LinkedIn | Paid | 5 min |
 
 ---
 
-## 📊 Testing Your Setup
+## 💡 Recommendations
 
-1. Add at least one API key to TrendPulse
-2. Click "Refresh Trends" button
-3. Watch the toast notification:
-   - "Discovering latest supplement trends..." = No APIs (AI-generated)
-   - "Using EXA to discover real web trends..." = EXA connected
-   - "Scanning Reddit, Twitter, TikTok & LinkedIn..." = Full social media connected
+### For Most Users:
+**Just use EXA** - It's free, powerful, and covers everything you need.
 
-4. Check supplement cards for real data indicators
-
----
-
-## 📚 Additional Resources
-
-- **EXA Documentation:** [https://docs.exa.ai](https://docs.exa.ai)
-- **Reddit API Docs:** [https://www.reddit.com/dev/api](https://www.reddit.com/dev/api)
-- **RapidAPI Help:** [https://docs.rapidapi.com](https://docs.rapidapi.com)
+### For Power Users:
+**Combine all three** for the most comprehensive trend data:
+- EXA for broad web coverage
+- Reddit for direct community access
+- RapidAPI for real-time social media trends
 
 ---
 
-## 💰 Pricing Summary (as of 2024)
+## ❓ Troubleshooting
 
-| API | Free Tier | Paid Plans Start At |
-|-----|-----------|---------------------|
-| EXA | 1,000 searches/month | $29/month |
-| Reddit | Unlimited read access | Free for read-only |
-| RapidAPI | Varies by API (100-500 req/month) | $5-50/month depending on API |
+### "No trends found" or "Using cached data"
+- Check that your API keys are correctly entered in **API Settings**
+- Ensure your API key has available quota
+- Try clearing the cache in **API Settings > Cache Management**
 
-**Recommendation:** Start with free tiers to test, upgrade only if you need more requests.
+### "API request failed"
+- Verify your API keys are active and have quota remaining
+- Check your API provider's dashboard for usage limits
+- Some APIs may have rate limits - wait a few minutes and try again
+
+### How do I know if my API is working?
+When you click **"Refresh Trends"**, you should see:
+- With EXA: "Using EXA to discover real web trends..."
+- With social APIs: "Scanning Reddit, Twitter, TikTok & LinkedIn for real trends..."
+- Without APIs: "Discovering latest supplement trends..." (uses AI analysis only)
 
 ---
 
-**Questions?** All APIs have support documentation linked above. Each dashboard shows your current usage and limits.
+## 🛟 Support
+
+Having issues? Here's what to check:
+
+1. ✅ API keys are correctly entered (no extra spaces)
+2. ✅ API keys are active and have quota remaining
+3. ✅ You clicked "Save Settings" after entering keys
+4. ✅ You clicked "Refresh Trends" after saving
+
+---
+
+## 🔄 How Often Should I Refresh?
+
+TrendPulse automatically caches results for **30 minutes** to save your API quota. You can manually refresh anytime, but the app will tell you when the last update was.
+
+**Pro tip:** Set up all your APIs, refresh once, and let the cache handle the rest!
+
+---
+
+**Ready to discover real supplement trends?** Click the ⚙️ **API Settings** button and get started! 🚀

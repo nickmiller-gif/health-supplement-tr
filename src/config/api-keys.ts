@@ -1,39 +1,51 @@
 /*
  * TrendPulse API Configuration
  * 
- * Add your API keys here to enable real-time supplement trend discovery.
- * 
- * GETTING STARTED:
+ * SECURITY NOTICE:
  * ================
+ * ⚠️ DO NOT add API keys directly to this file!
+ * 
+ * This file is for development/demo purposes only. API keys should NEVER be
+ * committed to code as they are secrets that could be exposed.
+ * 
+ * HOW TO ADD YOUR API KEYS (RECOMMENDED METHOD):
+ * ==============================================
+ * 
+ * 1. Click the "API Settings" button in the app's header (gear icon)
+ * 2. Enter your API keys in the secure dialog
+ * 3. Keys are stored locally in your browser using the KV store
+ * 4. Keys are never committed to code or shared publicly
+ * 
+ * GETTING YOUR API KEYS:
+ * ======================
  * 
  * ⭐ EXA API (RECOMMENDED - Best single API for comprehensive coverage)
  * --------------------------------------------------------------------
- * 1. Go to: https://exa.ai
- * 2. Sign up for a free account (1,000 searches/month free tier)
- * 3. Create an API key from your dashboard
- * 4. Replace 'YOUR_EXA_API_KEY_HERE' below with your actual key
- * 
+ * Website: https://exa.ai
+ * Sign up for a free account (1,000 searches/month free tier)
  * EXA covers: Reddit, forums, blogs, biohacking communities, and the broader web
  * Cost: Free (1,000/month) or $10/month for 10,000 searches
  * 
- * OPTIONAL APIs:
- * ==============
- * 
  * Reddit API (FREE - Direct Reddit access)
  * ----------------------------------------
- * Get credentials at: https://www.reddit.com/prefs/apps
- * Add clientId and clientSecret below
+ * Website: https://www.reddit.com/prefs/apps
+ * Create a new app and get your client ID and secret
+ * Cost: Free
  * 
  * RapidAPI (PAID - Premium social media)
  * ---------------------------------------
- * Access Twitter/X, TikTok, LinkedIn via: https://rapidapi.com/hub
- * Add your RapidAPI key below (one key works for all platforms)
+ * Website: https://rapidapi.com/hub
+ * Access Twitter/X, TikTok, LinkedIn (one key works for all platforms)
+ * Cost: Varies by plan
  * 
- * For detailed instructions, see: API_KEYS_SETUP.md
+ * DEVELOPER NOTE:
+ * ===============
+ * If you're developing locally and want to hardcode keys for testing,
+ * you can add them below (but NEVER commit them to a repository):
  */
 
 export const API_KEYS = {
-  exa: 'YOUR_EXA_API_KEY_HERE',
+  exa: '',
   
   reddit: {
     clientId: '',

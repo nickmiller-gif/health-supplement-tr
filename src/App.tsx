@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { MagnifyingGlass, Flask, Pill, Brain, Atom, Stack, SortAscending, ArrowsClockwise, Sparkle, Gear } from '@phosphor-icons/react'
+import { MagnifyingGlass, Flask, Pill, Brain, Atom, Stack, SortAscending, ArrowsClockwise, Sparkle, Info, Rocket } from '@phosphor-icons/react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -21,6 +21,7 @@ import { toast } from 'sonner'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { API_KEYS } from '@/config/api-keys'
 import { ApiSettings } from '@/components/ApiSettings'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 function App() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -48,6 +49,7 @@ function App() {
   const [combinationDialogOpen, setCombinationDialogOpen] = useState(false)
   const [isLoadingTrends, setIsLoadingTrends] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<number | null>(null)
+  const [dismissedWelcome, setDismissedWelcome] = useKV<boolean>('dismissed-welcome', false)
 
   const filteredSupplements = useMemo(() => {
     const filtered = supplements.filter(supplement => {
@@ -260,6 +262,51 @@ function App() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
+        {!dismissedWelcome && !exaApiKey && !redditClientId && !rapidApiKey && (
+          <Alert className="mb-6 border-accent/50 bg-gradient-to-r from-accent/10 to-primary/10">
+            <Rocket className="h-5 w-5 text-accent" />
+            <AlertDescription className="ml-6">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <p className="font-semibold text-foreground mb-2">🚀 Unlock Real Supplement Trends!</p>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Currently showing AI-generated trends. Add your <strong>FREE EXA API key</strong> to discover actual supplement discussions from Reddit, forums, and biohacking communities.
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="default"
+                      onClick={() => {
+                        const settingsButton = document.querySelector('[data-api-settings-button]') as HTMLButtonElement
+                        settingsButton?.click()
+                      }}
+                      className="gap-2"
+                    >
+                      <Rocket className="w-4 h-4" />
+                      Add API Key (2 min setup)
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setDismissedWelcome(true)}
+                    >
+                      Maybe later
+                    </Button>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-6 w-6 p-0"
+                  onClick={() => setDismissedWelcome(true)}
+                >
+                  ×
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <div className="mb-6 space-y-4">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
