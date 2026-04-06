@@ -63,6 +63,6 @@ export const API_KEYS = {
     clientId: '',
     clientSecret: ''
   },
-  openai: '',
-  anthropic: ''
+  openai: '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',
+  anthropic: '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'
 }
