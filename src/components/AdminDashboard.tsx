@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { TrendUpdateScheduler } from './TrendUpdateScheduler'
+import { ConnectionManager } from './ConnectionManager'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -12,7 +13,8 @@ import {
   Clock,
   TrendUp,
   Stack,
-  ArrowLeft
+  ArrowLeft,
+  Plugs
 } from '@phosphor-icons/react'
 
 export function AdminDashboard({ onBack }: { onBack?: () => void }) {
@@ -114,11 +116,19 @@ export function AdminDashboard({ onBack }: { onBack?: () => void }) {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList>
+        <Tabs defaultValue="connections" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="connections" className="gap-2">
+              <Plugs className="w-4 h-4" weight="duotone" />
+              Connections
+            </TabsTrigger>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="scheduler">Trend Scheduler</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="connections">
+            <ConnectionManager />
+          </TabsContent>
 
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
