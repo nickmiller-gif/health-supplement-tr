@@ -80,6 +80,18 @@ An AI-powered trend discovery platform that uses LLM analysis to surface emergin
 - **Progression**: User clicks save → Item added to favorites → Accessible from dedicated "Tracked" view → Can be removed later
 - **Success criteria**: Favorites persist across sessions and can be easily added/removed
 
+### Export Trend Reports
+- **Functionality**: Export comprehensive trend reports in CSV or PDF format with customizable content options
+- **Purpose**: Enables users to save, share, and analyze trend data offline or integrate with other tools
+- **Trigger**: User clicks "Export Report" button in header
+- **Progression**: User clicks Export → Dialog shows export options (include AI insights, discussion links, trend data) and statistics → User selects CSV or PDF format → File downloads with formatted report
+- **Success criteria**: 
+  - CSV exports contain all supplements and combinations in spreadsheet-compatible format
+  - PDF exports generate professional, print-ready reports with proper formatting
+  - Users can customize what data to include (insights, links, raw trend data)
+  - Reports include summary statistics and generation timestamp
+  - Files are named with current date for easy organization
+
 ## Edge Case Handling
 
 - **No AI Response**: If LLM fails, show cached fallback description or error state with retry option
@@ -87,6 +99,8 @@ An AI-powered trend discovery platform that uses LLM analysis to surface emergin
 - **First-Time User**: Show empty state for tracked supplements with clear call-to-action to explore trends
 - **Stale Data**: Include timestamp of last trend update to set user expectations about freshness
 - **Long Loading**: Show skeleton loaders during AI generation to maintain engagement
+- **Empty Export**: If no trends available, disable export button with tooltip explaining minimum data required
+- **Large Reports**: PDF export handles pagination automatically for reports with many supplements
 
 ## Design Direction
 
@@ -135,24 +149,27 @@ Animations should reinforce the sense of real-time data and discovery. Use subtl
 - **Components**:
   - **Card**: Primary container for trend items with hover effects
   - **Badge**: For trend indicators (rising/stable/declining) and categories
-  - **Dialog**: For detailed AI-generated insights and full supplement profiles
+  - **Dialog**: For detailed AI-generated insights, full supplement profiles, and export options
   - **Input**: Search bar with clear affordances
   - **Tabs**: To switch between "All Trends," "Tracked," and category filters
   - **Scroll Area**: For long trend lists
   - **Skeleton**: Loading states during AI generation
   - **Separator**: To divide sections cleanly
   - **Button**: Primary actions with distinct states for favoriting/tracking
+  - **Checkbox**: For toggling export options (insights, links, trend data)
   
 - **Customizations**:
   - Custom trend chart component using D3 for sparkline visualizations showing trend momentum
   - Gradient overlays on cards to add depth without clutter
   - Custom pulse animation for rising trend indicators
+  - Professional PDF report layout with branded header and formatted sections
   
 - **States**:
   - Cards: Subtle lift and border glow on hover, slight scale on active
   - Favorite button: Heart icon that fills with smooth animation
   - Search: Border accent color on focus with subtle shadow
   - Trend badges: Gentle pulse animation for "rising" state
+  - Export buttons: Show loading state during PDF/CSV generation
   
 - **Icon Selection**:
   - TrendUp/TrendDown from Phosphor for trend directions
@@ -160,6 +177,8 @@ Animations should reinforce the sense of real-time data and discovery. Use subtl
   - MagnifyingGlass for search
   - Sparkle for AI insights
   - Flask for peptides, Pill for vitamins, Brain for nootropics
+  - FileArrowDown for export trigger
+  - FileCsv/FilePdf for format selection
   
 - **Spacing**:
   - Container padding: `p-6` on desktop, `p-4` on mobile

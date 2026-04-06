@@ -24,6 +24,7 @@ import { API_KEYS } from '@/config/api-keys'
 import { ApiSettings } from '@/components/ApiSettings'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { registerCronJob, getCronJobs, formatNextRun } from '@/lib/cron-scheduler'
+import { ExportDialog } from '@/components/ExportDialog'
 
 function App() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -274,6 +275,7 @@ function App() {
           <div className="flex flex-col items-end gap-2">
             <div className="flex gap-2">
               <ApiSettings />
+              <ExportDialog supplements={supplements} combinations={combinations} />
               <Button
                 onClick={handleDiscoverTrends}
                 disabled={isLoadingTrends}
