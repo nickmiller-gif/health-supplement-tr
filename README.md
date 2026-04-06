@@ -27,8 +27,9 @@ The app works immediately with sample data! Open `http://localhost:5173`
 ## 📚 Documentation
 
 - **[QUICK_START.md](./QUICK_START.md)** - Get started in 30 seconds
+- **[BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md)** - Complete backend architecture guide
+- **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)** - Database setup (5 minutes)
 - **[UPGRADE_SUMMARY.md](./UPGRADE_SUMMARY.md)** - What's new in V2.0  
-- **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)** - Optional backend setup (15 minutes)
 - **[V2_IMPLEMENTATION.md](./V2_IMPLEMENTATION.md)** - Technical implementation details
 - **[PRD.md](./PRD.md)** - Product requirements and design decisions
 

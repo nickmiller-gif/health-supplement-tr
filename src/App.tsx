@@ -1,9 +1,9 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Supplement, TrackedSupplement, SupplementCategory, SupplementCombination } from '@/lib/types'
-import { INITIAL_SUPPLEMENTS, SUPPLEMENT_COMBINATIONS } from '@/lib/data'
 import { discoverSupplementTrends, discoverSupplementCombinations } from '@/lib/trend-discovery'
 import { discoverEmergingSupplements, EmergingSupplementSignal } from '@/lib/research-discovery'
+import { SupplementService } from '@/lib/supplement-service'
 import { SupplementCard } from '@/components/SupplementCard'
 import { InsightDialog } from '@/components/InsightDialog'
 import { CombinationCard } from '@/components/CombinationCard'
@@ -13,6 +13,7 @@ import { TrendPredictionDialog } from '@/components/TrendPredictionDialog'
 import { EmergingResearchCard } from '@/components/EmergingResearchCard'
 import { ResearchInsightDialog } from '@/components/ResearchInsightDialog'
 import { Chatbot } from '@/components/Chatbot'
+import { SupabaseStatus } from '@/components/SupabaseStatus'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
@@ -56,8 +57,8 @@ function App() {
   const rapidApiKey = API_KEYS.rapidApi || storedRapidKey || ''
   const openaiApiKey = API_KEYS.openai || storedOpenaiKey || ''
   const anthropicApiKey = API_KEYS.anthropic || storedAnthropicKey || ''
-  const [supplements, setSupplements] = useState<Supplement[]>(INITIAL_SUPPLEMENTS)
-  const [combinations, setCombinations] = useState<SupplementCombination[]>(SUPPLEMENT_COMBINATIONS)
+  const [supplements, setSupplements] = useState<Supplement[]>([])
+  const [combinations, setCombinations] = useState<SupplementCombination[]>([])
   const [emergingSignals, setEmergingSignals] = useState<EmergingSupplementSignal[]>([])
   const [selectedSupplement, setSelectedSupplement] = useState<Supplement | null>(null)
   const [selectedCombination, setSelectedCombination] = useState<SupplementCombination | null>(null)
@@ -230,16 +231,20 @@ function App() {
           setSupplements(trendData.supplements)
           setLastUpdated(trendData.lastUpdated)
 
+          await SupplementService.upsertSupplements(trendData.supplements)
+
           const combosData = await discoverSupplementCombinations(trendData.supplements, apiKey, socialConfig)
           setCombinations(combosData)
+
+          await SupplementService.upsertCombinations(combosData)
         },
         {
           loading: hasSocialAPIs ? 'Scanning Reddit, Twitter, TikTok & LinkedIn for real trends...' : 
                    apiKey ? 'Using EXA to discover real web trends...' : 
                    'Discovering latest supplement trends...',
-          success: hasSocialAPIs ? 'Real social media data from multiple platforms!' : 
-                   apiKey ? 'Real web data from Reddit, forums & communities!' : 
-                   'Trends updated with AI analysis!',
+          success: hasSocialAPIs ? 'Real social media data saved to database!' : 
+                   apiKey ? 'Real web data saved to database!' : 
+                   'Trends updated and saved!',
           error: 'Failed to fetch trends. Using cached data.',
         }
       )
@@ -251,20 +256,33 @@ function App() {
   }, [exaApiKey, redditClientId, redditClientSecret, rapidApiKey])
 
   useEffect(() => {
-    const checkAndRefreshTrends = async () => {
-      const lastUpdate = await window.spark.kv.get<number>('last-trend-update')
-      const now = Date.now()
-      const CACHE_DURATION = 1000 * 60 * 30
+    const loadInitialData = async () => {
+      try {
+        const [loadedSupplements, loadedCombinations] = await Promise.all([
+          SupplementService.getAllSupplements(),
+          SupplementService.getAllCombinations()
+        ])
+        
+        setSupplements(loadedSupplements)
+        setCombinations(loadedCombinations)
 
-      if (!lastUpdate || (now - lastUpdate) > CACHE_DURATION) {
-        handleDiscoverTrends()
-        await window.spark.kv.set('last-trend-update', now)
-      } else {
-        setLastUpdated(lastUpdate)
+        const lastUpdate = await window.spark.kv.get<number>('last-trend-update')
+        const now = Date.now()
+        const CACHE_DURATION = 1000 * 60 * 30
+
+        if (!lastUpdate || (now - lastUpdate) > CACHE_DURATION) {
+          handleDiscoverTrends()
+          await window.spark.kv.set('last-trend-update', now)
+        } else {
+          setLastUpdated(lastUpdate)
+        }
+      } catch (error) {
+        console.error('Error loading initial data:', error)
+        toast.error('Failed to load data from database')
       }
     }
 
-    checkAndRefreshTrends()
+    loadInitialData()
   }, [])
 
   useEffect(() => {
@@ -374,6 +392,10 @@ function App() {
       </motion.div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="mb-6">
+          <SupabaseStatus />
+        </div>
+
         {!dismissedWelcome && !exaApiKey && !redditClientId && !rapidApiKey && (
           <Alert className="mb-6 border-accent/50 bg-gradient-to-r from-accent/10 to-primary/10">
             <Rocket className="h-5 w-5 text-accent" />

@@ -1,12 +1,10 @@
-import { supabase } from './supabase'
+import { supabase, isSupabaseConfigured } from './supabase'
 import { Supplement, SupplementCombination } from './types'
 import { INITIAL_SUPPLEMENTS, SUPPLEMENT_COMBINATIONS } from './data'
 
-const USE_MOCK_DATA = !import.meta.env.VITE_SUPABASE_URL
-
 export class SupplementService {
   static async getAllSupplements(): Promise<Supplement[]> {
-    if (USE_MOCK_DATA) {
+    if (!isSupabaseConfigured) {
       return Promise.resolve(INITIAL_SUPPLEMENTS)
     }
 
@@ -34,7 +32,7 @@ export class SupplementService {
   }
 
   static async getSupplementById(id: string): Promise<Supplement | null> {
-    if (USE_MOCK_DATA) {
+    if (!isSupabaseConfigured) {
       return Promise.resolve(INITIAL_SUPPLEMENTS.find(s => s.id === id) || null)
     }
 
@@ -62,7 +60,7 @@ export class SupplementService {
   }
 
   static async searchSupplements(query: string): Promise<Supplement[]> {
-    if (USE_MOCK_DATA) {
+    if (!isSupabaseConfigured) {
       const lowerQuery = query.toLowerCase()
       return Promise.resolve(
         INITIAL_SUPPLEMENTS.filter(s => 
@@ -97,8 +95,8 @@ export class SupplementService {
   }
 
   static async upsertSupplement(supplement: Supplement): Promise<void> {
-    if (USE_MOCK_DATA) {
-      console.log('Mock mode: Would upsert supplement:', supplement.name)
+    if (!isSupabaseConfigured) {
+      console.log('Supabase not configured: Would upsert supplement:', supplement.name)
       return Promise.resolve()
     }
 
@@ -124,8 +122,8 @@ export class SupplementService {
   }
 
   static async upsertSupplements(supplements: Supplement[]): Promise<void> {
-    if (USE_MOCK_DATA) {
-      console.log('Mock mode: Would upsert', supplements.length, 'supplements')
+    if (!isSupabaseConfigured) {
+      console.log('Supabase not configured: Would upsert', supplements.length, 'supplements')
       return Promise.resolve()
     }
 
@@ -153,7 +151,7 @@ export class SupplementService {
   }
 
   static async getAllCombinations(): Promise<SupplementCombination[]> {
-    if (USE_MOCK_DATA) {
+    if (!isSupabaseConfigured) {
       return Promise.resolve(SUPPLEMENT_COMBINATIONS)
     }
 
@@ -183,8 +181,8 @@ export class SupplementService {
   }
 
   static async upsertCombinations(combinations: SupplementCombination[]): Promise<void> {
-    if (USE_MOCK_DATA) {
-      console.log('Mock mode: Would upsert', combinations.length, 'combinations')
+    if (!isSupabaseConfigured) {
+      console.log('Supabase not configured: Would upsert', combinations.length, 'combinations')
       return Promise.resolve()
     }
 
