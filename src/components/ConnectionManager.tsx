@@ -129,7 +129,13 @@ export function ConnectionManager() {
   }
 
   const getSupabaseStatus = () => {
-    return localSupabaseConfig.url.trim() !== '' && localSupabaseConfig.anonKey.trim() !== ''
+    const hasEnvVars = !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY)
+    const hasKvConfig = localSupabaseConfig.url.trim() !== '' && localSupabaseConfig.anonKey.trim() !== ''
+    return hasEnvVars || hasKvConfig
+  }
+
+  const isUsingEnvVars = () => {
+    return !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY)
   }
 
   return (
@@ -519,19 +525,32 @@ export function ConnectionManager() {
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
-              <Alert>
-                <Info className="h-4 w-4" />
-                <AlertDescription className="ml-6">
-                  <div className="font-medium mb-1">Setup Instructions</div>
-                  <div className="text-sm space-y-1">
-                    <p>1. Create a free account at <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">supabase.com</a></p>
-                    <p>2. Create a new project</p>
-                    <p>3. Run the SQL schema from <code className="bg-muted px-1 py-0.5 rounded">SUPABASE_SCHEMA_UPDATE.sql</code></p>
-                    <p>4. Get your Project URL and anon/public key from Settings → API</p>
-                    <p>5. Enter them below and save</p>
-                  </div>
-                </AlertDescription>
-              </Alert>
+              {isUsingEnvVars() ? (
+                <Alert className="border-green-500/50 bg-green-50 dark:bg-green-950/20">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="ml-6">
+                    <div className="font-medium mb-1 text-green-900 dark:text-green-100">Connected via Environment Variables</div>
+                    <div className="text-sm text-green-800 dark:text-green-200">
+                      Your Supabase connection is configured using environment variables (recommended for Lovable deployment).
+                      The credentials below are for reference only and will not override the environment configuration.
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <Alert>
+                  <Info className="h-4 w-4" />
+                  <AlertDescription className="ml-6">
+                    <div className="font-medium mb-1">Setup Instructions</div>
+                    <div className="text-sm space-y-1">
+                      <p>1. Create a free account at <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">supabase.com</a></p>
+                      <p>2. Create a new project</p>
+                      <p>3. Run the SQL schema from <code className="bg-muted px-1 py-0.5 rounded">SUPABASE_SCHEMA_UPDATE.sql</code></p>
+                      <p>4. Get your Project URL and anon/public key from Settings → API</p>
+                      <p>5. Enter them below OR add as environment variables in Lovable</p>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
 
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -616,10 +635,19 @@ export function ConnectionManager() {
                 <Database className="h-4 w-4" />
                 <AlertDescription className="ml-6">
                   <div className="font-medium mb-1">About Data Storage</div>
-                  <div className="text-sm">
-                    All supplement trends, combinations, and insights are stored in your Supabase database.
+                  <div className="text-sm space-y-2">
+                    <p>All supplement trends, combinations, and insights are stored in your Supabase database.
                     This is a single centralized database that all users of your app will access.
-                    The automated trend updater will populate this database daily.
+                    The automated trend updater will populate this database daily.</p>
+                    
+                    <div className="pt-2 border-t border-border">
+                      <p className="font-medium mb-1">For Lovable Deployment:</p>
+                      <p>Add these environment variables in Lovable → Settings → Environment Variables:</p>
+                      <ul className="list-disc list-inside mt-1 space-y-0.5 ml-2">
+                        <li><code className="bg-muted px-1 py-0.5 rounded text-xs">VITE_SUPABASE_URL</code></li>
+                        <li><code className="bg-muted px-1 py-0.5 rounded text-xs">VITE_SUPABASE_ANON_KEY</code></li>
+                      </ul>
+                    </div>
                   </div>
                 </AlertDescription>
               </Alert>

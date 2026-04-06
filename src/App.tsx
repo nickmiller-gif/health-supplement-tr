@@ -7,18 +7,17 @@ import { CombinationCard } from '@/components/CombinationCard'
 import { CombinationInsightDialog } from '@/components/CombinationInsightDialog'
 import { Chatbot } from '@/components/Chatbot'
 import { AdminDashboard } from '@/components/AdminDashboard'
+import { SupabaseStatus } from '@/components/SupabaseStatus'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { MagnifyingGlass, Flask, Pill, Brain, Atom, Stack, SortAscending, Sparkle, Clock, ArrowsClockwise, Info, ShieldCheck } from '@phosphor-icons/react'
+import { MagnifyingGlass, Flask, Pill, Brain, Atom, Stack, SortAscending, Sparkle, Clock, ArrowsClockwise, ShieldCheck } from '@phosphor-icons/react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Toaster } from '@/components/ui/sonner'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { motion } from 'framer-motion'
-import { isSupabaseConfigured } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 
 function App() {
@@ -242,19 +241,7 @@ function MainApp({ onNavigateToAdmin }: { onNavigateToAdmin: () => void }) {
       </motion.div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {!isSupabaseConfigured && (
-          <Alert className="mb-6 border-accent/50 bg-gradient-to-r from-accent/10 to-primary/10">
-            <Info className="h-5 w-5 text-accent" />
-            <AlertDescription className="ml-6">
-              <div className="flex-1">
-                <p className="font-semibold text-foreground mb-2">⚙️ Supabase Not Configured</p>
-                <p className="text-sm text-muted-foreground">
-                  Please configure your Supabase connection in the <code>.env</code> file to enable data persistence. See <code>SUPABASE_SETUP.md</code> for instructions.
-                </p>
-              </div>
-            </AlertDescription>
-          </Alert>
-        )}
+        <SupabaseStatus onNavigateToSetup={onNavigateToAdmin} />
         
         <div className="mb-6 space-y-4">
           <div className="flex flex-col sm:flex-row gap-3">

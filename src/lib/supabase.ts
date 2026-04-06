@@ -1,13 +1,69 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+const getSupabaseCredentials = async () => {
+  const envUrl = import.meta.env.VITE_SUPABASE_URL || ''
+  const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+  
+  if (envUrl && envKey && envUrl !== 'your_supabase_project_url_here') {
+    return { url: envUrl, key: envKey }
+  }
 
-export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey && supabaseUrl !== 'your_supabase_project_url_here')
+  try {
+    const kvConfig = await spark.kv.get<{ url: string; anonKey: string }>('admin-supabase-config')
+    if (kvConfig?.url && kvConfig?.anonKey) {
+      return { url: kvConfig.url, key: kvConfig.anonKey }
+    }
+  } catch (error) {
+    console.warn('Failed to load Supabase config from KV:', error)
+  }
 
-export const supabase = isSupabaseConfigured 
-  ? createClient(supabaseUrl, supabaseAnonKey)
+  return { url: '', key: '' }
+}
+
+let supabaseClient: ReturnType<typeof createClient> | null = null
+let isConfigured = false
+
+const initializeSupabase = async () => {
+  const { url, key } = await getSupabaseCredentials()
+  isConfigured = !!(url && key && url !== 'your_supabase_project_url_here')
+  
+  supabaseClient = isConfigured 
+    ? createClient(url, key)
+    : createClient('https://placeholder.supabase.co', 'placeholder-key')
+  
+  return supabaseClient
+}
+
+const envUrl = import.meta.env.VITE_SUPABASE_URL || ''
+const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+const hasEnvVars = !!(envUrl && envKey && envUrl !== 'your_supabase_project_url_here')
+
+export const isSupabaseConfigured = hasEnvVars
+
+export const supabase = hasEnvVars
+  ? createClient(envUrl, envKey)
   : createClient('https://placeholder.supabase.co', 'placeholder-key')
+
+export const getSupabaseClient = async () => {
+  if (hasEnvVars) {
+    return supabase
+  }
+  
+  if (!supabaseClient) {
+    await initializeSupabase()
+  }
+  return supabaseClient!
+}
+
+export const checkSupabaseConnection = async () => {
+  const client = await getSupabaseClient()
+  try {
+    const { error } = await client.from('supplements').select('count').limit(1)
+    return !error
+  } catch {
+    return false
+  }
+}
 
 export type Database = {
   public: {
