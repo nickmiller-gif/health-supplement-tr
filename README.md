@@ -24,18 +24,26 @@ That's it! No API keys, no configuration needed.
 
 ### For Administrators (Deploying Your Own Instance)
 
-**📚 Complete Setup Guide: [`SETUP_CHECKLIST.md`](./SETUP_CHECKLIST.md)**
+**⚡ Quick Start (15 mins):** [`QUICK_CONNECT_CHECKLIST.md`](./QUICK_CONNECT_CHECKLIST.md)
 
-**Quick Version:**
-1. Set up Supabase database ([`SUPABASE_SETUP.md`](./SUPABASE_SETUP.md))
-2. Run schema migration ([`SUPABASE_SCHEMA_UPDATE.sql`](./SUPABASE_SCHEMA_UPDATE.sql))
-3. Add API keys to database
-4. Run initial trend update
-5. Deploy frontend
+**📚 Detailed Guides:**
+1. **Lovable Deployment**: [`CONNECT_TO_LOVABLE.md`](./CONNECT_TO_LOVABLE.md) - Complete Lovable + Supabase setup
+2. **Architecture**: [`ARCHITECTURE_DIAGRAM.md`](./ARCHITECTURE_DIAGRAM.md) - Understand the system
+3. **Database Setup**: [`LOVABLE_SUPABASE_SETUP.md`](./LOVABLE_SUPABASE_SETUP.md) - Full Supabase guide
+4. **Troubleshooting**: [`SUPABASE_TROUBLESHOOTING.md`](./SUPABASE_TROUBLESHOOTING.md) - Common issues
 
-See [`V2_SUMMARY.md`](./V2_SUMMARY.md) for architecture overview.
+**Alternative Deployment:**
+- **Full Setup Checklist**: [`SETUP_CHECKLIST.md`](./SETUP_CHECKLIST.md)
+- **Standard Supabase**: [`SUPABASE_SETUP.md`](./SUPABASE_SETUP.md)
+- **Schema Migration**: [`SUPABASE_SCHEMA_UPDATE.sql`](./SUPABASE_SCHEMA_UPDATE.sql)
 
 ## 📚 Documentation
+
+### 🚀 Getting Started (Lovable Deployment)
+- **[QUICK_CONNECT_CHECKLIST.md](./QUICK_CONNECT_CHECKLIST.md)** - ⚡ 15-minute setup checklist
+- **[CONNECT_TO_LOVABLE.md](./CONNECT_TO_LOVABLE.md)** - 📖 Complete Lovable deployment guide
+- **[ARCHITECTURE_DIAGRAM.md](./ARCHITECTURE_DIAGRAM.md)** - 🏗️ System architecture explained
+- **[LOVABLE_SUPABASE_SETUP.md](./LOVABLE_SUPABASE_SETUP.md)** - 🔧 Detailed Supabase configuration
 
 ### v2.0 Architecture (Current)
 - **[V2_SUMMARY.md](./V2_SUMMARY.md)** - Executive summary of v2.0 changes
