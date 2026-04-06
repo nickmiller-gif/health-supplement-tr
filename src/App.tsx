@@ -25,6 +25,8 @@ import { ApiSettings } from '@/components/ApiSettings'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { registerCronJob, getCronJobs, formatNextRun } from '@/lib/cron-scheduler'
 import { ExportDialog } from '@/components/ExportDialog'
+import { EmailScheduler } from '@/components/EmailScheduler'
+import { checkAndSendScheduledEmails } from '@/lib/email-scheduler'
 
 function App() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -229,7 +231,7 @@ function App() {
   }, [])
 
   useEffect(() => {
-    const setupCronJob = async () => {
+    const setupCronJobs = async () => {
       await registerCronJob(
         'daily-trend-update',
         'Daily Morning Trend Refresh',
@@ -239,6 +241,16 @@ function App() {
         }
       )
 
+      await registerCronJob(
+        'email-schedule-check',
+        'Email Schedule Checker',
+        async () => {
+          console.log('Checking for scheduled email reports...')
+          await checkAndSendScheduledEmails(supplements, combinations)
+        },
+        { checkInterval: 300000 }
+      )
+
       const jobs = await getCronJobs()
       const dailyJob = jobs.find(j => j.id === 'daily-trend-update')
       if (dailyJob) {
@@ -246,7 +258,7 @@ function App() {
       }
     }
 
-    setupCronJob()
+    setupCronJobs()
   }, [])
 
   const formatLastUpdated = () => {
@@ -275,6 +287,7 @@ function App() {
           <div className="flex flex-col items-end gap-2">
             <div className="flex gap-2">
               <ApiSettings />
+              <EmailScheduler supplements={supplements} combinations={combinations} />
               <ExportDialog supplements={supplements} combinations={combinations} />
               <Button
                 onClick={handleDiscoverTrends}

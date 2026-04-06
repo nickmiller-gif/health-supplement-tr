@@ -5,6 +5,7 @@ export interface CronJob {
   lastRun: number | null
   nextRun: number
   enabled: boolean
+  checkInterval?: number
 }
 
 export type CronCallback = () => void | Promise<void>
@@ -35,7 +36,8 @@ export function getMsUntilNextMorning(): number {
 export async function registerCronJob(
   id: string,
   name: string,
-  callback: CronCallback
+  callback: CronCallback,
+  options?: { checkInterval?: number }
 ): Promise<void> {
   const jobs = await window.spark.kv.get<Record<string, CronJob>>(CRON_STORAGE_KEY) || {}
   
@@ -46,7 +48,8 @@ export async function registerCronJob(
       schedule: 'daily-morning',
       lastRun: null,
       nextRun: getNextMorningTime(),
-      enabled: true
+      enabled: true,
+      checkInterval: options?.checkInterval || 60000
     }
     await window.spark.kv.set(CRON_STORAGE_KEY, jobs)
   }
@@ -84,7 +87,7 @@ function scheduleCronJob(id: string, callback: CronCallback): void {
     }
     
     const msUntilNext = job.nextRun - Date.now()
-    const checkInterval = Math.min(msUntilNext + 1000, 60000)
+    const checkInterval = Math.min(msUntilNext + 1000, job.checkInterval || 60000)
     
     setTimeout(checkAndRun, checkInterval)
   }

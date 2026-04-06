@@ -92,6 +92,21 @@ An AI-powered trend discovery platform that uses LLM analysis to surface emergin
   - Reports include summary statistics and generation timestamp
   - Files are named with current date for easy organization
 
+### Automated Email Report Scheduling
+- **Functionality**: Schedule automatic trend reports to be sent via email on a daily, weekly, or monthly basis with customizable content options
+- **Purpose**: Keeps users informed of trends without requiring them to manually check the dashboard; enables passive monitoring of supplement trends
+- **Trigger**: User clicks "Email Reports" button in header
+- **Progression**: User clicks Email Reports → Dialog opens with schedule creation form → User enters email address → Selects frequency (daily/weekly/monthly) → Configures report options (insights, links, trend data) → Creates schedule → Scheduler runs automatically via cron job → Email opens in default client at scheduled time
+- **Success criteria**:
+  - Users can create multiple email schedules with different frequencies and options
+  - Schedules persist across sessions using useKV storage
+  - Cron job checks for due reports every 5 minutes and opens email client with pre-populated report
+  - Users can pause/resume, edit, or delete schedules
+  - "Send Now" button allows testing schedule before activation
+  - Email body includes top 10 supplements, rising trends, and top stacks with formatted text
+  - Next scheduled send time is clearly displayed for each schedule
+  - Users can see when each schedule was last sent
+
 ## Edge Case Handling
 
 - **No AI Response**: If LLM fails, show cached fallback description or error state with retry option
@@ -101,6 +116,10 @@ An AI-powered trend discovery platform that uses LLM analysis to surface emergin
 - **Long Loading**: Show skeleton loaders during AI generation to maintain engagement
 - **Empty Export**: If no trends available, disable export button with tooltip explaining minimum data required
 - **Large Reports**: PDF export handles pagination automatically for reports with many supplements
+- **Invalid Email**: Email scheduler validates email format before allowing schedule creation
+- **No Email Schedules**: Show empty state with helpful message and icon when no schedules exist
+- **Overlapping Schedules**: Multiple schedules can exist for same/different emails without conflict
+- **Email Client Not Available**: Email opens in system default client; if none configured, shows error with helpful message
 
 ## Design Direction
 
@@ -179,6 +198,10 @@ Animations should reinforce the sense of real-time data and discovery. Use subtl
   - Flask for peptides, Pill for vitamins, Brain for nootropics
   - FileArrowDown for export trigger
   - FileCsv/FilePdf for format selection
+  - EnvelopeSimple for email scheduler
+  - PaperPlaneTilt for send actions
+  - Clock for schedule timing
+  - CheckCircle/XCircle for active/paused status
   
 - **Spacing**:
   - Container padding: `p-6` on desktop, `p-4` on mobile
