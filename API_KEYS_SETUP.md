@@ -32,7 +32,7 @@ This file contains a simple configuration object where you can paste your API ke
 **Add to config:**
 ```typescript
 export const API_KEYS = {
-  exa: 'your_exa_api_key_here',  // Paste your actual EXA API key here
+  exa: '8805b859-b175-4097-9ceb-eb424e40ef0e',  // Paste your actual EXA API key here
   // ... rest of config
 }
 ```
