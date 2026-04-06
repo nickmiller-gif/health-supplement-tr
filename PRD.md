@@ -20,18 +20,18 @@ A centralized AI-powered supplement intelligence platform with automated daily t
 - **Success criteria**: Updates run automatically on schedule; manual updates complete in <2 minutes; progress tracking updates every 10%; success rate >95%; all users see fresh data within 5 minutes
 
 ### Admin Dashboard
-- **Functionality**: Owner-only dashboard showing system status, update history, database statistics, and scheduler controls. Displays last update time, supplement/stack counts, database connection status. Provides toggle for enabling/disabling automatic updates, "Run Now" button for manual updates, and real-time progress tracking with phase-by-phase indicators.
-- **Purpose**: Give owner full control over system operations; enable monitoring and troubleshooting; provide transparency into update process
+- **Functionality**: Owner-only dashboard showing system status, update history, database statistics, and scheduler controls. Displays last update time, supplement/stack counts, database connection status. Provides toggle for enabling/disabling automatic updates, "Run Now" button for manual updates, and real-time progress tracking with phase-by-phase indicators. Includes database schema migration tool with one-click SQL script generation and schema status checking.
+- **Purpose**: Give owner full control over system operations; enable monitoring and troubleshooting; provide transparency into update process; simplify database setup and schema updates
 - **Trigger**: Owner clicks "Admin" button in main app header
-- **Progression**: Owner navigates to admin → Verifies ownership with `spark.user().isOwner` → Views system overview → Accesses trend scheduler → Enables/disables automation or runs manual update → Monitors real-time progress → Views success/failure status
-- **Success criteria**: Only owner can access; loads in <1 second; shows accurate real-time data; progress updates every 500ms; clear error messages on failure
+- **Progression**: Owner navigates to admin → Verifies ownership with `spark.user().isOwner` → Views system overview → Accesses trend scheduler → Enables/disables automation or runs manual update → Monitors real-time progress → Uses migration tool to setup/update database schema → Views success/failure status
+- **Success criteria**: Only owner can access; loads in <1 second; shows accurate real-time data; progress updates every 500ms; clear error messages on failure; migration tool generates valid SQL; schema status check works correctly
 
 ### Centralized Backend with Supabase
-- **Functionality**: Single shared Supabase database stores all supplement trends, stacks, and API configuration. API keys managed server-side in `api_configuration` table. Trend updates run via automated scheduler and all users see the same daily data.
-- **Purpose**: Eliminate per-user API costs, ensure data consistency, simplify UX by removing configuration complexity, and improve security by keeping secrets server-side
-- **Trigger**: App loads and automatically fetches latest trends from shared database
-- **Progression**: App initializes → Connects to Supabase → Fetches daily supplements and combinations → Displays read-only trend data → User can browse/filter/sort
-- **Success criteria**: All users see identical daily trends; API keys never exposed in frontend code; data loads instantly from database cache; automated updates keep data fresh
+- **Functionality**: Single shared Supabase database stores all supplement trends, stacks, and API configuration. API keys managed server-side in `api_configuration` table. Trend updates run via automated scheduler and all users see the same daily data. Includes one-click database schema migration tool in admin panel for easy setup and updates.
+- **Purpose**: Eliminate per-user API costs, ensure data consistency, simplify UX by removing configuration complexity, improve security by keeping secrets server-side, and make database setup effortless
+- **Trigger**: App loads and automatically fetches latest trends from shared database; admin runs migration tool for initial setup or schema updates
+- **Progression**: App initializes → Connects to Supabase → Fetches daily supplements and combinations → Displays read-only trend data → User can browse/filter/sort; Admin runs migration → Copies SQL script → Pastes in Supabase SQL Editor → Checks schema status
+- **Success criteria**: All users see identical daily trends; API keys never exposed in frontend code; data loads instantly from database cache; automated updates keep data fresh; migration tool generates valid, idempotent SQL; schema status accurately reflects database state
 
 ### Read-Only Trend Viewing
 - **Functionality**: Users browse pre-computed daily supplement trends and stacks. Can filter by category (peptides, vitamins, nootropics), sort by popularity/trend/name, and view detailed AI insights for each supplement or combination.
@@ -162,6 +162,13 @@ A centralized AI-powered supplement intelligence platform with automated daily t
   - Email body includes top 10 supplements, rising trends, and top stacks with formatted text
   - Next scheduled send time is clearly displayed for each schedule
   - Users can see when each schedule was last sent
+
+### Database Schema Migration Tool
+- **Functionality**: One-click database schema migration tool directly in admin panel. Generates complete SQL script for all required tables, indexes, and security policies. Provides schema status checker to verify which tables exist. Copies SQL to clipboard and opens Supabase SQL Editor in new tab for easy execution.
+- **Purpose**: Simplify database setup for new deployments; enable easy schema updates when app is upgraded; eliminate manual SQL writing; reduce setup errors
+- **Trigger**: Owner clicks "Migration" tab in admin dashboard
+- **Progression**: Owner navigates to Migration tab → Views current schema status (checks which tables exist) → Clicks "Copy SQL & Open Supabase" → SQL script copied to clipboard → Supabase SQL Editor opens in new tab → Owner pastes and runs SQL → Returns to app and clicks "Check Status" to verify migration success
+- **Success criteria**: SQL script is valid and idempotent (safe to run multiple times); all 6 core tables created with correct schema; RLS policies applied correctly; indexes created for performance; schema status checker accurately detects existing tables; migration completes without errors; existing data preserved during updates
 
 ## Edge Case Handling
 

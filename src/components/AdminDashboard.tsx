@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { TrendUpdateScheduler } from './TrendUpdateScheduler'
 import { ConnectionManager } from './ConnectionManager'
 import { SupabaseVerification } from './SupabaseVerification'
+import { DatabaseMigration } from './DatabaseMigration'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -16,7 +17,8 @@ import {
   Stack,
   ArrowLeft,
   Plugs,
-  CheckCircle
+  CheckCircle,
+  GitBranch
 } from '@phosphor-icons/react'
 
 export function AdminDashboard({ onBack }: { onBack?: () => void }) {
@@ -119,10 +121,14 @@ export function AdminDashboard({ onBack }: { onBack?: () => void }) {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <Tabs defaultValue="connections" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="connections" className="gap-2">
               <Plugs className="w-4 h-4" weight="duotone" />
               Connections
+            </TabsTrigger>
+            <TabsTrigger value="migration" className="gap-2">
+              <GitBranch className="w-4 h-4" weight="duotone" />
+              Migration
             </TabsTrigger>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="scheduler">Trend Scheduler</TabsTrigger>
@@ -130,6 +136,10 @@ export function AdminDashboard({ onBack }: { onBack?: () => void }) {
 
           <TabsContent value="connections">
             <ConnectionManager />
+          </TabsContent>
+
+          <TabsContent value="migration">
+            <DatabaseMigration />
           </TabsContent>
 
           <TabsContent value="overview" className="space-y-6">
