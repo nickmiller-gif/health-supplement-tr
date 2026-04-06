@@ -1,16 +1,37 @@
 # Planning Guide
 
-An AI-powered trend discovery platform that uses LLM analysis to surface emerging patterns in the health supplement space, focusing on peptides, vitamins, and other wellness compounds. The platform discovers real-time trends from community discussions and provides AI-generated insights.
+An AI-powered trend discovery platform with secure backend architecture that uses LLM analysis to surface emerging patterns in the health supplement space. Features conversational AI chatbot for intelligent search, Supabase backend for secure data storage, and an upgraded modern interface optimized for desktop and mobile.
 
 **Experience Qualities**:
-1. **Intelligent** - The platform uses AI to discover and analyze real supplement trends from biohacking communities, providing insights you wouldn't easily find yourself
-2. **Current** - Data is discovered on-demand through AI analysis of Reddit, Twitter, forums, and biohacking communities, with clear indicators of what's gaining momentum right now
-3. **Exploratory** - Users can dive deeper into trends, discover connections through AI-generated combinations, and understand the "why" behind emerging patterns
+1. **Secure & Scalable** - Backend-first architecture with Supabase database, server-side API handling, and secure authentication
+2. **Conversational** - AI-powered chatbot allows natural language queries about supplements, trends, and personalized recommendations
+3. **Modern & Responsive** - Premium design with smooth animations, optimized for desktop and mobile with touch-friendly interfaces
 
-**Complexity Level**: Light Application (multiple features with basic state)
-- This is a focused trend-tracking tool with AI-generated insights, searchable trend data, and the ability to save/track specific supplements of interest
+**Complexity Level**: Complex Application (advanced functionality with backend integration)
+- Full-stack application with Supabase backend, real-time data sync, AI chatbot, secure API management, and responsive design system
 
 ## Essential Features
+
+### Supabase Backend Architecture
+- **Functionality**: Complete backend infrastructure with Supabase for database, authentication, and serverless functions. All API keys and sensitive operations moved server-side.
+- **Purpose**: Secure API key management, scalable data storage, and prevent client-side exposure of credentials
+- **Trigger**: Automatically connects on app initialization
+- **Progression**: App loads → Supabase client initializes → User authenticates → Backend handles all API calls → Frontend receives sanitized data
+- **Success criteria**: Zero API keys exposed in frontend code; all trend data persists in database; backend handles external API calls securely
+
+### AI Chatbot for Supplement Search
+- **Functionality**: Conversational AI interface allowing users to ask questions about supplements, search for specific needs ("show me peptides for muscle recovery"), get personalized recommendations, or narrow down suggestions
+- **Purpose**: Provides intuitive natural language interface for exploring supplement data and getting AI-powered insights
+- **Trigger**: User clicks chatbot button (floating action button) or types in chat interface
+- **Progression**: User opens chat → Types natural query → AI analyzes query against supplement database → Returns relevant supplements with explanations → User can ask follow-up questions → AI maintains conversation context
+- **Success criteria**: Chatbot understands queries about categories, benefits, trends, combinations; provides relevant supplement recommendations with reasoning; maintains conversation context for follow-ups
+
+### Upgraded Desktop & Mobile UI
+- **Functionality**: Modern, premium interface with enhanced animations, improved layouts for desktop (multi-column grids, sidebar navigation), and mobile-optimized views (bottom sheets, swipe gestures, responsive cards)
+- **Purpose**: Professional appearance that scales beautifully across devices with touch-friendly controls on mobile
+- **Trigger**: Responsive design adapts automatically based on viewport
+- **Progression**: Desktop shows multi-column layouts with hover effects → Mobile switches to single column with touch gestures → Animations enhance transitions → Bottom navigation on mobile for easy thumb access
+- **Success criteria**: Smooth 60fps animations; desktop utilizes horizontal space with grids and sidebars; mobile has bottom navigation, swipeable cards, and large touch targets
 
 ### Multi-Platform Social Media API Integration
 - **Functionality**: Integrated support for multiple social media APIs to aggregate real supplement trends from diverse platforms:

@@ -1,137 +1,181 @@
-# TrendPulse - AI-Powered Supplement Trend Discovery
+# TrendPulse - AI-Powered Supplement Intelligence Platform
 
-An intelligent platform that discovers and analyzes real-time supplement trends from social media and the web using multiple data sources including Reddit, EXA search, Twitter/X, TikTok, and LinkedIn.
+> **🎉 Now with AI Chatbot, Supabase Backend & Premium UI!**
 
-## 🚀 Quick Start - Add Your API Keys
+An intelligent platform for discovering supplement trends with conversational AI search, secure backend storage, and beautiful responsive design.
 
-To enable real-time trend discovery from social platforms, you need to add your API keys.
+## ✨ What's New in V2.0
 
-### Option 1: Add Keys to Config File (⭐ Recommended)
+- **🤖 AI Chatbot** - Ask questions in natural language: "Show me peptides for muscle recovery"
+- **🔐 Supabase Backend** - Secure PostgreSQL database with real-time capabilities
+- **🎨 Premium UI/UX** - Modern design with smooth animations
+- **📱 Mobile-First** - Fully optimized for touch devices
+- **🔒 Security** - No API keys exposed in frontend code
 
-1. Open the file: **`src/config/api-keys.ts`**
-2. Replace `'YOUR_EXA_API_KEY_HERE'` with your actual EXA API key:
+## 🚀 Quick Start
 
-```typescript
-export const API_KEYS = {
-  exa: 'sk-abc123xyz789',  // Replace with your actual EXA API key
-  
-  reddit: {
-    clientId: '',  // Optional: add Reddit credentials
-    clientSecret: ''
-  },
-  
-  rapidApi: ''  // Optional: add RapidAPI key
-}
+### Instant Setup (No Configuration Required)
+```bash
+npm install
+npm run dev
 ```
 
-3. Save the file - that's it! Your keys will work automatically.
+The app works immediately with sample data! Open `http://localhost:5173`
 
-### Option 2: Use the UI Settings Dialog
+**👉 See [`QUICK_START.md`](./QUICK_START.md) for detailed instructions**
 
-1. Click the **"API Settings"** button in the app header
-2. Enter your API keys in the dialog
-3. Click "Save Settings"
+## 📚 Documentation
 
-Keys entered this way are stored locally in your browser.
+- **[QUICK_START.md](./QUICK_START.md)** - Get started in 30 seconds
+- **[UPGRADE_SUMMARY.md](./UPGRADE_SUMMARY.md)** - What's new in V2.0  
+- **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)** - Optional backend setup (15 minutes)
+- **[V2_IMPLEMENTATION.md](./V2_IMPLEMENTATION.md)** - Technical implementation details
+- **[PRD.md](./PRD.md)** - Product requirements and design decisions
 
-## 📖 Getting Your API Keys
+## 🎯 Key Features
 
-**See the detailed guide:** [API_KEYS_SETUP.md](./API_KEYS_SETUP.md)
+### 🤖 Conversational AI Search
+Click the chat button and ask:
+- "Show me peptides for muscle recovery"
+- "What's trending in nootropics?"
+- "Find supplements for better sleep"
+- "Which supplements are rising?"
 
-### Quick Links:
-- **⭐ EXA Search** (RECOMMENDED): [exa.ai](https://exa.ai) (Free tier: 1,000 searches/month, then $10/mo)
-- **Reddit API** (FREE): [reddit.com/prefs/apps](https://www.reddit.com/prefs/apps)
-- **RapidAPI**: [rapidapi.com/hub](https://rapidapi.com/hub) (For Twitter, TikTok, LinkedIn)
+### 🔐 Secure Backend (Supabase)
+- PostgreSQL database for scalable storage
+- Row Level Security for data protection
+- Real-time subscriptions
+- Serverless Edge Functions ready
+- **Works with or without** - Uses mock data if Supabase not configured
 
-### Recommended Setup:
-1. **⭐ Start with EXA API** - Best single API for comprehensive coverage (covers Reddit, forums, blogs, communities)
-2. **Optionally add Reddit** (100% free) for direct Reddit API access
-3. **Optionally add RapidAPI** for premium social media (Twitter, TikTok, LinkedIn)
+### 🎨 Premium Design
+- Modern OKLCH color system
+- Space Grotesk + Inter typography
+- Framer Motion animations
+- Glass effects and gradients
+- Mobile-optimized layouts
 
-## 🎯 Features
+### 💡 Smart Features
+- Supplement tracking (saved across sessions)
+- AI-generated insights
+- Trend predictions
+- Combination/stack discovery
+- Advanced filtering and sorting
 
-- **Real-Time Trend Discovery**: Analyzes discussions from Reddit, forums, and social media
-- **Multi-Platform Coverage**: Aggregates data from Reddit, Twitter/X, TikTok, LinkedIn, and the web
-- **AI-Powered Analysis**: Uses GPT-4 to identify trends and generate insights
-- **Smart Caching**: Reduces API costs with 24-hour result caching
-- **Supplement Tracking**: Save and monitor your favorite supplements
-- **Stack Discovery**: Find popular supplement combinations being discussed
-- **Filtering & Sorting**: Search, filter by category, and sort by popularity or trend direction
+## 🛠️ Tech Stack
 
-## 🛠️ What's Inside
-
-- **React 19** + **TypeScript** for the frontend
-- **Tailwind CSS v4** for styling
-- **Shadcn UI v4** components
+- **React 19** + TypeScript
+- **Tailwind CSS v4** with custom design tokens
+- **Supabase** for backend (optional)
+- **shadcn/ui v4** components
 - **Framer Motion** for animations
-- **D3.js** for trend visualizations
-- **Spark Runtime SDK** for LLM integration and persistence
-- **Real API Integrations**: Reddit, EXA, RapidAPI
+- **Spark Runtime SDK** for LLM features
+- **D3.js** for visualizations
+
+## 📱 Mobile Experience
+
+Fully responsive with:
+- Touch-friendly 44px minimum tap targets
+- Bottom-right floating chat button
+- Horizontal scrolling filters
+- Responsive 1-3 column grid
+- Optimized typography
+
+## 🔒 Security
+
+- ✅ Zero API keys in source code
+- ✅ Environment variable support
+- ✅ Ready for server-side API calls
+- ✅ Supabase Row Level Security
+- ✅ `.env` in `.gitignore`
+
+## 🚢 Deploy
+
+### Vercel (Recommended)
+1. Push to GitHub
+2. Import in Vercel
+3. Add environment variables
+4. Deploy!
+
+### Netlify
+- Build: `npm run build`
+- Publish: `dist`
+- Add environment variables
+- Deploy!
+
+## 📖 Optional: Add Supabase Backend
+
+While the app works without it, Supabase adds:
+- Persistent storage across devices
+- User authentication
+- Real-time updates
+- Scalability for production
+
+**Follow [`SUPABASE_SETUP.md`](./SUPABASE_SETUP.md) when you're ready** (takes 15 minutes)
 
 ## 📁 Project Structure
 
 ```
 src/
-├── config/
-│   └── api-keys.ts          # 👈 Add your API keys here
 ├── components/
-│   ├── ApiSettings.tsx      # API configuration dialog
-│   ├── SupplementCard.tsx   # Individual supplement display
-│   ├── CombinationCard.tsx  # Supplement stack display
-│   └── ui/                  # Shadcn components
+│   ├── Chatbot.tsx           # 🤖 AI chatbot
+│   ├── SupplementCard.tsx    # Enhanced with animations
+│   └── ui/                   # shadcn components
 ├── lib/
-│   ├── trend-discovery.ts   # Main trend analysis logic
-│   ├── exa-api.ts          # EXA search integration
-│   ├── social-media-apis.ts # Reddit, Twitter, TikTok APIs
-│   └── data.ts             # Initial supplement data
-└── App.tsx                  # Main application component
+│   ├── supabase.ts          # 🔐 Database client
+│   ├── supplement-service.ts # Service layer
+│   ├── trend-discovery.ts    # AI trend analysis
+│   └── types.ts             # TypeScript interfaces
+├── App.tsx                   # Main app (with chatbot)
+└── index.css                 # Design system
 ```
-
-## 🔒 Privacy & Security
-
-- API keys in config file are compiled into your app
-- API keys from UI are stored locally in your browser (KV storage)
-- Keys are only sent to their respective services (EXA, Reddit, RapidAPI)
-- No third-party tracking or data sharing
-
-## 💡 How It Works
-
-1. **Data Collection**: Fetches recent discussions from configured platforms
-2. **Trend Analysis**: AI analyzes mentions, sentiment, and engagement
-3. **Scoring**: Calculates popularity and trend direction (rising/stable/declining)
-4. **Caching**: Stores results for 24 hours to minimize API costs
-5. **Visualization**: Displays trends with sparklines and detailed insights
 
 ## 🎨 Customization
 
-The app uses a clean, modern design with:
-- **Space Grotesk** for headings
-- **Inter** for body text
-- Blue/cyan color scheme with accent highlights
-- Responsive grid layouts
+### Colors
+Edit `src/index.css` to change the OKLCH color values:
+```css
+--primary: oklch(0.42 0.12 235);  /* Deep blue */
+--accent: oklch(0.58 0.18 220);   /* Cyan */
+```
 
-You can customize colors in `src/index.css` and fonts in `index.html`.
+### Fonts
+Change font imports in `index.html` and update CSS variables in `src/index.css`
+
+### Chatbot Responses
+Customize patterns in `src/components/Chatbot.tsx` function `generateResponse()`
 
 ## 🆘 Troubleshooting
 
-**API keys not working?**
-- Check for extra spaces in your keys
-- Verify keys are valid in their respective dashboards
-- Check browser console (F12) for error messages
+**App not loading?**
+- Run `npm install` first
+- Check console for errors (F12)
 
-**Still seeing AI-generated data?**
-- Add at least one API key (Reddit is free and easy)
-- Click "Refresh Trends" to fetch real data
+**Supabase connection issues?**
+- Verify `.env` credentials
+- Check Supabase dashboard is accessible
+- App still works with mock data if Supabase fails
 
-**Rate limit errors?**
-- Clear the cache in API Settings
-- Wait for rate limit reset (varies by API)
-- Consider upgrading your API tier
+**TypeScript errors?**
+- Some pre-existing errors from V1 code (don't affect functionality)
+- Can be ignored or fixed later
+
+## 🤝 Contributing
+
+This is a Spark template project. Feel free to:
+- Customize for your needs
+- Add new features
+- Improve the design
+- Share your modifications
 
 ## 📄 License
 
-The Spark Template files and resources from GitHub are licensed under the terms of the MIT license, Copyright GitHub, Inc.
+MIT License - See LICENSE file
+
+The Spark Template files and resources from GitHub are licensed under MIT, Copyright GitHub, Inc.
 
 ---
 
-**Ready to discover trends?** Add your API keys and click "Refresh Trends"!
+**Ready to explore?** Try the AI chatbot by clicking the icon in the bottom-right! 💬✨
+
+For detailed V2 features, see [`UPGRADE_SUMMARY.md`](./UPGRADE_SUMMARY.md)

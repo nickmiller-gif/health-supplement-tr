@@ -12,6 +12,7 @@ import { SuggestedSupplements } from '@/components/SuggestedSupplements'
 import { TrendPredictionDialog } from '@/components/TrendPredictionDialog'
 import { EmergingResearchCard } from '@/components/EmergingResearchCard'
 import { ResearchInsightDialog } from '@/components/ResearchInsightDialog'
+import { Chatbot } from '@/components/Chatbot'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
@@ -31,6 +32,7 @@ import { registerCronJob, getCronJobs, formatNextRun } from '@/lib/cron-schedule
 import { ExportDialog } from '@/components/ExportDialog'
 import { EmailScheduler } from '@/components/EmailScheduler'
 import { checkAndSendScheduledEmails } from '@/lib/email-scheduler'
+import { motion } from 'framer-motion'
 
 function App() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -308,48 +310,68 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-gradient-to-br from-primary via-primary/90 to-accent/80 text-primary-foreground py-12 px-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-4xl font-bold tracking-tight">TrendPulse</h1>
-              <Sparkle weight="duotone" className="w-8 h-8" />
-            </div>
-            <p className="text-primary-foreground/80 text-lg">
-              AI-Powered Supplement Trend Discovery
-            </p>
-          </div>
-          <div className="flex flex-col items-end gap-2">
-            <div className="flex gap-2">
-              <ApiTester />
-              <ApiSettings />
-              <EmailScheduler supplements={supplements} combinations={combinations} />
-              <ExportDialog supplements={supplements} combinations={combinations} />
-              <Button
-                onClick={handleDiscoverTrends}
-                disabled={isLoadingTrends}
-                variant="secondary"
-                size="lg"
-                className="gap-2"
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="gradient-mesh border-b"
+      >
+        <div className="backdrop-blur-sm bg-gradient-to-br from-primary via-primary/90 to-accent/80 text-primary-foreground py-16 px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.1 }}
+                className="space-y-3"
               >
-                <ArrowsClockwise className={`w-5 h-5 ${isLoadingTrends ? 'animate-spin' : ''}`} />
-                {isLoadingTrends ? 'Discovering...' : 'Refresh Trends'}
-              </Button>
-            </div>
-            <div className="flex flex-col items-end gap-1">
-              <p className="text-xs text-primary-foreground/60">
-                Last updated: {formatLastUpdated()}
-              </p>
-              {nextScheduledUpdate && (
-                <p className="text-xs text-primary-foreground/60 flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  Next auto-update: {nextScheduledUpdate}
+                <div className="flex items-center gap-3">
+                  <Sparkle weight="duotone" className="w-10 h-10 animate-float" />
+                  <h1 className="text-5xl font-bold tracking-tight">TrendPulse</h1>
+                </div>
+                <p className="text-primary-foreground/90 text-lg font-medium max-w-2xl">
+                  AI-Powered Supplement Intelligence Platform
                 </p>
-              )}
+                <p className="text-primary-foreground/70 text-sm max-w-2xl">
+                  Discover emerging trends, analyze combinations, and get personalized recommendations with our AI chatbot
+                </p>
+              </motion.div>
+              
+              <div className="flex flex-col items-start md:items-end gap-3">
+                <div className="flex gap-2 flex-wrap">
+                  <ApiTester />
+                  <ApiSettings />
+                  <EmailScheduler supplements={supplements} combinations={combinations} />
+                  <ExportDialog supplements={supplements} combinations={combinations} />
+                  <Button
+                    onClick={handleDiscoverTrends}
+                    disabled={isLoadingTrends}
+                    variant="secondary"
+                    size="lg"
+                    className="gap-2 shadow-lg"
+                  >
+                    <ArrowsClockwise className={`w-5 h-5 ${isLoadingTrends ? 'animate-spin' : ''}`} />
+                    {isLoadingTrends ? 'Discovering...' : 'Refresh Trends'}
+                  </Button>
+                </div>
+                <div className="flex flex-col items-start md:items-end gap-1">
+                  <p className="text-xs text-primary-foreground/70 flex items-center gap-2">
+                    <Clock className="w-3 h-3" />
+                    Last updated: {formatLastUpdated()}
+                  </p>
+                  <p className="text-xs text-primary-foreground/70">
+                    {supplements.length} supplements • {combinations.length} stacks
+                  </p>
+                  {nextScheduledUpdate && (
+                    <p className="text-xs text-primary-foreground/70">
+                      Next auto-update: {nextScheduledUpdate}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {!dismissedWelcome && !exaApiKey && !redditClientId && !rapidApiKey && (
@@ -812,6 +834,7 @@ function App() {
         onOpenChange={setResearchDialogOpen}
       />
       
+      <Chatbot supplements={supplements} combinations={combinations} onSupplementSelect={handleViewInsight} />
       <Toaster />
     </div>
   )

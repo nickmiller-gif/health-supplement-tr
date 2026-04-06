@@ -3,8 +3,9 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { TrendSparkline } from './TrendSparkline'
-import { TrendUp, TrendDown, Minus, Heart, Flask, Pill, Brain, Atom, ChatCircleDots, ArrowSquareOut } from '@phosphor-icons/react'
+import { TrendUp, TrendDown, Minus, Heart, Flask, Pill, Brain, Atom, Sparkle } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
+import { motion } from 'framer-motion'
 
 interface SupplementCardProps {
   supplement: Supplement
@@ -78,96 +79,102 @@ export function SupplementCard({
   }
 
   return (
-    <Card 
-      className="p-5 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-border/50 hover:border-accent/30 bg-gradient-to-br from-card to-secondary/30 group"
+    <motion.div
+      whileHover={{ scale: 1.02, y: -4 }}
+      transition={{ duration: 0.2 }}
     >
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-2 flex-1" onClick={() => onViewInsight(supplement)}>
-          <div className="text-muted-foreground cursor-pointer">
-            {getCategoryIcon()}
-          </div>
-          <h3 className="font-semibold text-lg text-foreground cursor-pointer">{supplement.name}</h3>
-        </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 -mt-1 -mr-1"
-          onClick={(e) => {
-            e.stopPropagation()
-            onToggleTrack(supplement.id)
-          }}
-        >
-          <Heart 
-            weight={isTracked ? 'fill' : 'regular'} 
-            className={cn(
-              'w-5 h-5 transition-colors',
-              isTracked ? 'text-destructive' : 'text-muted-foreground hover:text-destructive'
-            )}
-          />
-        </Button>
-      </div>
-
-      <p className="text-sm text-muted-foreground mb-4 line-clamp-2" onClick={() => onViewInsight(supplement)}>
-        {supplement.description}
-      </p>
-
-      {supplement.discussionLinks && supplement.discussionLinks.length > 0 && (
-        <div className="mb-3 pb-3 border-b border-border/50">
-          <div className="flex items-center gap-1 mb-2">
-            <ChatCircleDots weight="duotone" className="w-4 h-4 text-muted-foreground" />
-            <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-              Community Discussions
-            </span>
-          </div>
-          <div className="space-y-1.5">
-            {supplement.discussionLinks.slice(0, 2).map((link, idx) => (
-              <a
-                key={idx}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="flex items-center gap-1.5 text-xs text-accent hover:text-accent-foreground hover:underline group/link"
-              >
-                <Badge variant="outline" className="text-[10px] px-1.5 py-0.5 font-medium">
-                  {link.platform}
+      <Card 
+        className="p-6 border-2 hover:shadow-2xl transition-all duration-300 hover:border-accent/50 bg-card relative overflow-hidden group cursor-pointer"
+        onClick={() => onViewInsight(supplement)}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+        
+        <div className="relative">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-3 flex-1">
+              <div className="text-muted-foreground group-hover:text-primary transition-colors">
+                {getCategoryIcon()}
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">
+                  {supplement.name}
+                </h3>
+                <Badge variant="outline" className="mt-1 text-xs">
+                  {supplement.category}
                 </Badge>
-                <span className="flex-1 line-clamp-1">{link.title}</span>
-                <ArrowSquareOut className="w-3 h-3 opacity-0 group-hover/link:opacity-100 transition-opacity" />
-              </a>
-            ))}
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 -mt-1 -mr-1 hover:scale-110 transition-transform"
+              onClick={(e) => {
+                e.stopPropagation()
+                onToggleTrack(supplement.id)
+              }}
+            >
+              <motion.div
+                animate={isTracked ? { scale: [1, 1.2, 1] } : {}}
+                transition={{ duration: 0.3 }}
+              >
+                <Heart 
+                  weight={isTracked ? 'fill' : 'regular'} 
+                  className={cn(
+                    'w-6 h-6 transition-colors',
+                    isTracked ? 'text-destructive' : 'text-muted-foreground hover:text-destructive'
+                  )}
+                />
+              </motion.div>
+            </Button>
           </div>
-        </div>
-      )}
 
-      <div className="flex items-center justify-between mb-3" onClick={() => onViewInsight(supplement)}>
-        <Badge 
-          variant="secondary" 
-          className={cn(
-            'text-xs font-medium uppercase tracking-wide flex items-center gap-1.5 px-2.5 py-1 cursor-pointer',
-            getTrendColor(),
-            getTrendBgColor()
-          )}
-        >
-          {getTrendIcon()}
-          {supplement.trendDirection}
-        </Badge>
-        <div className="text-right cursor-pointer">
-          <div className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
-            Popularity
-          </div>
-          <div className="text-2xl font-bold text-foreground tabular-nums">
-            {supplement.popularityScore}
-          </div>
-        </div>
-      </div>
+          <p className="text-sm text-muted-foreground mb-4 line-clamp-3 leading-relaxed">
+            {supplement.description}
+          </p>
 
-      <div className="mt-4 flex justify-center cursor-pointer" onClick={() => onViewInsight(supplement)}>
-        <TrendSparkline 
-          data={supplement.trendData} 
-          color={getSparklineColor()}
-        />
-      </div>
-    </Card>
+          <div className="flex items-center justify-between mb-4">
+            <Badge 
+              variant="secondary" 
+              className={cn(
+                'text-xs font-semibold uppercase tracking-wider flex items-center gap-2 px-3 py-1.5',
+                getTrendColor(),
+                getTrendBgColor()
+              )}
+            >
+              {getTrendIcon()}
+              {supplement.trendDirection}
+            </Badge>
+            <div className="text-right">
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                Score
+              </div>
+              <div className="text-3xl font-bold text-foreground tabular-nums">
+                {supplement.popularityScore}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 flex justify-center">
+            <TrendSparkline 
+              data={supplement.trendData} 
+              color={getSparklineColor()}
+            />
+          </div>
+
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="w-full mt-4 gap-2 group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-all"
+            onClick={(e) => {
+              e.stopPropagation()
+              onViewInsight(supplement)
+            }}
+          >
+            <Sparkle weight="duotone" className="w-4 h-4" />
+            View AI Insights
+          </Button>
+        </div>
+      </Card>
+    </motion.div>
   )
 }
