@@ -25,6 +25,7 @@ import { toast } from 'sonner'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { API_KEYS } from '@/config/api-keys'
 import { ApiSettings } from '@/components/ApiSettings'
+import { ApiTester } from '@/components/ApiTester'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { registerCronJob, getCronJobs, formatNextRun } from '@/lib/cron-scheduler'
 import { ExportDialog } from '@/components/ExportDialog'
@@ -320,6 +321,7 @@ function App() {
           </div>
           <div className="flex flex-col items-end gap-2">
             <div className="flex gap-2">
+              <ApiTester />
               <ApiSettings />
               <EmailScheduler supplements={supplements} combinations={combinations} />
               <ExportDialog supplements={supplements} combinations={combinations} />
