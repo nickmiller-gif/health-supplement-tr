@@ -86,7 +86,7 @@ Focus on synergistic effects, complementary benefits, and popular combinations. 
               }
               return null
             })
-            .filter((s): s is SuggestedSupplement => s !== null)
+            .filter((s: SuggestedSupplement | null): s is SuggestedSupplement => s !== null)
             .slice(0, 3)
           
           setSuggestions(suggestedSupplements)

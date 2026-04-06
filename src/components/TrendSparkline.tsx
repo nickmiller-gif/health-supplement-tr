@@ -35,8 +35,8 @@ export function TrendSparkline({
       .range([innerHeight, 0])
 
     const line = d3.line<number>()
-      .x((_, i) => xScale(i))
-      .y(d => yScale(d))
+      .x((_: number, i: number) => xScale(i))
+      .y((d: number) => yScale(d))
       .curve(d3.curveMonotoneX)
 
     const g = svg.append('g')
@@ -61,9 +61,9 @@ export function TrendSparkline({
       .attr('stop-opacity', 0)
 
     const area = d3.area<number>()
-      .x((_, i) => xScale(i))
+      .x((_: number, i: number) => xScale(i))
       .y0(innerHeight)
-      .y1(d => yScale(d))
+      .y1((d: number) => yScale(d))
       .curve(d3.curveMonotoneX)
 
     g.append('path')

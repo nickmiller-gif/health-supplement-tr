@@ -1,6 +1,6 @@
-/// <reference types="vite/client" />
-declare const GITHUB_RUNTIME_PERMANENT_NAME: string
-declare const BASE_KV_SERVICE_URL: string
+declare module '@github/spark/hooks' {
+  export function useKV<T>(key: string, initialValue: T): [T, (value: T | ((currentValue: T) => T)) => void, () => void]
+}
 
 declare global {
   interface Window {
@@ -24,12 +24,6 @@ declare global {
   }
 
   const spark: Window['spark']
-  
-  namespace NodeJS {
-    interface Global {
-      spark: Window['spark']
-    }
-  }
 }
 
 export {}
