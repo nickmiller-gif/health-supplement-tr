@@ -1,16 +1,9 @@
-import { createRoot } from 'react-dom/client'
-import { ErrorBoundary } from "react-error-boundary";
-import "@github/spark/spark"
+import { createRoot } from "react-dom/client";
+import "./main.css";
 
-import App from './App.tsx'
-import { ErrorFallback } from './ErrorFallback.tsx'
-
-import "./main.css"
-import "./styles/theme.css"
-import "./index.css"
-
-createRoot(document.getElementById('root')!).render(
-  <ErrorBoundary FallbackComponent={ErrorFallback}>
-    <App />
-   </ErrorBoundary>
-)
+createRoot(document.getElementById("root")!).render(
+  <main className="app-shell">
+    <h1>Health Supplement TR</h1>
+    <p>Core UI is currently disabled in this workspace snapshot.</p>
+  </main>,
+);
