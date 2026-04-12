@@ -52,7 +52,8 @@ function rowToDocument(table, row) {
     `${table} record`;
 
   const sourceRef = stableSourceRef(table, row);
-  const policyTags = ["health-supplement-tr", "trend-intelligence"];
+  // eigen_public keeps visitor-safe trend snapshots in the public retrieval corpus (see eigen-policy normalization).
+  const policyTags = ["eigen_public", "health-supplement-tr", "trend-intelligence"];
 
   if (table === "supplements") policyTags.push("supplement-trend");
   if (table === "supplement_combinations") policyTags.push("supplement-stack");
