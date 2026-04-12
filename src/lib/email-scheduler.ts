@@ -125,7 +125,7 @@ export function generateEmailReport(
     .sort((a, b) => b.popularityScore - a.popularityScore)
     .slice(0, 5)
   
-  let emailBody = `
+  const emailBody = `
 TrendPulse - Supplement Trends Report
 Generated: ${date}
 
