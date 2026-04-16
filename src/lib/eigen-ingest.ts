@@ -15,6 +15,20 @@ interface HealthSupplementIngestSnapshot {
   sourcesQueried: string[];
 }
 
+function normalizePolicyTags(tags: string[]): string[] {
+  const cleaned = tags.map((tag) => tag.trim().toLowerCase()).filter(Boolean);
+  const set = new Set(cleaned);
+  const hasPublic = set.has("eigen_public");
+  const hasEigenx = set.has("eigenx");
+  if (hasPublic && hasEigenx) {
+    throw new Error("policy_tags cannot include both eigen_public and eigenx");
+  }
+  if (!hasPublic && !hasEigenx) {
+    set.add("eigenx");
+  }
+  return Array.from(set);
+}
+
 export async function ingestHealthSupplementSnapshot(
   config: HealthSupplementIngestConfig,
   snapshot: HealthSupplementIngestSnapshot,
@@ -42,6 +56,7 @@ export async function ingestHealthSupplementSnapshot(
       ? `${rawBody.slice(0, MAX_INGEST_BODY_CHARS)}\n\n[truncated_for_ingest=true]`
       : rawBody;
 
+  const policyTags = normalizePolicyTags(["health-supplement-tr", "trend-refresh"]);
   const payload = {
     source_system: "health-supplement-tr",
     source_ref: `daily-update:${new Date().toISOString()}`,
@@ -60,7 +75,7 @@ export async function ingestHealthSupplementSnapshot(
       },
     },
     chunking_mode: "hierarchical",
-    policy_tags: ["health-supplement-tr", "trend-refresh"],
+    policy_tags: policyTags,
     entity_ids: [],
   };
 
