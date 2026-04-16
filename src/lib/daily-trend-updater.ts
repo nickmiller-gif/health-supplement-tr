@@ -1,6 +1,7 @@
 import { BackendService } from './backend-service'
 import { SupplementService } from './supplement-service'
 import { discoverSupplementTrends, discoverSupplementCombinations } from './trend-discovery'
+import { ingestHealthSupplementSnapshot } from './eigen-ingest'
 import { Supplement, SupplementCombination } from './types'
 
 export interface UpdateProgress {
@@ -83,6 +84,28 @@ export async function runDailyTrendUpdate(
     })
 
     await SupplementService.upsertCombinations(combinations)
+
+    if (apiKeys.r2EigenIngestToken) {
+      const sourcesQueried = [
+        apiKeys.exaApiKey ? 'exa' : null,
+        apiKeys.redditClientId && apiKeys.redditClientSecret ? 'reddit' : null,
+        apiKeys.rapidApiKey ? 'rapidapi' : null,
+      ].filter((value): value is string => Boolean(value))
+
+      await ingestHealthSupplementSnapshot(
+        {
+          bearerToken: apiKeys.r2EigenIngestToken,
+          endpoint: apiKeys.r2EigenIngestEndpoint,
+        },
+        {
+          supplements,
+          combinations,
+          sourcesQueried,
+        },
+      ).catch((error) => {
+        console.warn('Non-blocking Eigen ingest failed:', error)
+      })
+    }
 
     onProgress?.({ 
       phase: 'complete', 

@@ -9,6 +9,8 @@ export class BackendService {
     rapidApiKey?: string
     openaiApiKey?: string
     anthropicApiKey?: string
+    r2EigenIngestToken?: string
+    r2EigenIngestEndpoint?: string
   }> {
     try {
       const apiKeys = await spark.kv.get<{
@@ -18,6 +20,8 @@ export class BackendService {
         rapidApiKey?: string
         openaiApiKey?: string
         anthropicApiKey?: string
+        r2EigenIngestToken?: string
+        r2EigenIngestEndpoint?: string
       }>('api-keys')
       return apiKeys || {}
     } catch (error) {
