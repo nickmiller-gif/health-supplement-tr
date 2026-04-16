@@ -42,7 +42,7 @@ function stableSourceRef(table, row) {
   return `${table}:${digest}`;
 }
 
-function rowToDocument(table, row) {
+function rowToDocument(table, row, ingestRun) {
   const title =
     row.name ??
     row.title ??
@@ -83,6 +83,11 @@ function rowToDocument(table, row) {
         row_id: row.id ?? null,
         updated_at: row.updated_at ?? null,
         ingest_body_truncated: rawBody.length > MAX_INGEST_BODY_CHARS,
+        ingest_run: ingestRun,
+        evidence_tier: "domain_export",
+        sources_queried: ["health-supplement-tr"],
+        adversarial_pass: false,
+        registry_verified_ratio: null,
       },
     },
     chunking_mode: "hierarchical",
@@ -126,7 +131,7 @@ async function ingest(payload) {
   throw new Error(`Ingest failed for ${payload.source_ref}: ${lastError}`);
 }
 
-async function exportTable(table) {
+async function exportTable(table, ingestRun) {
   const { data, error } = await supabase
     .from(table)
     .select("*")
@@ -140,7 +145,7 @@ async function exportTable(table) {
   const rows = Array.isArray(data) ? data : [];
   let ok = 0;
   for (const row of rows) {
-    const payload = rowToDocument(table, row);
+    const payload = rowToDocument(table, row, ingestRun);
     await ingest(payload);
     ok += 1;
   }
@@ -149,11 +154,17 @@ async function exportTable(table) {
 
 async function main() {
   const tables = ["supplements", "supplement_combinations", "emerging_signals"];
+  const ingestRun = {
+    id: crypto.randomUUID(),
+    source_system: "health-supplement-tr",
+    started_at: new Date().toISOString(),
+    trigger: "scheduled_export",
+  };
   const summary = [];
   for (const table of tables) {
-    summary.push(await exportTable(table));
+    summary.push(await exportTable(table, ingestRun));
   }
-  console.log("Health supplement export complete", summary);
+  console.log("Health supplement export complete", { ingestRun, summary });
 }
 
 main().catch((error) => {
