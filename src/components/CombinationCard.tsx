@@ -26,33 +26,39 @@ export function CombinationCard({ combination, supplements, onViewInsight }: Com
   const getTrendColor = () => {
     switch (combination.trendDirection) {
       case 'rising':
-        return 'text-[oklch(0.70_0.15_145)]'
+        return 'text-trend-rising'
       case 'declining':
-        return 'text-[oklch(0.65_0.14_25)]'
+        return 'text-trend-declining'
       case 'stable':
-        return 'text-[oklch(0.70_0.12_75)]'
+        return 'text-trend-stable'
     }
   }
 
   const getTrendBgColor = () => {
     switch (combination.trendDirection) {
       case 'rising':
-        return 'bg-[oklch(0.70_0.15_145)]/10'
+        return 'bg-trend-rising-bg'
       case 'declining':
-        return 'bg-[oklch(0.65_0.14_25)]/10'
+        return 'bg-trend-declining-bg'
       case 'stable':
-        return 'bg-[oklch(0.70_0.12_75)]/10'
+        return 'bg-trend-stable-bg'
     }
   }
 
   const getSparklineColor = () => {
+    // d3-rendered SVG — can't use Tailwind utilities. Resolve the CSS custom
+    // property at call time; trend tokens live at :root (src/index.css).
+    const cssVar = (name: string) =>
+      typeof document !== 'undefined'
+        ? getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+        : ''
     switch (combination.trendDirection) {
       case 'rising':
-        return 'oklch(0.70 0.15 145)'
+        return cssVar('--trend-rising') || 'oklch(0.65 0.18 145)'
       case 'declining':
-        return 'oklch(0.65 0.14 25)'
+        return cssVar('--trend-declining') || 'oklch(0.60 0.18 30)'
       case 'stable':
-        return 'oklch(0.70 0.12 75)'
+        return cssVar('--trend-stable') || 'oklch(0.68 0.14 85)'
     }
   }
 

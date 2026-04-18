@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useId } from 'react'
 import * as d3 from 'd3'
 
 interface TrendSparklineProps {
@@ -8,13 +8,18 @@ interface TrendSparklineProps {
   color?: string
 }
 
-export function TrendSparkline({ 
-  data, 
-  width = 120, 
-  height = 40, 
-  color = 'oklch(0.65 0.15 195)' 
+export function TrendSparkline({
+  data,
+  width = 120,
+  height = 40,
+  color = 'oklch(0.65 0.15 195)'
 }: TrendSparklineProps) {
   const svgRef = useRef<SVGSVGElement>(null)
+  // Stable, collision-free gradient ID. Using Math.random() here produced a new
+  // ID on every access, so the <linearGradient> id and the fill url(#...) never
+  // matched and the area fill was silently broken.
+  const reactId = useId()
+  const gradientId = `trend-sparkline-gradient-${reactId.replace(/:/g, '')}`
 
   useEffect(() => {
     if (!svgRef.current || data.length === 0) return
@@ -44,7 +49,7 @@ export function TrendSparkline({
 
     const gradient = svg.append('defs')
       .append('linearGradient')
-      .attr('id', `gradient-${Math.random()}`)
+      .attr('id', gradientId)
       .attr('x1', '0%')
       .attr('x2', '0%')
       .attr('y1', '0%')
@@ -68,7 +73,7 @@ export function TrendSparkline({
 
     g.append('path')
       .datum(data)
-      .attr('fill', `url(#gradient-${Math.random()})`)
+      .attr('fill', `url(#${gradientId})`)
       .attr('d', area)
 
     g.append('path')
@@ -77,7 +82,7 @@ export function TrendSparkline({
       .attr('stroke', color)
       .attr('stroke-width', 2)
       .attr('d', line)
-  }, [data, width, height, color])
+  }, [data, width, height, color, gradientId])
 
   return <svg ref={svgRef} width={width} height={height} />
 }

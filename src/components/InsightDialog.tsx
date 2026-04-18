@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import ReactMarkdown from 'react-markdown'
 import { Supplement } from '@/lib/types'
 import {
   Dialog,
@@ -89,10 +90,8 @@ Keep the tone authoritative but accessible. Focus on factual information and cur
               <Skeleton className="h-4 w-2/3" />
             </div>
           ) : (
-            <div className="prose prose-sm max-w-none">
-              <div className="text-foreground whitespace-pre-wrap leading-relaxed">
-                {insight}
-              </div>
+            <div className="prose prose-sm max-w-none leading-relaxed prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground prose-code:text-foreground">
+              <ReactMarkdown>{insight}</ReactMarkdown>
             </div>
           )}
         </div>

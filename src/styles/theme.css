@@ -260,3 +260,8 @@
     --color-bg-overlay: var(--color-neutral-3);
   }
 }
+
+/* Semantic trend tokens live in src/index.css (--trend-rising / --trend-stable
+ * / --trend-declining at :root, with Tailwind v4 @theme aliases generating
+ * `text-trend-rising`, `bg-trend-rising-bg`, etc. utility classes).
+ * Use those Tailwind classes instead of hardcoded oklch values. */
