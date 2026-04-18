@@ -68,20 +68,13 @@ export function SupplementCard({
   }
 
   const getSparklineColor = () => {
-    // Sparkline is a d3-rendered SVG — Tailwind arbitrary values don't apply
-    // here, so resolve the CSS custom property at call time. Trend tokens live
-    // at :root (see src/index.css), so documentElement is the correct scope.
-    const cssVar = (name: string) =>
-      typeof document !== 'undefined'
-        ? getComputedStyle(document.documentElement).getPropertyValue(name).trim()
-        : ''
     switch (supplement.trendDirection) {
       case 'rising':
-        return cssVar('--trend-rising') || 'oklch(0.65 0.18 145)'
+        return 'var(--trend-rising, oklch(0.65 0.18 145))'
       case 'declining':
-        return cssVar('--trend-declining') || 'oklch(0.60 0.18 30)'
+        return 'var(--trend-declining, oklch(0.60 0.18 30))'
       case 'stable':
-        return cssVar('--trend-stable') || 'oklch(0.68 0.14 85)'
+        return 'var(--trend-stable, oklch(0.68 0.14 85))'
     }
   }
 

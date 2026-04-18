@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react'
-import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -9,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Supplement, SupplementCombination } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { BackendService } from '@/lib/backend-service'
+import { SafeMarkdown } from '@/components/SafeMarkdown'
 
 interface Message {
   id: string
@@ -171,7 +171,7 @@ export function Chatbot({ supplements, combinations, onSupplementSelect }: Chatb
                       >
                         {message.role === 'assistant' ? (
                           <div className="prose prose-sm max-w-none text-sm prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-pre:my-2 prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground prose-code:text-foreground">
-                            <ReactMarkdown>{message.content}</ReactMarkdown>
+                            <SafeMarkdown content={message.content} />
                           </div>
                         ) : (
                           <p className="text-sm whitespace-pre-wrap">{message.content}</p>

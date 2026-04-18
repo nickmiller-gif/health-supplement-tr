@@ -46,19 +46,13 @@ export function CombinationCard({ combination, supplements, onViewInsight }: Com
   }
 
   const getSparklineColor = () => {
-    // d3-rendered SVG — can't use Tailwind utilities. Resolve the CSS custom
-    // property at call time; trend tokens live at :root (src/index.css).
-    const cssVar = (name: string) =>
-      typeof document !== 'undefined'
-        ? getComputedStyle(document.documentElement).getPropertyValue(name).trim()
-        : ''
     switch (combination.trendDirection) {
       case 'rising':
-        return cssVar('--trend-rising') || 'oklch(0.65 0.18 145)'
+        return 'var(--trend-rising, oklch(0.65 0.18 145))'
       case 'declining':
-        return cssVar('--trend-declining') || 'oklch(0.60 0.18 30)'
+        return 'var(--trend-declining, oklch(0.60 0.18 30))'
       case 'stable':
-        return cssVar('--trend-stable') || 'oklch(0.68 0.14 85)'
+        return 'var(--trend-stable, oklch(0.68 0.14 85))'
     }
   }
 

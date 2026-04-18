@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import ReactMarkdown from 'react-markdown'
 import { SupplementCombination, Supplement } from '@/lib/types'
 import {
   Dialog,
@@ -10,6 +9,7 @@ import {
 } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
+import { SafeMarkdown } from '@/components/SafeMarkdown'
 import { Sparkle } from '@phosphor-icons/react'
 
 interface CombinationInsightDialogProps {
@@ -140,7 +140,7 @@ Keep the tone authoritative but accessible. Focus on factual information, curren
               </div>
             ) : (
               <div className="prose prose-sm max-w-none leading-relaxed prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground prose-code:text-foreground">
-                <ReactMarkdown>{insight}</ReactMarkdown>
+                <SafeMarkdown content={insight} />
               </div>
             )}
           </div>
