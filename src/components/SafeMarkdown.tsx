@@ -31,10 +31,15 @@ function isSafeHref(href?: string) {
   if (!normalizedHref || normalizedHref.startsWith('//')) return false
   if (normalizedHref.startsWith('/') || normalizedHref.startsWith('#')) return true
 
-  const match = normalizedHref.match(/^([a-zA-Z][a-zA-Z\d+.-]*):/)
-  if (!match) return true
+  const hasExplicitScheme = /^[a-zA-Z][a-zA-Z\d+.-]*:/.test(normalizedHref)
+  if (!hasExplicitScheme) return true
 
-  return SAFE_SCHEMES.has(match[1].toLowerCase())
+  try {
+    const scheme = new URL(normalizedHref).protocol.replace(':', '').toLowerCase()
+    return SAFE_SCHEMES.has(scheme)
+  } catch {
+    return false
+  }
 }
 
 export function SafeMarkdown({ content }: SafeMarkdownProps) {
@@ -43,11 +48,12 @@ export function SafeMarkdown({ content }: SafeMarkdownProps) {
       allowedElements={ALLOWED_ELEMENTS}
       components={{
         a: ({ href, children }) => {
-          if (!isSafeHref(href)) return <span>{children}</span>
-          const isExternal = /^https?:\/\//i.test(href)
+          const safeHref = href?.trim()
+          if (!safeHref || !isSafeHref(safeHref)) return <span>{children}</span>
+          const isExternal = /^https?:\/\//i.test(safeHref)
           return (
             <a
-              href={href}
+              href={safeHref}
               target={isExternal ? '_blank' : undefined}
               rel={isExternal ? 'noopener noreferrer nofollow' : undefined}
             >

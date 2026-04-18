@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Supplement } from '@/lib/types'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -67,16 +68,28 @@ export function SupplementCard({
     }
   }
 
-  const getSparklineColor = () => {
-    switch (supplement.trendDirection) {
-      case 'rising':
-        return 'var(--trend-rising, oklch(0.65 0.18 145))'
-      case 'declining':
-        return 'var(--trend-declining, oklch(0.60 0.18 30))'
-      case 'stable':
-        return 'var(--trend-stable, oklch(0.68 0.14 85))'
-    }
-  }
+  const sparklineColor = useMemo(() => {
+    const fallbackColors = {
+      rising: 'oklch(0.65 0.18 145)',
+      declining: 'oklch(0.60 0.18 30)',
+      stable: 'oklch(0.68 0.14 85)',
+    } as const
+
+    const cssVars = {
+      rising: '--trend-rising',
+      declining: '--trend-declining',
+      stable: '--trend-stable',
+    } as const
+
+    const fallback = fallbackColors[supplement.trendDirection]
+    if (typeof document === 'undefined') return fallback
+
+    return (
+      getComputedStyle(document.documentElement)
+        .getPropertyValue(cssVars[supplement.trendDirection])
+        .trim() || fallback
+    )
+  }, [supplement.trendDirection])
 
   return (
     <motion.div
@@ -157,7 +170,7 @@ export function SupplementCard({
           <div className="mt-4 flex justify-center">
             <TrendSparkline 
               data={supplement.trendData} 
-              color={getSparklineColor()}
+              color={sparklineColor}
             />
           </div>
 

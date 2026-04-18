@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { SupplementCombination, Supplement } from '@/lib/types'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -45,16 +46,28 @@ export function CombinationCard({ combination, supplements, onViewInsight }: Com
     }
   }
 
-  const getSparklineColor = () => {
-    switch (combination.trendDirection) {
-      case 'rising':
-        return 'var(--trend-rising, oklch(0.65 0.18 145))'
-      case 'declining':
-        return 'var(--trend-declining, oklch(0.60 0.18 30))'
-      case 'stable':
-        return 'var(--trend-stable, oklch(0.68 0.14 85))'
-    }
-  }
+  const sparklineColor = useMemo(() => {
+    const fallbackColors = {
+      rising: 'oklch(0.65 0.18 145)',
+      declining: 'oklch(0.60 0.18 30)',
+      stable: 'oklch(0.68 0.14 85)',
+    } as const
+
+    const cssVars = {
+      rising: '--trend-rising',
+      declining: '--trend-declining',
+      stable: '--trend-stable',
+    } as const
+
+    const fallback = fallbackColors[combination.trendDirection]
+    if (typeof document === 'undefined') return fallback
+
+    return (
+      getComputedStyle(document.documentElement)
+        .getPropertyValue(cssVars[combination.trendDirection])
+        .trim() || fallback
+    )
+  }, [combination.trendDirection])
 
   const combinationSupplements = supplements.filter(s => 
     combination.supplementIds.includes(s.id)
@@ -152,7 +165,7 @@ export function CombinationCard({ combination, supplements, onViewInsight }: Com
         <div className="flex-1">
           <TrendSparkline 
             data={combination.trendData} 
-            color={getSparklineColor()}
+            color={sparklineColor}
             width={160}
           />
         </div>
