@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { SupplementCombination, Supplement } from '@/lib/types'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -26,35 +27,47 @@ export function CombinationCard({ combination, supplements, onViewInsight }: Com
   const getTrendColor = () => {
     switch (combination.trendDirection) {
       case 'rising':
-        return 'text-[oklch(0.70_0.15_145)]'
+        return 'text-trend-rising'
       case 'declining':
-        return 'text-[oklch(0.65_0.14_25)]'
+        return 'text-trend-declining'
       case 'stable':
-        return 'text-[oklch(0.70_0.12_75)]'
+        return 'text-trend-stable'
     }
   }
 
   const getTrendBgColor = () => {
     switch (combination.trendDirection) {
       case 'rising':
-        return 'bg-[oklch(0.70_0.15_145)]/10'
+        return 'bg-trend-rising-bg'
       case 'declining':
-        return 'bg-[oklch(0.65_0.14_25)]/10'
+        return 'bg-trend-declining-bg'
       case 'stable':
-        return 'bg-[oklch(0.70_0.12_75)]/10'
+        return 'bg-trend-stable-bg'
     }
   }
 
-  const getSparklineColor = () => {
-    switch (combination.trendDirection) {
-      case 'rising':
-        return 'oklch(0.70 0.15 145)'
-      case 'declining':
-        return 'oklch(0.65 0.14 25)'
-      case 'stable':
-        return 'oklch(0.70 0.12 75)'
-    }
-  }
+  const sparklineColor = useMemo(() => {
+    const fallbackColors = {
+      rising: 'oklch(0.65 0.18 145)',
+      declining: 'oklch(0.60 0.18 30)',
+      stable: 'oklch(0.68 0.14 85)',
+    } as const
+
+    const cssVars = {
+      rising: '--trend-rising',
+      declining: '--trend-declining',
+      stable: '--trend-stable',
+    } as const
+
+    const fallback = fallbackColors[combination.trendDirection]
+    if (typeof document === 'undefined') return fallback
+
+    return (
+      getComputedStyle(document.documentElement)
+        .getPropertyValue(cssVars[combination.trendDirection])
+        .trim() || fallback
+    )
+  }, [combination.trendDirection])
 
   const combinationSupplements = supplements.filter(s => 
     combination.supplementIds.includes(s.id)
@@ -152,7 +165,7 @@ export function CombinationCard({ combination, supplements, onViewInsight }: Com
         <div className="flex-1">
           <TrendSparkline 
             data={combination.trendData} 
-            color={getSparklineColor()}
+            color={sparklineColor}
             width={160}
           />
         </div>

@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
+import { SafeMarkdown } from '@/components/SafeMarkdown'
 import { Sparkle } from '@phosphor-icons/react'
 
 interface InsightDialogProps {
@@ -89,10 +90,8 @@ Keep the tone authoritative but accessible. Focus on factual information and cur
               <Skeleton className="h-4 w-2/3" />
             </div>
           ) : (
-            <div className="prose prose-sm max-w-none">
-              <div className="text-foreground whitespace-pre-wrap leading-relaxed">
-                {insight}
-              </div>
+            <div className="prose prose-sm max-w-none leading-relaxed prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground prose-code:text-foreground">
+              <SafeMarkdown content={insight} />
             </div>
           )}
         </div>

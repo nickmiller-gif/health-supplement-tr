@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Supplement, SupplementCombination } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { BackendService } from '@/lib/backend-service'
+import { SafeMarkdown } from '@/components/SafeMarkdown'
 
 interface Message {
   id: string
@@ -168,7 +169,13 @@ export function Chatbot({ supplements, combinations, onSupplementSelect }: Chatb
                             : 'bg-muted text-foreground rounded-bl-sm'
                         )}
                       >
-                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                        {message.role === 'assistant' ? (
+                          <div className="prose prose-sm max-w-none text-sm prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-pre:my-2 prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground prose-code:text-foreground">
+                            <SafeMarkdown content={message.content} />
+                          </div>
+                        ) : (
+                          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                        )}
                       </div>
                       {message.role === 'user' && (
                         <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
