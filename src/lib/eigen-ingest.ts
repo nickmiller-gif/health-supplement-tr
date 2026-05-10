@@ -38,7 +38,7 @@ export async function ingestHealthSupplementSnapshot(
   const endpoint = config.endpoint ?? DEFAULT_R2_EIGEN_ENDPOINT;
   const ingestRun = {
     id: crypto.randomUUID(),
-    source_system: "health-supplement-tr",
+    source_system: "health_supplement_tr",
     started_at: new Date().toISOString(),
     trigger: "client_update",
   };
@@ -58,7 +58,7 @@ export async function ingestHealthSupplementSnapshot(
 
   const policyTags = normalizePolicyTags(["health-supplement-tr", "trend-refresh"]);
   const payload = {
-    source_system: "health-supplement-tr",
+    source_system: "health_supplement_tr",
     source_ref: `daily-update:${new Date().toISOString()}`,
     document: {
       title: "Health Supplement trend refresh snapshot",

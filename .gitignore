@@ -37,3 +37,6 @@ pids
 .devcontainer/
 
 .spark-workbench-id
+
+# Backup files from sed -i operations
+*.bak

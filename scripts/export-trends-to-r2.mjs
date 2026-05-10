@@ -71,7 +71,7 @@ function rowToDocument(table, row, ingestRun) {
       : rawBody;
 
   return {
-    source_system: "health-supplement-tr",
+    source_system: "health_supplement_tr",
     source_ref: sourceRef,
     document: {
       title: String(title),
@@ -156,7 +156,7 @@ async function main() {
   const tables = ["supplements", "supplement_combinations", "emerging_signals"];
   const ingestRun = {
     id: crypto.randomUUID(),
-    source_system: "health-supplement-tr",
+    source_system: "health_supplement_tr",
     started_at: new Date().toISOString(),
     trigger: "scheduled_export",
   };

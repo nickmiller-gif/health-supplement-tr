@@ -1,0 +1,10 @@
+# TrendPulse — Health Supplement Intelligence
+# Public marketing surface; operator console behind auth.
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /internal/
+
+# Update once a vanity domain is wired (see SITE_REGISTRY.md).
+# Sitemap: https://<domain>/sitemap.xml
