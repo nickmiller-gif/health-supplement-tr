@@ -1,5 +1,8 @@
 name: Eigen export to R2
 
+env:
+  CI_NODE_VERSION: "24"
+
 on:
   workflow_dispatch:
   schedule:
@@ -18,11 +21,12 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: "22"
+          node-version: ${{ env.CI_NODE_VERSION }}
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        # GitHub Spark still publishes a Vite 6/7 peer range while this repo is locked on Vite 8.
+        run: npm ci --legacy-peer-deps
 
       - name: Export trends to R2 eigen-ingest
         env:
