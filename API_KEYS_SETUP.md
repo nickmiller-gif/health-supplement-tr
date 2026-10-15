@@ -32,7 +32,7 @@ This file contains a simple configuration object where you can paste your API ke
 **Add to config:**
 ```typescript
 export const API_KEYS = {
-  exa: '8805b859-b175-4097-9ceb-eb424e40ef0e',  // Paste your actual EXA API key here
+  exa: 'your-exa-api-key',  // Paste your actual EXA API key here
   // ... rest of config
 }
 ```
@@ -89,7 +89,7 @@ export const API_KEYS = {
 ```typescript
 export const API_KEYS = {
   // ... previous configs
-  rapidApi: 'your_rapidapi_key_here'  // Paste your key between the quotes
+  rapidApi: 'your-rapidapi-key'  // Paste your key between the quotes
 }
 ```
 
@@ -99,8 +99,8 @@ Here's what your `src/config/api-keys.ts` file should look like with all keys fi
 
 ```typescript
 export const API_KEYS = {
-  exa: '8805b859-b175-4097-9ceb-eb424e40ef0e',
-  rapidApi: 'fbd977f6d6msha78628ae99e0e78p18c74cjsne54b63bfded9'
+  exa: 'your-exa-api-key',
+  rapidApi: 'your-rapidapi-key'
 }
 ```
 
